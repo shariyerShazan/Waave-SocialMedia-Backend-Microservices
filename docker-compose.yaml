@@ -101,26 +101,26 @@ services:
 
   # ── Services ───────────────────────────────────
 
-  auth-service:
-    build: 
-      context: . 
-      dockerfile: apps/auth-service/Dockerfile
-    container_name: fb_auth
-    ports:
-      - "3001:3001"
-    environment:
-      - GRPC_PORT=3001
-      - DATABASE_URL=postgresql://postgres:postgres123@auth-postgres:5432/auth_db?schema=public
-      - REDIS_HOST=redis
-      - JWT_SECRET=supersecret
-      - KAFKA_BROKERS=kafka:9092
-    depends_on:
-      auth-postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+  # auth-service:
+  #   build: 
+  #     context: . 
+  #     dockerfile: apps/auth-service/Dockerfile
+  #   container_name: fb_auth
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     - GRPC_PORT=3001
+  #     - DATABASE_URL=postgresql://postgres:postgres123@auth-postgres:5432/auth_db?schema=public
+  #     - REDIS_HOST=redis
+  #     - JWT_SECRET=supersecret
+  #     - KAFKA_BROKERS=kafka:9092
+  #   depends_on:
+  #     auth-postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     kafka:
+  #       condition: service_healthy
 
 volumes:
   auth-postgres:
