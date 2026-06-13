@@ -7,6 +7,8 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { GrpcExceptionFilter } from '@app/common';
 
+const grpcPort = Number(process.env.AUTH_GRPC_PORT) || 3001;
+
 async function bootstrap() {
   const logger = new Logger('AuthService');
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -19,7 +21,7 @@ async function bootstrap() {
           process.cwd(),
           'libs/proto-schema/src/proto/auth.proto',
         ),
-        url: `0.0.0.0:${process.env.AUTH_GRPC_PORT || 3001}`,
+        url: `0.0.0.0:${grpcPort}`,
         loader: {
           keepCase: true,
           longs: String,

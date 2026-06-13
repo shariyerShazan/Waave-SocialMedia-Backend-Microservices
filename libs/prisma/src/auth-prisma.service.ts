@@ -12,7 +12,7 @@ export class AuthPrismaService
   [x: string]: any;
   constructor() {
     const adapter = new PrismaPg({
-      connectionString: process.env.AUTH_DB_URL!,
+      connectionString: process.env.AUTH_DB_PRIMARY_URL!,
     });
     super({ adapter });
   }

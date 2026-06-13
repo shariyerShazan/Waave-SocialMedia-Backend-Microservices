@@ -8,6 +8,6 @@ export default defineConfig({
     path: path.resolve(__dirname, './migrations'),
   },
   datasource: {
-    url: process.env.AUTH_DB_URL,
+    url: process.env.AUTH_DB_PRIMARY_URL,
   },
 });

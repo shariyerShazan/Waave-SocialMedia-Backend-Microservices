@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -61,11 +62,8 @@ export class AuthService {
     const accessToken = this.tokens.generateAccessToken(payload);
     const refreshToken = this.tokens.generateRefreshToken(payload);
 
-    await this.redis.saveRefreshToken(
-      user.id,
-      refreshToken,
-      Number(process.env.JWT_REFRESH_EXPIRES!),
-    );
+    const refreshTtl = this.tokens.getTokenTTL(refreshToken);
+    await this.redis.saveRefreshToken(user.id, refreshToken, refreshTtl);
 
     const refreshTokenHash = await bcrypt.hash(
       refreshToken,
@@ -137,11 +135,9 @@ export class AuthService {
     const accessToken = this.tokens.generateAccessToken(payload);
     const refreshToken = this.tokens.generateRefreshToken(payload);
 
-    await this.redis.saveRefreshToken(
-      user.id,
-      refreshToken,
-      Number(process.env.JWT_REFRESH_EXPIRES!),
-    );
+    const refreshTtl = this.tokens.getTokenTTL(refreshToken);
+    await this.redis.saveRefreshToken(user.id, refreshToken, refreshTtl);
+
     const refreshTokenHash = await bcrypt.hash(
       refreshToken,
       Number(process.env.HASH_SOLT!),
@@ -185,7 +181,7 @@ export class AuthService {
       if (payload?.userId) {
         await this.redis.deleteRefreshToken(payload.userId);
         await this.prisma.user.update({
-          where: { email: payload.userId },
+          where: { id: payload.userId },
           data: { refreshToken: null },
         });
       }
@@ -250,11 +246,9 @@ export class AuthService {
     const newAccessToken = this.tokens.generateAccessToken(newPayload);
     const newRefreshToken = this.tokens.generateRefreshToken(newPayload);
 
-    await this.redis.saveRefreshToken(
-      user.id,
-      newRefreshToken,
-      Number(process.env.JWT_REFRESH_EXPIRES!),
-    );
+    const refreshTtl = this.tokens.getTokenTTL(refreshToken);
+    await this.redis.saveRefreshToken(user.id, refreshToken, refreshTtl);
+
     return {
       success: true,
       accessToken: newAccessToken,

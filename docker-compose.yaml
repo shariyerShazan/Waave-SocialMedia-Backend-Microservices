@@ -3,39 +3,16 @@
 services:
   # ── Databases ──────────────────────────────────
   auth-postgres-primary:
-    image: bitnami/postgresql:17
-    container_name: fb_postgres_primary
+    image: postgres:17
+    container_name: fb_postgres
     ports:
       - "5432:5432"
     environment:
-      - POSTGRESQL_POSTGRES_PASSWORD=postgres123
-
-      - POSTGRESQL_REPLICATION_MODE=master
-      - POSTGRESQL_REPLICATION_USER=repl_user
-      - POSTGRESQL_REPLICATION_PASSWORD=repl_pass
-
-      - POSTGRESQL_DATABASE=auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: auth_db
     volumes:
-      - auth_postgres_primary_data:/bitnami/postgresql
-
-  auth-postgres-replica:
-    image: bitnami/postgresql:17
-    container_name: fb_postgres_replica
-    ports:
-      - "5433:5432"
-    depends_on:
-      - auth-postgres-primary
-    environment:
-      - POSTGRESQL_POSTGRES_PASSWORD=postgres123
-
-      - POSTGRESQL_REPLICATION_MODE=slave
-      - POSTGRESQL_REPLICATION_USER=repl_user
-      - POSTGRESQL_REPLICATION_PASSWORD=repl_pass
-
-      - POSTGRESQL_MASTER_HOST=auth-postgres-primary
-      - POSTGRESQL_MASTER_PORT_NUMBER=5432
-    volumes:
-      - auth_postgres_replica_data:/bitnami/postgresql
+      - auth-postgres-primary_data:/var/lib/postgresql/data
 
   mongodb:
     image: mongo:7
@@ -119,36 +96,32 @@ services:
 
   # ── Services ───────────────────────────────────
 
-  auth-service:
-    build:
-      context: .
-      dockerfile: apps/auth-service/Dockerfile
-    container_name: fb_auth
-    ports:
-      - "3001:3001"
-    environment:
-      - GRPC_PORT=3001
+  # auth-service:
+  #   build:
+  #     context: .
+  #     dockerfile: apps/auth-service/Dockerfile
+  #   container_name: fb_auth
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     - GRPC_PORT=3001
 
-      # Write operations
-      - AUTH_DB_PRIMARY_UR=postgresql://postgres:postgres123@auth-postgres-primary:5432/auth_db
-      - AUTH_DB_REPLICA_UR=postgresql://postgres:postgres123@auth-postgres-replica:5432/auth_db
-      - REDIS_HOST=redis
-      - JWT_ACCESS_SECRET=supersecret
-      - KAFKA_BROKERS=kafka:9092
+  #     # Write operations
+  #     - AUTH_DB_PRIMARY_UR=postgresql://postgres:postgres123@auth-postgres-primary:5432/auth_db
+  #     - REDIS_HOST=redis
+  #     - JWT_ACCESS_SECRET=supersecret
+  #     - KAFKA_BROKERS=kafka:9092
 
-    depends_on:
-      auth-postgres-primary:
-        condition: service_started
-      auth-postgres-replica:
-        condition: service_started
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+  #   depends_on:
+  #     auth-postgres-primary:
+  #       condition: service_started
+  #     redis:
+  #       condition: service_healthy
+  #     kafka:
+  #       condition: service_healthy
 
 volumes:
-  auth_postgres_primary_data:
-  auth_postgres_replica_data:
+  auth-postgres-primary_data:
   mongo_data:
   redis_data:
   kafka_data:
