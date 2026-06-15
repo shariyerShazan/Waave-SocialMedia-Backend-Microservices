@@ -6,11 +6,11 @@ package auth;
 // ── Service Definition ────────────────────────────
 service AuthService {
   rpc Register    (RegisterRequest)      returns (BasicResponse);
-  rpc VerifyRegistration (VerifyRegistrationRequest)    returns (OtpVerificationResponse);
+  rpc VerifyRegistration (VerifyRegistrationRequest)    returns (BasicResponse);
   rpc ForgotPasswordRequest (ForgotPassRequest) returns (BasicResponse);
-  rpc ResetPassword (ResetPasswordRequest)    returns (OtpVerificationResponse);
+  rpc ResetPassword (ResetPasswordRequest)    returns (BasicResponse);
   rpc Login       (LoginRequest)         returns (AuthResponse);
-  rpc Logout      (LogoutRequest)        returns (LogoutResponse);
+  rpc Logout      (LogoutRequest)        returns (BasicResponse);
   rpc VerifyToken (VerifyTokenRequest)   returns (VerifyTokenResponse);
   rpc RefreshToken (RefreshTokenRequest)  returns (AuthResponse);
   rpc ChangePassword (ChangePassRequest)  returns (BasicResponse);
@@ -36,10 +36,7 @@ message ResetPasswordRequest {
   string newPassword = 3;
 }
 
-message OtpVerificationResponse {
-  bool success  = 1;
-  string message = 2;
-}
+
 
 message ForgotPassRequest {
   string email  =1;
@@ -51,8 +48,9 @@ message BasicResponse {
 }
 
 message ChangePassRequest {
-  string oldPassword = 1;
-  string newPassword  = 2;
+  string userId = 1;
+  string oldPassword = 2;
+  string newPassword  = 3;
 }
 
 // ── Login ─────────────────────────────────────────
@@ -63,12 +61,7 @@ message LoginRequest {
 
 // ── Logout ────────────────────────────────────────
 message LogoutRequest {
-  string accessToken = 1;
-}
-
-message LogoutResponse {
-  bool   success = 1;
-  string message = 2;
+  string userId = 1;
 }
 
 // ── Verify Token ──────────────────────────────────

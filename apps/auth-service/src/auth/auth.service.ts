@@ -5,7 +5,14 @@ import { RedisService } from '../redis/redis.service';
 import { KAFKA_TOPICS, KafkaService } from '@app/kafka';
 import { RpcException } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
-import { LoginDto, RegisterDto } from '@app/common';
+import {
+  // ChangePasswordDto,
+  ForgotPassDto,
+  LoginDto,
+  RegisterDto,
+  VerifyRegistrationDto,
+} from '@app/common';
+import { ResetPasswordDto } from '@app/common/dto/auth/reset-password-dto';
 export interface UserRegisteredEvent {
   userId: string;
   email: string;
@@ -60,7 +67,10 @@ export class AuthService {
       });
     }
 
-    const otp = await this.redis.createOtp(dto.email);
+    const otp = await this.redis.createOtp(
+      dto.email,
+      KAFKA_TOPICS.USER_REGISTERED,
+    );
 
     await this.kafka.emit(KAFKA_TOPICS.USER_REGISTERED, {
       email: dto.email,
@@ -70,12 +80,18 @@ export class AuthService {
 
     return {
       success: true,
-      message: 'OTP sent successfully',
+      message: 'Registraed. Verify Your otp!',
     };
   }
 
-  async verifyRegistration(email: string, otp: string) {
-    const valid = await this.redis.verifyOtp(email, otp);
+  async verifyRegistration(dto: VerifyRegistrationDto) {
+    const email = dto.email,
+      otp = dto.otp;
+    const valid = await this.redis.verifyOtp(
+      email,
+      KAFKA_TOPICS.USER_REGISTERED,
+      otp,
+    );
 
     if (!valid) {
       throw new RpcException({
@@ -91,11 +107,133 @@ export class AuthService {
       },
     });
 
-    await this.redis.deleteOtp(email);
+    await this.redis.deleteOtp(email, KAFKA_TOPICS.USER_REGISTERED);
 
     return {
       success: true,
       message: 'Email verified successfully',
+    };
+  }
+
+  async forgotPassword(dto: ForgotPassDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (!user) {
+      throw new RpcException({
+        code: 16,
+        message: 'User not available with this email!',
+      });
+    }
+    if (!user.isEmailVerified) {
+      throw new RpcException({
+        code: 16,
+        message: 'User not Email Verified',
+      });
+    }
+    const otp = await this.redis.createOtp(
+      dto.email,
+      KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST,
+    );
+
+    await this.kafka.emit(KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST, {
+      email: dto.email,
+      name: user.name,
+      otp,
+    });
+
+    return {
+      success: true,
+      message: 'Forgot Password Otp send to you mail!',
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const email = dto.email,
+      otp = dto.otp;
+
+    const valid = await this.redis.verifyOtp(
+      email,
+      KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST,
+      otp,
+    );
+
+    if (!valid) {
+      throw new RpcException({
+        code: 16,
+        message: 'Invalid OTP',
+      });
+    }
+
+    const hashPass = await bcrypt.hash(
+      dto.newPassword,
+      Number(process.env.HASH_SOLT!),
+    );
+
+    await this.prisma.user.update({
+      where: { email },
+      data: {
+        password: hashPass,
+        refreshToken: null,
+      },
+    });
+
+    await this.redis.deleteOtp(email, KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST);
+
+    return {
+      success: true,
+      message: 'Resent Password Successfully! Please login',
+    };
+  }
+
+  async changePassword(dto: {
+    userId: string;
+    oldPassword: string;
+    newPassword: string;
+  }) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: dto.userId },
+    });
+    if (!user) {
+      throw new RpcException({
+        code: 16,
+        message: 'User not available with this email!',
+      });
+    }
+    if (!user.isEmailVerified) {
+      throw new RpcException({
+        code: 16,
+        message: 'User not Email Verified',
+      });
+    }
+    if (user.refreshToken === null) {
+      throw new RpcException({
+        code: 16,
+        message: 'User not Authenticated!',
+      });
+    }
+    const isValidPass = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!isValidPass) {
+      throw new RpcException({
+        code: 16,
+        message: 'Old password is incorrect!',
+      });
+    }
+
+    const hashPass = await bcrypt.hash(
+      dto.newPassword,
+      Number(process.env.HASH_SOLT!),
+    );
+    await this.prisma.user.update({
+      where: { id: dto.userId },
+      data: {
+        password: hashPass,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Password change Successfully!',
     };
   }
 
@@ -178,22 +316,15 @@ export class AuthService {
     };
   }
 
-  async logout(accessToken: string) {
-    const ttl = this.tokens.getTokenTTL(accessToken);
-    if (ttl > 0) {
-      await this.redis.blacklistToken(accessToken, ttl);
-    }
+  async logout(userId: string) {
     try {
-      const payload = await this.tokens.verifyAccessToken(accessToken);
-      if (payload?.userId) {
-        await this.redis.deleteRefreshToken(payload.userId);
-        await this.prisma.user.update({
-          where: { id: payload.userId },
-          data: { refreshToken: null },
-        });
-      }
+      await this.redis.deleteRefreshToken(userId);
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { refreshToken: null },
+      });
     } catch (error) {
-      console.log(error);
+      console.error('Logout failed for user:', userId, error);
     }
     return { success: true, message: 'Logged out successfully' };
   }

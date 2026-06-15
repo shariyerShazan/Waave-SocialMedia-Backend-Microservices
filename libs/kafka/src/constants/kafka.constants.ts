@@ -9,7 +9,7 @@ export const KAFKA_TOPICS = {
   //AUTH EVENTS
   USER_REGISTERED: 'user.registered',
   USER_LOGIN: 'user.login',
-  USER_PASSWORD_RESET_REQUEST: 'user.password-reset-request',
+  USER_FORGOT_PASS_REQUEST: 'user.forgot-pass-request',
 
   //EVENT EVENTS
   EVENT_CREATED: 'event.created',

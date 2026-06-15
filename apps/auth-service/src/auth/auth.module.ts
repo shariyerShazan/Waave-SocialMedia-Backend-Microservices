@@ -10,10 +10,6 @@ import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
-    // ConfigModule.forRoot({
-    //   isGlobal: true,
-    //   load: [configuration],
-    // }),
     JwtModule.register({ global: true }),
     ConfigModule.forRoot({ isGlobal: true }),
     RedisModule,

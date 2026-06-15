@@ -12,7 +12,22 @@ export class NotificationConsumer {
     @Payload() data: { email: string; name: string; otp: string },
   ) {
     try {
-      await this.emailService.sendOtpEmail({
+      await this.emailService.sendRegistrationOtp({
+        email: data.email,
+        name: data.name,
+        otp: data.otp,
+      });
+    } catch (err) {
+      console.error('Failed to send OTP email', err);
+    }
+  }
+
+  @EventPattern(KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST)
+  async handleForgotPassword(
+    @Payload() data: { email: string; name: string; otp: string },
+  ) {
+    try {
+      await this.emailService.sendForgotPasswordOtp({
         email: data.email,
         name: data.name,
         otp: data.otp,

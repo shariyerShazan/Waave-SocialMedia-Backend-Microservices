@@ -63,29 +63,29 @@ export class RedisService implements OnModuleDestroy {
     await this.client.quit();
   }
 
-  async saveOtp(email: string, otp: string, ttl = 300) {
-    await this.client.set(`otp:${email}`, otp, 'EX', ttl);
+  async saveOtp(email: string, topic: string, otp: string, ttl = 300) {
+    await this.client.set(`otp-${topic}:${email}`, otp, 'EX', ttl);
   }
 
-  async createOtp(email: string, ttl = 300): Promise<string> {
+  async createOtp(email: string, topic: string, ttl = 300): Promise<string> {
     const otp = this.generateOtp();
 
-    await this.saveOtp(email, otp, ttl);
+    await this.saveOtp(email, topic, otp, ttl);
 
     return otp;
   }
 
-  async getOtp(email: string): Promise<string | null> {
-    return this.client.get(`otp:${email}`);
+  async getOtp(email: string, topic: string): Promise<string | null> {
+    return this.client.get(`otp-${topic}:${email}`);
   }
 
-  async verifyOtp(email: string, otp: string): Promise<boolean> {
-    const storedOtp = await this.getOtp(email);
+  async verifyOtp(email: string, topic: string, otp: string): Promise<boolean> {
+    const storedOtp = await this.getOtp(email, topic);
 
     return storedOtp === otp;
   }
 
-  async deleteOtp(email: string) {
-    await this.client.del(`otp:${email}`);
+  async deleteOtp(email: string, topic: string) {
+    await this.client.del(`otp-${topic}:${email}`);
   }
 }

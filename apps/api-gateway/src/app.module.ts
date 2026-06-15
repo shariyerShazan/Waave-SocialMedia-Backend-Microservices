@@ -8,7 +8,12 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     AuthModule,
-    JwtModule.register({ global: true }),
+    JwtModule.registerAsync({
+      global: true,
+      useFactory: () => ({
+        secret: process.env.JWT_ACCESS_SECRET,
+      }),
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
