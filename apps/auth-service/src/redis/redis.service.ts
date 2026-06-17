@@ -88,4 +88,25 @@ export class RedisService implements OnModuleDestroy {
   async deleteOtp(email: string, topic: string) {
     await this.client.del(`otp-${topic}:${email}`);
   }
+
+  async setCache(key: string, data: any, ttlsec = 3600) {
+    await this.client.set(`cache:${key}`, JSON.stringify(data), 'EX', ttlsec);
+  }
+
+  async getCache<T>(key: string): Promise<T | null> {
+    const data = await this.client.get(`cache:${key}`);
+    if (!data) return null;
+    return JSON.parse(data) as T;
+  }
+
+  async invalidateCache(key: string) {
+    await this.client.del(`cache:${key}`);
+  }
+
+  async invalidateMultipleCaches(keys: string[]) {
+    const prefixedKeys = keys.map((k) => `cache:${k}`);
+    if (prefixedKeys.length > 0) {
+      await this.client.del(...prefixedKeys);
+    }
+  }
 }

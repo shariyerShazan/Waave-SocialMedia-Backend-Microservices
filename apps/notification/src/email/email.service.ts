@@ -226,7 +226,7 @@ export class EmailService {
     await this.transporter.sendMail({
       from: `"My App" <${process.env.SMTP_USER}>`,
       to: data.email,
-      subject: 'Reset Your Password', // সাবজেক্ট পরিবর্তন করা হয়েছে
+      subject: 'Reset Your Password',
       html,
     });
   }

@@ -401,4 +401,118 @@ export class AuthService {
       },
     };
   }
+
+  // আপনার বিদ্যমান AuthService এর ভেতর নিচের মেffডগুলো যোগ করুন:
+
+  async getUserById(userId: string) {
+    const cacheKey = `user:id:${userId}`;
+
+    // ১. চেক করুন ক্যাশে ডাটা আছে কি না
+    const cachedUser = await this.redis.getCache<any>(cacheKey);
+    if (cachedUser) {
+      return {
+        success: true,
+        message: 'User fetched from cache',
+        user: cachedUser,
+      };
+    }
+
+    // ২. ক্যাশে না থাকলে ডাটাবেজ থেকে আনুন
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new RpcException({ code: 5, message: 'User not found' });
+    }
+
+    const userData = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt.toISOString(),
+    };
+
+    // ৩. ক্যাশে ১ ঘণ্টার জন্য সেভ করে রাখুন
+    await this.redis.setCache(cacheKey, userData, 3600);
+
+    return {
+      success: true,
+      message: 'User fetched successfully',
+      user: userData,
+    };
+  }
+
+  async getUserByEmail(email: string) {
+    const cacheKey = `user:email:${email}`;
+
+    // ১. ক্যাশ চেক
+    const cachedUser = await this.redis.getCache<any>(cacheKey);
+    if (cachedUser) {
+      return {
+        success: true,
+        message: 'User fetched from cache',
+        user: cachedUser,
+      };
+    }
+
+    // ২. ডাটাবেজ কোয়েরি
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new RpcException({ code: 5, message: 'User not found' });
+    }
+
+    const userData = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt.toISOString(),
+    };
+
+    // ৩. ক্যাশ রাইট
+    await this.redis.setCache(cacheKey, userData, 3600);
+
+    return {
+      success: true,
+      message: 'User fetched successfully',
+      user: userData,
+    };
+  }
+
+  async getAllUsers() {
+    const cacheKey = 'users:all';
+
+    const cachedUsers = await this.redis.getCache<any[]>(cacheKey);
+    if (cachedUsers) {
+      return {
+        success: true,
+        message: 'All users fetched from cache',
+        users: cachedUsers,
+      };
+    }
+    const users = await this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const usersData = users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt.toISOString(),
+    }));
+
+    await this.redis.setCache(cacheKey, usersData, 600);
+
+    return {
+      success: true,
+      message: 'All users fetched successfully',
+      users: usersData,
+    };
+  }
 }

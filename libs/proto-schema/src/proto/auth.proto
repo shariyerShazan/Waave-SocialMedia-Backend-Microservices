@@ -16,6 +16,7 @@ service AuthService {
   rpc ChangePassword (ChangePassRequest)  returns (BasicResponse);
   rpc GetUserById (GetUserByIdRequest)    returns (UserResponse);
   rpc GetUserByEmail (GetUserByEmailRequest) returns (UserResponse);
+  rpc GetAllUsers (GetAllUsersRequest)    returns (AllUsersResponse);
 }
 
 // ── Register ──────────────────────────────────────
@@ -106,6 +107,13 @@ message UserResponse {
   bool success = 1;
   string message = 2;
   UserData user = 3;
+}
+
+
+message AllUsersResponse {
+  bool success = 1;
+  string message = 2;
+  repeated UserData users = 3; 
 }
 
 message UserData {
