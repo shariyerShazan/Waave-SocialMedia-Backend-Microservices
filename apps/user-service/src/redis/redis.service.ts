@@ -36,7 +36,7 @@ export class UserRedisService implements OnModuleDestroy {
     await this.client.del(`user:profile:${userId}`);
   }
 
-  async cacheFollowerId(userId: string, ids: string[]) {
+  async cacheFollowerIds(userId: string, ids: string[]) {
     const key = `user:followers:${userId}`;
     if (ids.length === 0) {
       await this.client.del(key);
@@ -47,8 +47,8 @@ export class UserRedisService implements OnModuleDestroy {
     await this.client.expire(key, 1800);
   }
 
-  async getFollowesByID(userId: string) {
-    return this.client.get(`user:followers:${userId}`);
+  async getFollowerIds(userId: string): Promise<string[]> {
+    return this.client.smembers(`user:followers:${userId}`);
   }
   async addFollower(userId: string, followerId: string) {
     const key = `user:followers:${userId}`;
@@ -90,7 +90,7 @@ export class UserRedisService implements OnModuleDestroy {
   }
 
   // ----- online users --------------
-  async getOnlineUser(userIds: string[]): Promise<Set<string>> {
+  async getOnlineUsers(userIds: string[]): Promise<Set<string>> {
     if (!userIds.length) return new Set();
     const pipeline = this.client.pipeline();
     for (const id of userIds) {
