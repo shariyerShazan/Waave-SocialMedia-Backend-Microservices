@@ -1,35 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { UserPrismaService } from '@app/prisma';
-import { Injectable, Logger } from '@nestjs/common';
-import { UserRedisService } from '../redis/redis.service';
+// user/user.service.ts
 import { KAFKA_TOPICS, KafkaService } from '@app/kafka';
+import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { UpdateProfileDto } from '@app/common';
+import { UserRedisService } from '../redis/redis.service';
+import { UserPrismaService } from '@app/prisma';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
   constructor(
-    private readonly prisma: UserPrismaService,
+    private prisma: UserPrismaService,
     private redis: UserRedisService,
     private kafka: KafkaService,
   ) {}
 
+  // ── Get Profile ───────────────────────────────
   async getProfile(userId: string, requesterId: string) {
-    const cache = await this.redis.getCacheProfile(userId);
-    if (cache) {
+    // Cache check
+    const cached = await this.redis.getCachedProfile(userId);
+    if (cached) {
       const isFollowing =
         requesterId !== userId
           ? await this.checkIsFollowing(requesterId, userId)
           : false;
       const isOnline = await this.redis.isOnline(userId);
-      return this.buildResponse({
-        ...cache,
-        isFollowing,
-        isOnline,
-      });
+      return this.buildResponse({ ...cached, isFollowing, isOnline });
     }
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -40,11 +39,14 @@ export class UserService {
         message: 'User not found',
       });
     }
+
     const isFollowing =
-      requesterId !== userId
+      requesterId && requesterId !== userId
         ? await this.checkIsFollowing(requesterId, userId)
         : false;
+
     const isOnline = await this.redis.isOnline(userId);
+
     const profile = {
       id: user.id,
       name: user.name,
@@ -62,31 +64,48 @@ export class UserService {
       isOnline,
       createdAt: user.createdAt.toISOString(),
     };
+
     await this.redis.cacheProfile(userId, {
       ...profile,
       isFollowing: false,
     });
+
     return this.buildResponse(profile);
   }
 
-  async updateProfile(userId: string, dto: UpdateProfileDto) {
+  // ── Update Profile ────────────────────────────
+  async updateProfile(
+    userId: string,
+    data: {
+      name?: string;
+      bio?: string;
+      avatar?: string;
+      coverImg?: string;
+      location?: string;
+      website?: string;
+      birthDate?: string;
+    },
+  ) {
     const user = await this.prisma.user.update({
       where: { id: userId },
       data: {
-        ...(dto.name && { name: dto.name }),
-        ...(dto.bio && { bio: dto.bio }),
-        ...(dto.avatar && { avatar: dto.avatar }),
-        ...(dto.coverImg && { coverImg: dto.coverImg }),
-        ...(dto.location && { location: dto.location }),
-        ...(dto.website && { website: dto.website }),
-        ...(dto.birthDate && {
-          birthDate: new Date(dto.birthDate),
+        ...(data.name && { name: data.name }),
+        ...(data.bio && { bio: data.bio }),
+        ...(data.avatar && { avatar: data.avatar }),
+        ...(data.coverImg && { coverImg: data.coverImg }),
+        ...(data.location && { location: data.location }),
+        ...(data.website && { website: data.website }),
+        ...(data.birthDate && {
+          birthDate: new Date(data.birthDate),
         }),
       },
     });
+
+    // Cache invalidate
     await this.redis.invalidateProfile(userId);
 
-    await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_CREATED, {
+    // Kafka event
+    await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_UPDATED, {
       userId: user.id,
       name: user.name,
       avatar: user.avatar,
@@ -106,45 +125,47 @@ export class UserService {
     });
   }
 
+  // ── Follow ────────────────────────────────────
   async followUser(followerId: string, targetId: string) {
     if (followerId === targetId) {
       throw new RpcException({
         code: 3,
-        message: "Cann't follow yourself",
+        message: 'Cannot follow yourself',
       });
     }
-    const existFollow = await this.prisma.follow.findUnique({
-      where: { followerId_followingId: { followerId, followingId: targetId } },
+
+    // Already following?
+    const existing = await this.prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId: targetId,
+        },
+      },
     });
 
-    if (existFollow) {
+    if (existing) {
       throw new RpcException({
         code: 6,
         message: 'Already following',
       });
     }
+
     const [, target] = await this.prisma.$transaction([
       this.prisma.follow.create({
         data: { followerId, followingId: targetId },
       }),
       this.prisma.user.update({
-        where: { id: followerId },
-        data: {
-          followingCount: {
-            increment: 1,
-          },
-        },
+        where: { id: targetId },
+        data: { followersCount: { increment: 1 } },
       }),
       this.prisma.user.update({
-        where: { id: targetId },
-        data: {
-          followersCount: {
-            increment: 1,
-          },
-        },
+        where: { id: followerId },
+        data: { followingCount: { increment: 1 } },
       }),
     ]);
 
+    // Redis cache update
     await this.redis.addFollower(targetId, followerId);
     await this.redis.invalidateProfile(targetId);
     await this.redis.invalidateProfile(followerId);
@@ -170,6 +191,7 @@ export class UserService {
     };
   }
 
+  // ── Unfollow ──────────────────────────────────
   async unfollowUser(followerId: string, targetId: string) {
     const existing = await this.prisma.follow.findUnique({
       where: {
@@ -224,6 +246,7 @@ export class UserService {
     };
   }
 
+  // ── Get Followers ─────────────────────────────
   async getFollowers(userId: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
 
@@ -264,6 +287,7 @@ export class UserService {
     return { success: true, users, total, page };
   }
 
+  // ── Get Following ─────────────────────────────
   async getFollowing(userId: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
 
@@ -311,6 +335,7 @@ export class UserService {
     page: number,
     limit: number,
   ) {
+    // Cache check
     const cacheKey = `${query}:${page}`;
     const cached = await this.redis.getCachedSearch(cacheKey);
     if (cached) {
@@ -335,6 +360,7 @@ export class UserService {
     const userIds = users.map((u) => u.id);
     const onlineSet = await this.redis.getOnlineUsers(userIds);
 
+    // isFollowing batch check
     const followingSet = await this.getFollowingSet(requesterId, userIds);
 
     const result = users.map((u) => ({
@@ -360,6 +386,7 @@ export class UserService {
     return { success: true, users: result, total: result.length, page };
   }
 
+  // ── Friend Suggestions ────────────────────────
   async getSuggestions(userId: string, limit: number) {
     const myFollowingIds = await this.prisma.follow
       .findMany({
@@ -369,8 +396,10 @@ export class UserService {
       .then((r) => r.map((f) => f.followingId));
 
     if (!myFollowingIds.length) {
+      // Fallback: popular users
       return this.getPopularUsers(userId, limit);
     }
+
     const suggestions = await this.prisma.user.findMany({
       where: {
         AND: [
@@ -459,6 +488,7 @@ export class UserService {
     return { success: true, users: result, total: result.length, page: 1 };
   }
 
+  // ── Presence ──────────────────────────────────
   async setOnline(userId: string) {
     await this.redis.setOnline(userId);
     return { isOnline: true, lastSeen: Date.now() };
@@ -469,6 +499,13 @@ export class UserService {
     return { isOnline: false, lastSeen: Date.now() };
   }
 
+  async getOnlineStatus(userId: string) {
+    const isOnline = await this.redis.isOnline(userId);
+    const lastSeen = await this.redis.getLastSeen(userId);
+    return { isOnline, lastSeen };
+  }
+
+  // ── Private Helpers ───────────────────────────
   private async checkIsFollowing(
     followerId: string,
     targetId: string,
@@ -479,10 +516,6 @@ export class UserService {
       },
     });
     return !!follow;
-  }
-
-  private buildResponse(profile: any) {
-    return { success: true, message: 'Success', user: profile };
   }
 
   private async getFollowingSet(
@@ -528,5 +561,9 @@ export class UserService {
       total: users.length,
       page: 1,
     };
+  }
+
+  private buildResponse(profile: any) {
+    return { success: true, message: 'Success', user: profile };
   }
 }

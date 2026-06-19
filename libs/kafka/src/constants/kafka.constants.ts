@@ -13,6 +13,7 @@ export const KAFKA_TOPICS = {
 
   // USER OR PROFILE
   USER_PROFILE_CREATED: 'user.profile-created',
+  USER_PROFILE_UPDATED: 'user.profile-updated',
   USER_PROFILE_FOLLOWED: 'user.profile-followed',
   USER_PROFILE_UNFOLLOWED: 'user.profile-unfollowed',
 

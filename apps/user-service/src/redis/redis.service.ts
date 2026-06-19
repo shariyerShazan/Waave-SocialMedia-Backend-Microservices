@@ -1,33 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// redis/user-redis.service.ts
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserRedisService implements OnModuleDestroy {
   private client: Redis;
-  constructor() {
+
+  constructor(private config: ConfigService) {
     this.client = new Redis({
-      host: process.env.USER_REDIS_HOST || 'localhost',
-      port: Number(process.env.USER_REDIS_PORT) || 6378,
+      host: config.get('REDIS_HOST', 'localhost'),
+      port: config.get('REDIS_PORT', 6379),
       retryStrategy: (times) => Math.min(times * 200, 3000),
     });
   }
 
-  async onModuleDestroy() {
-    await this.client.quit();
-  }
-
+  // ── Profile Cache ─────────────────────────────
   async cacheProfile(userId: string, profile: any) {
     await this.client.set(
       `user:profile:${userId}`,
       JSON.stringify(profile),
       'EX',
-      3600,
+      3600, // 1 hour
     );
   }
 
-  async getCacheProfile(userId: string): Promise<any | null> {
+  async getCachedProfile(userId: string): Promise<any | null> {
     const data = await this.client.get(`user:profile:${userId}`);
     return data ? JSON.parse(data) : null;
   }
@@ -44,39 +44,45 @@ export class UserRedisService implements OnModuleDestroy {
     }
     await this.client.del(key);
     await this.client.sadd(key, ...ids);
-    await this.client.expire(key, 1800);
+    await this.client.expire(key, 1800); // 30 min
   }
 
   async getFollowerIds(userId: string): Promise<string[]> {
     return this.client.smembers(`user:followers:${userId}`);
   }
+
   async addFollower(userId: string, followerId: string) {
-    const key = `user:followers:${userId}`;
-    await this.client.sadd(key, followerId);
+    await this.client.sadd(`user:followers:${userId}`, followerId);
   }
+
   async removeFollower(userId: string, followerId: string) {
-    const key = `user:followers:${userId}`;
-    await this.client.srem(key, followerId);
+    await this.client.srem(`user:followers:${userId}`, followerId);
   }
 
   // ── Mutual Friends Cache ──────────────────────
-  async getMutualFriends(userId1: string, userId2: string) {
+  async getMutualFriends(userId1: string, userId2: string): Promise<string[]> {
     const key1 = `user:followers:${userId1}`;
     const key2 = `user:followers:${userId2}`;
     return this.client.sinter(key1, key2);
   }
 
+  // ── Online Presence ───────────────────────────
   async setOnline(userId: string) {
     const pipeline = this.client.pipeline();
-    pipeline.sadd(`online:users`, userId);
+    pipeline.sadd('online:users', userId);
     pipeline.set(`user:lastseen:${userId}`, Date.now().toString(), 'EX', 3600);
     await pipeline.exec();
   }
 
   async setOffline(userId: string) {
     const pipeline = this.client.pipeline();
-    pipeline.srem(`online:users`, userId);
-    pipeline.set(`user:lastseen:${userId}`, Date.now().toString(), 'EX', 86400);
+    pipeline.srem('online:users', userId);
+    pipeline.set(
+      `user:lastseen:${userId}`,
+      Date.now().toString(),
+      'EX',
+      86400, // 24 hours
+    );
     await pipeline.exec();
   }
 
@@ -86,10 +92,9 @@ export class UserRedisService implements OnModuleDestroy {
 
   async getLastSeen(userId: string): Promise<number> {
     const val = await this.client.get(`user:lastseen:${userId}`);
-    return Number(val || '0');
+    return parseInt(val || '0');
   }
 
-  // ----- online users --------------
   async getOnlineUsers(userIds: string[]): Promise<Set<string>> {
     if (!userIds.length) return new Set();
     const pipeline = this.client.pipeline();
@@ -104,18 +109,22 @@ export class UserRedisService implements OnModuleDestroy {
     return online;
   }
 
-  // --- search --------------------
+  // ── Search Cache ──────────────────────────────
   async cacheSearch(query: string, results: any[]) {
     await this.client.set(
       `search:users:${query.toLowerCase()}`,
       JSON.stringify(results),
       'EX',
-      300,
+      300, // 5 min
     );
   }
 
   async getCachedSearch(query: string): Promise<any[] | null> {
     const data = await this.client.get(`search:users:${query.toLowerCase()}`);
     return data ? JSON.parse(data) : null;
+  }
+
+  async onModuleDestroy() {
+    await this.client.quit();
   }
 }
