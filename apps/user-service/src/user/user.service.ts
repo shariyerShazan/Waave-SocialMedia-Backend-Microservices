@@ -5,6 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { UserRedisService } from '../redis/redis.service';
 import { UserPrismaService } from '@app/prisma';
+import { UpdateProfileDto } from '@app/common';
 
 @Injectable()
 export class UserService {
@@ -74,18 +75,7 @@ export class UserService {
   }
 
   // ── Update Profile ────────────────────────────
-  async updateProfile(
-    userId: string,
-    data: {
-      name?: string;
-      bio?: string;
-      avatar?: string;
-      coverImg?: string;
-      location?: string;
-      website?: string;
-      birthDate?: string;
-    },
-  ) {
+  async updateProfile(userId: string, data: UpdateProfileDto) {
     const user = await this.prisma.user.update({
       where: { id: userId },
       data: {
