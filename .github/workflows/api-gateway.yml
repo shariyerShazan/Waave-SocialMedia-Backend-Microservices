@@ -6,6 +6,7 @@ on:
       - main
       - develop
     paths:
+      - '.github/workflows/**'
       - 'apps/api-gateway/**'
       - 'libs/common/**'
       - 'libs/prisma/**'
@@ -19,12 +20,16 @@ on:
     branches:
       - main
       - develop
-    paths:
+    paths:       
+      - '.github/workflows/**'
       - 'apps/api-gateway/**'
       - 'libs/common/**'
       - 'libs/prisma/**'
       - 'libs/kafka/**'
       - 'libs/proto-schema/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
 
 jobs:
   api-gateway:
@@ -37,7 +42,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: npm
 
       - name: Install Dependencies
