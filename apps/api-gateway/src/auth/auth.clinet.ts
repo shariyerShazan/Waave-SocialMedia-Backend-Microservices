@@ -8,7 +8,8 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Client, type ClientGrpc, Transport } from '@nestjs/microservices';
+import { Client, Transport } from '@nestjs/microservices';
+import type { ClientGrpc } from '@nestjs/microservices';
 import { join } from 'path';
 import { firstValueFrom } from 'rxjs';
 
@@ -28,7 +29,7 @@ interface AuthGrpcService {
 }
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthClient implements OnModuleInit {
   @Client({
     transport: Transport.GRPC,
     options: {

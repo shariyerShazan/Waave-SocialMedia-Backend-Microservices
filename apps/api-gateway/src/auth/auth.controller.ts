@@ -16,7 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthService } from './auth.clinet';
+import { AuthClient } from './auth.clinet';
 import {
   AuthGuard,
   ChangePasswordDto,
@@ -32,13 +32,13 @@ import { ResetPasswordDto } from '@app/common/dto/auth/reset-password-dto';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authClient: AuthClient) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register user' })
   @ApiResponse({ status: 201, description: 'User registered successfully' })
   register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+    return this.authClient.register(dto);
   }
 
   @Post('verify-registration')
@@ -48,7 +48,7 @@ export class AuthController {
     description: "User's email verified successfully",
   })
   verifyRegistration(@Body() dto: VerifyRegistrationDto) {
-    return this.authService.verifyRegistration(dto);
+    return this.authClient.verifyRegistration(dto);
   }
 
   @Post('forgot-password')
@@ -58,7 +58,7 @@ export class AuthController {
     description: 'opt send successfully for forgot password',
   })
   forgotPassword(@Body() dto: ForgotPassDto) {
-    return this.authService.forgotPasswordRequest(dto);
+    return this.authClient.forgotPasswordRequest(dto);
   }
 
   @Post('reset-password')
@@ -68,7 +68,7 @@ export class AuthController {
     description: 'Password reset successfully',
   })
   resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto);
+    return this.authClient.resetPassword(dto);
   }
 
   @Post('login')
@@ -76,14 +76,14 @@ export class AuthController {
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({ status: 200, description: 'Login successful' })
   login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+    return this.authClient.login(dto);
   }
 
   @Post('refresh')
   @HttpCode(200)
   @ApiOperation({ summary: 'Refresh access token' })
   refresh(@Body() dto: RefreshTokenDto) {
-    return this.authService.refreshToken(dto.refreshToken);
+    return this.authClient.refreshToken(dto.refreshToken);
   }
   //
 
@@ -92,7 +92,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   changePassword(@Req() req: Express.Request, @Body() dto: ChangePasswordDto) {
-    return this.authService.changePassword(req?.user?.userId, dto);
+    return this.authClient.changePassword(req?.user?.userId, dto);
   }
 
   @Post('logout')
@@ -100,7 +100,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   logout(@Req() req: Express.Request) {
-    return this.authService.logout(req?.user?.userId);
+    return this.authClient.logout(req?.user?.userId);
   }
 
   @Get('me')
@@ -112,7 +112,7 @@ export class AuthController {
     description: 'Current user fetched successfully',
   })
   getMe(@Req() req: Express.Request) {
-    return this.authService.getUserById(req?.user?.userId);
+    return this.authClient.getUserById(req?.user?.userId);
   }
 
   @Get('users')
@@ -139,7 +139,7 @@ export class AuthController {
     const pageNum = page ? parseInt(page, 10) : 1;
     const limitNum = limit ? parseInt(limit, 10) : 10;
 
-    return this.authService.getAllUsers(pageNum, limitNum);
+    return this.authClient.getAllUsers(pageNum, limitNum);
   }
 
   @Get('users/id/:userId')
@@ -151,7 +151,7 @@ export class AuthController {
     description: 'User fetched successfully',
   })
   getUserById(@Param('userId') userId: string) {
-    return this.authService.getUserById(userId);
+    return this.authClient.getUserById(userId);
   }
 
   @Get('users/email/:email')
@@ -163,6 +163,6 @@ export class AuthController {
     description: 'User fetched successfully',
   })
   getUserByEmail(@Param('email') email: string) {
-    return this.authService.getUserByEmail(email);
+    return this.authClient.getUserByEmail(email);
   }
 }
