@@ -1,0 +1,53 @@
+name: User Service CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'apps/user-service/**'
+      - 'libs/common/**'
+      - 'libs/prisma/**'
+      - 'libs/kafka/**'
+      - 'libs/proto-schema/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'apps/user-service/**'
+      - 'libs/common/**'
+      - 'libs/prisma/**'
+      - 'libs/kafka/**'
+      - 'libs/proto-schema/**'
+
+jobs:
+  user-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Auth Prisma Client
+        run: npm run user:prisma:generate
+
+      - name: Lint User Service
+        run: npm run lint
+
+      - name: Build User Service
+        run: npx nest build user-service
