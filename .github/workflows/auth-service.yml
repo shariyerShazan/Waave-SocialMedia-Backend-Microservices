@@ -6,6 +6,7 @@ on:
       - main
       - develop
     paths:
+      - '.github/workflows/auth-service.yml'
       - 'apps/auth-service/**'
       - 'libs/common/**'
       - 'libs/prisma/**'
@@ -20,6 +21,7 @@ on:
       - main
       - develop
     paths:
+      - '.github/workflows/auth-service.yml'
       - 'apps/auth-service/**'
       - 'libs/common/**'
       - 'libs/prisma/**'
