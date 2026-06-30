@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { UserServiceClient } from '@app/proto-schema/protos-types/user';
 import {
   HttpException,
   HttpStatus,
@@ -10,24 +11,6 @@ import {
 import { Client, type ClientGrpc, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { firstValueFrom } from 'rxjs';
-
-interface UserGrpcService {
-  getProfile(data: any): any;
-  updateProfile(data: any): any;
-
-  followUser(data: any): any;
-  unfollowUser(data: any): any;
-
-  getFollowers(data: any): any;
-  getFollowing(data: any): any;
-
-  isFollowing(data: any): any;
-
-  searchUsers(data: any): any;
-  getSuggestions(data: any): any;
-
-  getOnlineStatus(data: any): any;
-}
 
 @Injectable()
 export class UserClient implements OnModuleInit {
@@ -41,10 +24,10 @@ export class UserClient implements OnModuleInit {
   })
   private client: ClientGrpc;
 
-  private userService: UserGrpcService;
+  private userService: UserServiceClient;
 
   onModuleInit() {
-    this.userService = this.client.getService<UserGrpcService>('UserService');
+    this.userService = this.client.getService<UserServiceClient>('UserService');
   }
 
   private handleError(err: any): never {

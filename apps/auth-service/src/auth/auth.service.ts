@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, Logger } from '@nestjs/common';
 import { TokenService } from '../token/token.service';
@@ -16,6 +14,7 @@ import {
   VerifyRegistrationDto,
 } from '@app/common';
 import { AtuhPrismaService } from '../prisma/prisma.service';
+import { ChangePassRequest } from '@app/proto-schema/protos-types/auth';
 
 export interface UserRegisteredEvent {
   userId: string;
@@ -194,11 +193,7 @@ export class AuthService {
     };
   }
 
-  async changePassword(dto: {
-    userId: string;
-    oldPassword: string;
-    newPassword: string;
-  }) {
+  async changePassword(dto: ChangePassRequest) {
     const user = await this.prisma.user.findUnique({
       where: { id: dto.userId },
     });

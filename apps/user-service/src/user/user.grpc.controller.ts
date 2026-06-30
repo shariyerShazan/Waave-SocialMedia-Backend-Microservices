@@ -1,37 +1,46 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // user/user.controller.ts
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { UserService } from './user.service';
+import type {
+  FollowRequest,
+  GetFollowerIdsRequest,
+  GetProfileRequest,
+  GetUsersByIdsRequest,
+  PaginationRequest,
+  PresenceRequest,
+  SearchRequest,
+  SuggestionRequest,
+  UpdateProfileRequest,
+} from '@app/proto-schema/protos-types/user';
 
 @Controller()
 export class UserGrpcController {
   constructor(private userService: UserService) {}
 
   @GrpcMethod('UserService', 'GetProfile')
-  getProfile(data: { userId: string; requesterId: string }) {
+  getProfile(data: GetProfileRequest) {
     return this.userService.getProfile(data.userId, data.requesterId);
   }
 
   @GrpcMethod('UserService', 'UpdateProfile')
-  updateProfile(data: any) {
+  updateProfile(data: UpdateProfileRequest) {
     const { userId, ...rest } = data;
     return this.userService.updateProfile(userId, rest);
   }
 
   @GrpcMethod('UserService', 'FollowUser')
-  followUser(data: { followerId: string; targetId: string }) {
+  followUser(data: FollowRequest) {
     return this.userService.followUser(data.followerId, data.targetId);
   }
 
   @GrpcMethod('UserService', 'UnfollowUser')
-  unfollowUser(data: { followerId: string; targetId: string }) {
+  unfollowUser(data: FollowRequest) {
     return this.userService.unfollowUser(data.followerId, data.targetId);
   }
 
   @GrpcMethod('UserService', 'GetFollowers')
-  getFollowers(data: { userId: string; page: number; limit: number }) {
+  getFollowers(data: PaginationRequest) {
     return this.userService.getFollowers(
       data.userId,
       data.page || 1,
@@ -40,7 +49,7 @@ export class UserGrpcController {
   }
 
   @GrpcMethod('UserService', 'GetFollowing')
-  getFollowing(data: { userId: string; page: number; limit: number }) {
+  getFollowing(data: PaginationRequest) {
     return this.userService.getFollowing(
       data.userId,
       data.page || 1,
@@ -49,7 +58,7 @@ export class UserGrpcController {
   }
 
   @GrpcMethod('UserService', 'IsFollowing')
-  isFollowing(data: { followerId: string; targetId: string }) {
+  isFollowing(data: FollowRequest) {
     return this.userService['checkIsFollowing'](
       data.followerId,
       data.targetId,
@@ -57,12 +66,7 @@ export class UserGrpcController {
   }
 
   @GrpcMethod('UserService', 'SearchUsers')
-  searchUsers(data: {
-    query: string;
-    requesterId: string;
-    page: number;
-    limit: number;
-  }) {
+  searchUsers(data: SearchRequest) {
     return this.userService.searchUsers(
       data.query,
       data.requesterId,
@@ -72,32 +76,32 @@ export class UserGrpcController {
   }
 
   @GrpcMethod('UserService', 'GetSuggestions')
-  getSuggestions(data: { userId: string; limit: number }) {
+  getSuggestions(data: SuggestionRequest) {
     return this.userService.getSuggestions(data.userId, data.limit || 10);
   }
 
   @GrpcMethod('UserService', 'SetOnline')
-  setOnline(data: { userId: string }) {
+  setOnline(data: PresenceRequest) {
     return this.userService.setOnline(data.userId);
   }
 
   @GrpcMethod('UserService', 'SetOffline')
-  setOffline(data: { userId: string }) {
+  setOffline(data: PresenceRequest) {
     return this.userService.setOffline(data.userId);
   }
 
   @GrpcMethod('UserService', 'GetOnlineStatus')
-  getOnlineStatus(data: { userId: string }) {
+  getOnlineStatus(data: PresenceRequest) {
     return this.userService.getOnlineStatus(data.userId);
   }
 
   @GrpcMethod('UserService', 'GetUsersByIds')
-  getUsersByIds(data: { userIds: string[] }) {
+  getUsersByIds(data: GetUsersByIdsRequest) {
     return this.userService.getUsersByIds(data.userIds);
   }
 
   @GrpcMethod('UserService', 'GetFollowerIds')
-  getFollowerIds(data: { userId: string }) {
+  getFollowerIds(data: GetFollowerIdsRequest) {
     return this.userService
       .getFollowerIds(data.userId)
       .then((ids) => ({ followerIds: ids }));

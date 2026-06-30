@@ -9,6 +9,10 @@ import {
   ResetPasswordDto,
   VerifyRegistrationDto,
 } from '@app/common';
+import type {
+  LogoutRequest,
+  ChangePassRequest,
+} from '@app/proto-schema/protos-types/auth';
 
 @Controller('auth')
 export class AuthGrpcController {
@@ -35,11 +39,7 @@ export class AuthGrpcController {
   }
 
   @GrpcMethod('AuthService', 'ChangePassword')
-  changePassword(dto: {
-    userId: string;
-    oldPassword: string;
-    newPassword: string;
-  }) {
+  changePassword(dto: ChangePassRequest) {
     return this.authService.changePassword(dto);
   }
 
@@ -49,7 +49,7 @@ export class AuthGrpcController {
   }
 
   @GrpcMethod('AuthService', 'Logout')
-  logout(data: { userId: string }) {
+  logout(data: LogoutRequest) {
     return this.authService.logout(data.userId);
   }
 

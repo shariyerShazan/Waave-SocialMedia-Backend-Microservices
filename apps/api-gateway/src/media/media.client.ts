@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
+import { MediaServiceClient } from '@app/proto-schema/protos-types/media';
 import {
   HttpException,
   HttpStatus,
@@ -11,22 +12,6 @@ import {
 import { Client, type ClientGrpc, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { firstValueFrom } from 'rxjs';
-
-interface MediaGrpcService {
-  createMedia(data: any): any;
-
-  getMedia(data: { mediaId: string }): any;
-
-  getMediaByIds(data: { mediaIds: string[] }): any;
-
-  listUserMedia(data: any): any;
-
-  deleteMedia(data: any): any;
-
-  updateMediaStatus(data: any): any;
-
-  exists(data: any): any;
-}
 
 @Injectable()
 export class MediaClient implements OnModuleInit {
@@ -40,11 +25,11 @@ export class MediaClient implements OnModuleInit {
   })
   private client: ClientGrpc;
 
-  private mediaService: MediaGrpcService;
+  private mediaService: MediaServiceClient;
 
   onModuleInit() {
     this.mediaService =
-      this.client.getService<MediaGrpcService>('MediaService');
+      this.client.getService<MediaServiceClient>('MediaService');
   }
 
   private handleError(err: any): never {
@@ -85,12 +70,7 @@ export class MediaClient implements OnModuleInit {
     }
   }
 
-  async listUserMedia(
-    userId: string,
-    type: string,
-    page: number,
-    limit: number,
-  ) {
+  async listUserMedia(userId: string, type: any, page: number, limit: number) {
     try {
       return await firstValueFrom(
         this.mediaService.listUserMedia({

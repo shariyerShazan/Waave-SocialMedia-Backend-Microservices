@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
@@ -13,21 +14,7 @@ import type { ClientGrpc } from '@nestjs/microservices';
 import { join } from 'path';
 import { firstValueFrom } from 'rxjs';
 import { UserClient } from '../user/user.client';
-
-interface AuthGrpcService {
-  register(data: any): any;
-  verifyRegistration(data: any): any;
-  forgotPasswordRequest(data: any): any;
-  resetPassword(data: any): any;
-  changePassword(data: any): any;
-  login(data: any): any;
-  logout(data: any): any;
-  verifyToken(data: any): any;
-  refreshToken(data: any): any;
-  getUserById(data: any): any;
-  getUserByEmail(data: any): any;
-  getAllUsers(data: any): any;
-}
+import { AuthServiceClient } from '@app/proto-schema/protos-types/auth';
 
 @Injectable()
 export class AuthClient implements OnModuleInit {
@@ -42,10 +29,10 @@ export class AuthClient implements OnModuleInit {
     },
   })
   private client: ClientGrpc;
-  private authService: AuthGrpcService;
+  private authService: AuthServiceClient;
 
   onModuleInit() {
-    this.authService = this.client.getService<AuthGrpcService>('AuthService');
+    this.authService = this.client.getService<AuthServiceClient>('AuthService');
   }
 
   private handleError(err: any): never {
@@ -156,7 +143,7 @@ export class AuthClient implements OnModuleInit {
       const profile = await this.userClient.getProfile(userId, userId);
 
       return {
-        ...(authUser as Record<string, unknown>),
+        ...(authUser as any),
         profile,
       };
     } catch (err: any) {

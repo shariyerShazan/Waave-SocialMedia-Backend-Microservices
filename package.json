@@ -23,7 +23,8 @@
     "auth:prisma:studio": "dotenv npx prisma studio --url=\"$AUTH_DB_PRIMARY_URL\"",
     "user:prisma:migrate": "npx prisma migrate dev --schema=apps/user-service/prisma/schema.prisma --config apps/user-service/prisma/prisma.config.ts",
     "user:prisma:generate": "npx prisma generate --schema=apps/user-service/prisma/schema.prisma --config apps/user-service/prisma/prisma.config.ts",
-    "user:prisma:studio": "dotenv npx prisma studio --url=\"$USER_DB_PRIMARY_URL\""
+    "user:prisma:studio": "dotenv npx prisma studio --url=\"$USER_DB_PRIMARY_URL\"",
+    "proto:generate": "rm -rf libs/proto-schema/src/protos-types && mkdir -p libs/proto-schema/src/protos-types && grpc_tools_node_protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --proto_path=./libs/proto-schema/src/proto --ts_proto_out=./libs/proto-schema/src/protos-types --ts_proto_opt=nestJs=true ./libs/proto-schema/src/proto/*.proto"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.4",
@@ -73,6 +74,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
+    "grpc-tools": "^1.13.1",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "prisma": "^7.8.0",
@@ -81,6 +83,7 @@
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
+    "ts-proto": "^2.11.10",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
