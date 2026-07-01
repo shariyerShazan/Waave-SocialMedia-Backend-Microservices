@@ -3,6 +3,7 @@ syntax = "proto3";
 package media;
 
 service MediaService {
+  rpc UploadImage(UploadImageRequest) returns (MediaResponse);
   rpc CreateMedia(CreateMediaRequest) returns (MediaResponse);
   rpc GetMedia(GetMediaRequest) returns (MediaResponse);
   rpc ListUserMedia(ListUserMediaRequest) returns (ListUserMediaResponse);
@@ -11,6 +12,14 @@ service MediaService {
   rpc GetMediaByPath(GetMediaByPathRequest) returns (MediaResponse);
   rpc Exists(ExistsRequest) returns (ExistsResponse);
   rpc GetMediaByIds(GetMediaByIdsRequest) returns(GetMediaListResponse);
+}
+
+
+message UploadImageRequest {
+  string userId = 1;
+  bytes buffer = 2;
+  string originalName = 3;
+  string mimeType = 4;
 }
 
 message GetMediaByIdsRequest{

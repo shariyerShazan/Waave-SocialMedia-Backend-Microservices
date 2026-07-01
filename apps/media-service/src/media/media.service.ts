@@ -8,61 +8,78 @@ import { Model } from 'mongoose';
 import { Media, MediaDocument } from '../schemas/media.schema';
 import { SaveFileResult, StorageService } from '../storage/storage.service';
 import { ImageService } from '../processing/image.service';
-import { MediaStatus, MediaType } from '@app/common';
+import {
+  MediaStatus as ProtoMediaStatus,
+  MediaType as ProtoMediaType,
+  type CreateMediaRequest,
+  type UpdateMediaStatusRequest,
+} from '@app/proto-schema/protos-types/media';
+import {
+  MediaStatus as DbMediaStatus,
+  MediaType as DbMediaType,
+} from '@app/common';
 import { MediaRedisService } from '../redis/redis.service';
 
-type ProtoMediaType = MediaType | string;
-type ProtoMediaStatus = MediaStatus | string;
+const normalizeMediaType = (
+  value: ProtoMediaType | DbMediaType | string,
+): DbMediaType => {
+  if (typeof value === 'number') {
+    switch (value) {
+      case ProtoMediaType.IMAGE:
+        return DbMediaType.IMAGE;
+      case ProtoMediaType.VIDEO:
+        return DbMediaType.VIDEO;
+      case ProtoMediaType.AUDIO:
+        return DbMediaType.AUDIO;
+      case ProtoMediaType.FILE:
+        return DbMediaType.FILE;
+      case ProtoMediaType.AVATAR:
+        return DbMediaType.AVATAR;
+      case ProtoMediaType.COVER:
+        return DbMediaType.COVER;
+      default:
+        break;
+    }
+  }
 
-type CreateMediaDto = {
-  userId: string;
-  type: ProtoMediaType;
-  originalName: string;
-  fileName: string;
-  path: string;
-  originalUrl: string;
-  thumbnailUrl: string;
-  mediumUrl: string;
-  mimeType: string;
-  size: number;
-  status: ProtoMediaStatus;
-  width: number;
-  height: number;
-  duration: number;
+  if (typeof value === 'string') {
+    const key = value.toUpperCase() as keyof typeof DbMediaType;
+
+    if (DbMediaType[key] !== undefined) {
+      return DbMediaType[key];
+    }
+  }
+
+  throw new BadRequestException('Invalid media type');
 };
 
-type UpdateMediaStatusDto = {
-  mediaId: string;
-  status: ProtoMediaStatus;
-  originalUrl?: string;
-  thumbnailUrl?: string;
-  mediumUrl?: string;
-};
-
-const normalizeMediaType = (value: ProtoMediaType): MediaType => {
-  if (Object.values(MediaType).includes(value as MediaType)) {
-    return value as MediaType;
+const normalizeMediaStatus = (
+  value: ProtoMediaStatus | DbMediaStatus | string,
+): DbMediaStatus => {
+  if (typeof value === 'number') {
+    switch (value) {
+      case ProtoMediaStatus.PENDING:
+        return DbMediaStatus.PENDING;
+      case ProtoMediaStatus.PROCESSING:
+        return DbMediaStatus.PROCESSING;
+      case ProtoMediaStatus.DONE:
+        return DbMediaStatus.DONE;
+      case ProtoMediaStatus.FAILED:
+        return DbMediaStatus.FAILED;
+      default:
+        break;
+    }
   }
 
-  const upper = String(value).toUpperCase() as keyof typeof MediaType;
-  if (upper in MediaType) {
-    return MediaType[upper];
+  if (typeof value === 'string') {
+    const key = value.toUpperCase() as keyof typeof DbMediaStatus;
+
+    if (DbMediaStatus[key] !== undefined) {
+      return DbMediaStatus[key];
+    }
   }
 
-  throw new Error('Invalid media type');
-};
-
-const normalizeMediaStatus = (value: ProtoMediaStatus): MediaStatus => {
-  if (Object.values(MediaStatus).includes(value as MediaStatus)) {
-    return value as MediaStatus;
-  }
-
-  const upper = String(value).toUpperCase() as keyof typeof MediaStatus;
-  if (upper in MediaStatus) {
-    return MediaStatus[upper];
-  }
-
-  throw new Error('Invalid media status');
+  throw new BadRequestException('Invalid media status');
 };
 
 @Injectable()
@@ -125,7 +142,7 @@ export class MediaService {
       const media = await this.mediaModel.create({
         userId,
 
-        type: MediaType.IMAGE,
+        type: DbMediaType.IMAGE,
 
         originalName,
 
@@ -147,7 +164,7 @@ export class MediaService {
 
         height: processed.height,
 
-        status: MediaStatus.DONE,
+        status: DbMediaStatus.DONE,
       });
 
       await this.redis.setMedia(media.id, media.toObject());
@@ -178,7 +195,7 @@ export class MediaService {
     }
   }
 
-  async createMedia(dto: CreateMediaDto) {
+  async createMedia(dto: CreateMediaRequest) {
     const media = await this.mediaModel.create({
       ...dto,
       type: normalizeMediaType(dto.type),
@@ -219,11 +236,11 @@ export class MediaService {
 
   async listUserMedia(
     userId: string,
-    type: string,
+    type: DbMediaType | ProtoMediaType | string,
     page: number,
     limit: number,
   ) {
-    const filter: { userId: string; isDeleted: boolean; type?: MediaType } = {
+    const filter: { userId: string; isDeleted: boolean; type?: DbMediaType } = {
       userId,
       isDeleted: false,
     };
@@ -291,7 +308,17 @@ export class MediaService {
     };
   }
 
-  async updateMediaStatus(dto: UpdateMediaStatusDto) {
+  async updateMediaStatus(
+    dto:
+      | UpdateMediaStatusRequest
+      | {
+          mediaId: string;
+          status: string | ProtoMediaStatus | DbMediaStatus;
+          originalUrl?: string;
+          thumbnailUrl?: string;
+          mediumUrl?: string;
+        },
+  ) {
     const media = await this.mediaModel.findById(dto.mediaId);
 
     if (!media) {
@@ -361,7 +388,7 @@ export class MediaService {
           $in: missingIds,
         },
         isDeleted: false,
-        status: MediaStatus.DONE,
+        status: DbMediaStatus.DONE,
       });
 
       for (const media of medias) {

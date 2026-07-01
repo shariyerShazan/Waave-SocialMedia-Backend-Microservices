@@ -2,7 +2,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
-import { MediaServiceClient } from '@app/proto-schema/protos-types/media';
+import {
+  MediaServiceClient,
+  MediaType,
+  MediaStatus,
+} from '@app/proto-schema/protos-types/media';
 import {
   HttpException,
   HttpStatus,
@@ -42,9 +46,73 @@ export class MediaClient implements OnModuleInit {
     );
   }
 
+  private parseMediaType(type?: string): MediaType {
+    if (!type || type === 'all') {
+      return MediaType.MEDIA_TYPE_UNKNOWN;
+    }
+
+    const key = type.toUpperCase() as keyof typeof MediaType;
+
+    if (MediaType[key] !== undefined) {
+      return MediaType[key];
+    }
+
+    const parsed = Number(type);
+    if (!Number.isNaN(parsed) && MediaType[parsed] !== undefined) {
+      return parsed;
+    }
+
+    return MediaType.MEDIA_TYPE_UNKNOWN;
+  }
+
+  private parseMediaStatus(status: string | number | undefined): MediaStatus {
+    if (status === undefined || status === null) {
+      return MediaStatus.PENDING;
+    }
+
+    if (typeof status === 'number') {
+      if (MediaStatus[status] !== undefined) {
+        return status;
+      }
+    }
+
+    const key = String(status).toUpperCase() as keyof typeof MediaStatus;
+    if (MediaStatus[key] !== undefined) {
+      return MediaStatus[key];
+    }
+
+    return MediaStatus.PENDING;
+  }
+
+  async uploadImage(
+    userId: string,
+    buffer: Buffer,
+    originalName: string,
+    mimeType: string,
+  ) {
+    try {
+      return await firstValueFrom(
+        this.mediaService.uploadImage({
+          userId,
+          buffer,
+          originalName,
+          mimeType,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
   async createMedia(data: any) {
     try {
-      return await firstValueFrom(this.mediaService.createMedia(data));
+      return await firstValueFrom(
+        this.mediaService.createMedia({
+          ...data,
+          type: this.parseMediaType(data?.type),
+          status: this.parseMediaStatus(data?.status),
+        }),
+      );
     } catch (err) {
       this.handleError(err);
     }
@@ -70,12 +138,29 @@ export class MediaClient implements OnModuleInit {
     }
   }
 
-  async listUserMedia(userId: string, type: any, page: number, limit: number) {
+  async getMediaByPath(path: string) {
+    try {
+      return await firstValueFrom(
+        this.mediaService.getMediaByPath({
+          path,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async listUserMedia(
+    userId: string,
+    type: string,
+    page: number,
+    limit: number,
+  ) {
     try {
       return await firstValueFrom(
         this.mediaService.listUserMedia({
           userId,
-          type,
+          type: this.parseMediaType(type),
           page,
           limit,
         }),
@@ -100,7 +185,12 @@ export class MediaClient implements OnModuleInit {
 
   async updateMediaStatus(data: any) {
     try {
-      return await firstValueFrom(this.mediaService.updateMediaStatus(data));
+      return await firstValueFrom(
+        this.mediaService.updateMediaStatus({
+          ...data,
+          status: this.parseMediaStatus(data?.status),
+        }),
+      );
     } catch (err) {
       this.handleError(err);
     }

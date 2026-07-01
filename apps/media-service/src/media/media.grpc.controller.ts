@@ -1,55 +1,32 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { MediaService } from './media.service';
-import { MediaStatus, MediaType } from '@app/common';
 
-type CreateMediaRequest = {
-  userId: string;
-  type: MediaType | string;
-  originalName: string;
-  fileName: string;
-  path: string;
-  originalUrl: string;
-  thumbnailUrl: string;
-  mediumUrl: string;
-  mimeType: string;
-  size: number;
-  status: MediaStatus | string;
-  width: number;
-  height: number;
-  duration: number;
-};
-
-type GetMediaRequest = { mediaId: string };
-
-type ListUserMediaRequest = {
-  userId: string;
-  type: string;
-  page: number;
-  limit: number;
-};
-
-type DeleteMediaRequest = { mediaId: string; userId: string };
-
-type ExistsRequest = { mediaId: string };
-
-type UpdateMediaStatusRequest = {
-  mediaId: string;
-  status: MediaStatus | string;
-  originalUrl?: string;
-  thumbnailUrl?: string;
-  mediumUrl?: string;
-};
-
-type GetMediaByIdsRequest = {
-  mediaIds: string[];
-};
-
-type GetMediaByPathRequest = { path: string };
+import type {
+  CreateMediaRequest,
+  DeleteMediaRequest,
+  ExistsRequest,
+  GetMediaByIdsRequest,
+  GetMediaRequest,
+  GetMediaByPathRequest,
+  ListUserMediaRequest,
+  UpdateMediaStatusRequest,
+  UploadImageRequest,
+} from '@app/proto-schema/protos-types/media';
 
 @Controller()
 export class MediaGrpcController {
   constructor(private readonly mediaService: MediaService) {}
+
+  @GrpcMethod('MediaService', 'UploadImage')
+  uploadImage(data: UploadImageRequest) {
+    return this.mediaService.uploadImage(
+      data.userId,
+      Buffer.from(data.buffer),
+      data.originalName,
+      data.mimeType,
+    );
+  }
 
   @GrpcMethod('MediaService', 'CreateMedia')
   createMedia(data: CreateMediaRequest) {
