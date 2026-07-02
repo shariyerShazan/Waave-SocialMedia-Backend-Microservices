@@ -160,7 +160,7 @@ export class MediaClient implements OnModuleInit {
       return await firstValueFrom(
         this.mediaService.listUserMedia({
           userId,
-          type: this.parseMediaType(type),
+          type: this.parseMediaType(type) as any,
           page,
           limit,
         }),

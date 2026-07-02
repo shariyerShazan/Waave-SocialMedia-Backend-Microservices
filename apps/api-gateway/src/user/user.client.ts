@@ -11,6 +11,7 @@ import {
 import { Client, type ClientGrpc, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { firstValueFrom } from 'rxjs';
+import { MediaEnrichmentService } from '../shared/media-enrichment.service';
 
 @Injectable()
 export class UserClient implements OnModuleInit {
@@ -25,6 +26,8 @@ export class UserClient implements OnModuleInit {
   private client: ClientGrpc;
 
   private userService: UserServiceClient;
+
+  constructor(private readonly mediaEnrichment: MediaEnrichmentService) {}
 
   onModuleInit() {
     this.userService = this.client.getService<UserServiceClient>('UserService');
@@ -44,12 +47,19 @@ export class UserClient implements OnModuleInit {
 
   async getProfile(userId: string, requesterId: string) {
     try {
-      return await firstValueFrom(
+      const response = await firstValueFrom(
         this.userService.getProfile({
           userId,
           requesterId,
         }),
       );
+      if (response?.user) {
+        const [enriched] = await this.mediaEnrichment.enrichProfilesWithMedia([
+          response.user,
+        ]);
+        return { ...response, user: enriched };
+      }
+      return response;
     } catch (err) {
       this.handleError(err);
     }
@@ -57,12 +67,21 @@ export class UserClient implements OnModuleInit {
 
   async updateProfile(userId: string, data: any) {
     try {
-      return await firstValueFrom(
+      const response = await firstValueFrom(
         this.userService.updateProfile({
           userId,
           ...data,
         }),
       );
+
+      if (response?.user) {
+        const [enriched] = await this.mediaEnrichment.enrichProfilesWithMedia([
+          response.user,
+        ]);
+        return { ...response, user: enriched };
+      }
+
+      return response;
     } catch (err) {
       this.handleError(err);
     }
@@ -96,13 +115,22 @@ export class UserClient implements OnModuleInit {
 
   async getFollowers(userId: string, page: number, limit: number) {
     try {
-      return await firstValueFrom(
+      const response = await firstValueFrom(
         this.userService.getFollowers({
           userId,
           page,
           limit,
         }),
       );
+
+      if (response?.users?.length > 0) {
+        const enriched = await this.mediaEnrichment.enrichProfilesWithMedia(
+          response.users,
+        );
+        return { ...response, users: enriched };
+      }
+
+      return response;
     } catch (err) {
       this.handleError(err);
     }
@@ -110,13 +138,22 @@ export class UserClient implements OnModuleInit {
 
   async getFollowing(userId: string, page: number, limit: number) {
     try {
-      return await firstValueFrom(
+      const response = await firstValueFrom(
         this.userService.getFollowing({
           userId,
           page,
           limit,
         }),
       );
+
+      if (response?.users?.length > 0) {
+        const enriched = await this.mediaEnrichment.enrichProfilesWithMedia(
+          response.users,
+        );
+        return { ...response, users: enriched };
+      }
+
+      return response;
     } catch (err) {
       this.handleError(err);
     }
@@ -142,7 +179,7 @@ export class UserClient implements OnModuleInit {
     limit: number,
   ) {
     try {
-      return await firstValueFrom(
+      const response = await firstValueFrom(
         this.userService.searchUsers({
           query,
           requesterId,
@@ -150,6 +187,15 @@ export class UserClient implements OnModuleInit {
           limit,
         }),
       );
+
+      if (response?.users?.length > 0) {
+        const enriched = await this.mediaEnrichment.enrichProfilesWithMedia(
+          response.users,
+        );
+        return { ...response, users: enriched };
+      }
+
+      return response;
     } catch (err) {
       this.handleError(err);
     }
@@ -157,12 +203,21 @@ export class UserClient implements OnModuleInit {
 
   async getSuggestions(userId: string, limit: number) {
     try {
-      return await firstValueFrom(
+      const response = await firstValueFrom(
         this.userService.getSuggestions({
           userId,
           limit,
         }),
       );
+
+      if (response?.users?.length > 0) {
+        const enriched = await this.mediaEnrichment.enrichProfilesWithMedia(
+          response.users,
+        );
+        return { ...response, users: enriched };
+      }
+
+      return response;
     } catch (err) {
       this.handleError(err);
     }

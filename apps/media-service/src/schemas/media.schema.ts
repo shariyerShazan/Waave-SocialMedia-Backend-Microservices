@@ -7,6 +7,8 @@ export type MediaDocument = HydratedDocument<Media>;
 @Schema({
   timestamps: true,
   collection: 'media',
+  toObject: { virtuals: true },
+  toJSON: { virtuals: true },
 })
 export class Media {
   @Prop({

@@ -96,7 +96,7 @@ message GetMediaByPathRequest {
 
 message ListUserMediaRequest {
   string userId = 1;
-  MediaType type = 2;
+  string type = 2;
   int32 page = 3;
   int32 limit = 4;
 }

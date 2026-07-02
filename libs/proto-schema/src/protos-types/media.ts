@@ -93,7 +93,7 @@ export interface GetMediaByPathRequest {
 
 export interface ListUserMediaRequest {
   userId: string;
-  type: MediaType;
+  type: string;
   page: number;
   limit: number;
 }

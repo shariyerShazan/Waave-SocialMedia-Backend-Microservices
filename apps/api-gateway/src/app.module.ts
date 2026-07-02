@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { RateLimiterModule } from './rateLimit/rateLimit.module';
 import { MediaModule } from './media/media.module';
+import { SharedEnrichmentModule } from './shared/shared-enrichment.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MediaModule } from './media/media.module';
     UserModule,
     RateLimiterModule,
     MediaModule,
+    SharedEnrichmentModule,
   ],
 })
 export class AppModule {}

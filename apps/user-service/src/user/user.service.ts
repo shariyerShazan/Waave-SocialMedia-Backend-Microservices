@@ -5,45 +5,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // user/user.service.ts
 import { KAFKA_TOPICS, KafkaService } from '@app/kafka';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Client, RpcException, Transport } from '@nestjs/microservices';
-import type { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { UserRedisService } from '../redis/redis.service';
 import { UpdateProfileDto } from '@app/common';
 import { UserPrismaService } from '../prisma/prisma.service';
-import { join } from 'path';
-
-interface MediaGrpcService {
-  getMedia(data: { mediaId: string }): any;
-  getMediaByIds(data: { mediaIds: string[] }): any;
-}
 
 @Injectable()
-export class UserService implements OnModuleInit {
+export class UserService {
   private readonly logger = new Logger(UserService.name);
-  @Client({
-    transport: Transport.GRPC,
-    options: {
-      package: 'media',
-      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/media.proto'),
-      url: process.env.MEDIA_GRPC_PORT || 'localhost:3009',
-    },
-  })
-  private client: ClientGrpc;
-
-  private mediaService: MediaGrpcService;
 
   constructor(
     private prisma: UserPrismaService,
     private redis: UserRedisService,
     private kafka: KafkaService,
   ) {}
-
-  onModuleInit() {
-    this.mediaService =
-      this.client.getService<MediaGrpcService>('MediaService');
-  }
 
   async createUser(data: { userId: string; email: string; name: string }) {
     await this.prisma.profile.upsert({
@@ -71,7 +47,7 @@ export class UserService implements OnModuleInit {
           ? await this.checkIsFollowing(requesterId, userId)
           : false;
       const isOnline = await this.redis.isOnline(userId);
-      const [hydrated] = await this.enrichProfilesWithMedia([
+      const [hydrated] = this.enrichProfilesWithMedia([
         { ...cached, isFollowing, isOnline },
       ]);
       return this.buildResponse(hydrated);
@@ -105,7 +81,7 @@ export class UserService implements OnModuleInit {
       isFollowing: false,
     });
 
-    const [hydratedProfile] = await this.enrichProfilesWithMedia([profile]);
+    const [hydratedProfile] = this.enrichProfilesWithMedia([profile]);
     return this.buildResponse(hydratedProfile);
   }
 
@@ -139,7 +115,7 @@ export class UserService implements OnModuleInit {
       coverMediaId: user.coverMediaId,
     });
 
-    const [hydratedProfile] = await this.enrichProfilesWithMedia([
+    const [hydratedProfile] = this.enrichProfilesWithMedia([
       this.createProfilePayload(user, { isFollowing: false, isOnline: false }),
     ]);
 
@@ -291,7 +267,7 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    const users = await this.enrichProfilesWithMedia(profiles);
+    const users = this.enrichProfilesWithMedia(profiles);
 
     return { success: true, users, total, page };
   }
@@ -323,7 +299,7 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    const users = await this.enrichProfilesWithMedia(profiles);
+    const users = this.enrichProfilesWithMedia(profiles);
 
     return { success: true, users, total, page };
   }
@@ -368,7 +344,7 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    const result = await this.enrichProfilesWithMedia(profiles);
+    const result = this.enrichProfilesWithMedia(profiles);
 
     await this.redis.cacheSearch(cacheKey, result);
 
@@ -416,7 +392,7 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    const users = await this.enrichProfilesWithMedia(profiles);
+    const users = this.enrichProfilesWithMedia(profiles);
 
     return { success: true, users, total: users.length, page: 1 };
   }
@@ -453,7 +429,7 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    const result = await this.enrichProfilesWithMedia(profiles);
+    const result = this.enrichProfilesWithMedia(profiles);
 
     return { success: true, users: result, total: result.length, page: 1 };
   }
@@ -516,7 +492,7 @@ export class UserService implements OnModuleInit {
       }),
     );
 
-    const hydratedUsers = await this.enrichProfilesWithMedia(profiles);
+    const hydratedUsers = this.enrichProfilesWithMedia(profiles);
 
     return {
       success: true,
@@ -532,6 +508,8 @@ export class UserService implements OnModuleInit {
       name: user.name,
       email: user.email,
       bio: user.bio || '',
+      avatar: user.avatar || '',
+      coverImg: user.coverImg || '',
       avatarMediaId: user.avatarMediaId || null,
       coverMediaId: user.coverMediaId || null,
       location: user.location || '',
@@ -547,93 +525,41 @@ export class UserService implements OnModuleInit {
     };
   }
 
-  private async enrichProfilesWithMedia<T extends Record<string, any>>(
+  private enrichProfilesWithMedia<T extends Record<string, any>>(
     profiles: T[],
   ) {
-    const mediaIds = Array.from(
-      new Set(
-        profiles.flatMap((profile) => {
-          const ids = [profile.avatarMediaId, profile.coverMediaId].filter(
-            Boolean,
-          );
-          return ids as string[];
-        }),
-      ),
-    );
-
-    const mediaMap = await this.fetchMediaMap(mediaIds);
-
-    return profiles.map((profile) => {
-      const avatar =
-        this.resolveMediaUrl(profile.avatarMediaId, mediaMap) ||
-        profile.avatar ||
-        '';
-      const coverImg =
-        this.resolveMediaUrl(profile.coverMediaId, mediaMap) ||
-        profile.coverImg ||
-        '';
-
-      const publicProfile = { ...(profile as Record<string, any>) };
-      delete publicProfile.avatarMediaId;
-      delete publicProfile.coverMediaId;
-
-      return {
-        ...publicProfile,
-        avatar,
-        coverImg,
-        birthDate: profile.birthDate?.toISOString() || '',
-        createdAt: profile.createdAt?.toISOString() || '',
-        location: profile.location || '',
-        website: profile.website || '',
-        bio: profile.bio || '',
-      };
-    });
+    // Media enrichment moved to API Gateway
+    return profiles.map((profile) => ({
+      ...profile,
+      avatar: profile.avatar || '',
+      coverImg: profile.coverImg || '',
+      birthDate: this.formatDate(profile.birthDate),
+      createdAt: this.formatDate(profile.createdAt),
+      location: profile.location || '',
+      website: profile.website || '',
+      bio: profile.bio || '',
+    }));
   }
 
-  private async fetchMediaMap(mediaIds: string[]) {
-    if (!mediaIds.length) {
-      return new Map<string, any>();
-    }
-
-    if (!this.mediaService) {
-      return new Map<string, any>();
-    }
-
-    try {
-      const response: any = await firstValueFrom(
-        this.mediaService.getMediaByIds({ mediaIds }),
-      );
-
-      const mediaMap = new Map<string, any>();
-      for (const media of response?.media || []) {
-        if (media?.id) {
-          mediaMap.set(media.id, media);
-        }
-      }
-
-      return mediaMap;
-    } catch (error) {
-      this.logger.warn(
-        `Media hydration failed for ids ${mediaIds.join(', ')}: ${String(error)}`,
-      );
-      return new Map<string, any>();
-    }
-  }
-
-  private resolveMediaUrl(
-    mediaId: string | null | undefined,
-    mediaMap: Map<string, any>,
-  ) {
-    if (!mediaId) {
+  private formatDate(value: unknown): string {
+    if (!value && value !== 0) {
       return '';
     }
 
-    const media = mediaMap.get(mediaId);
-    if (!media) {
-      return '';
+    if (typeof value === 'string') {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? value : date.toISOString();
     }
 
-    return media.mediumUrl || media.originalUrl || media.thumbnailUrl || '';
+    if (
+      typeof value === 'object' &&
+      value !== null &&
+      typeof (value as { toISOString?: unknown }).toISOString === 'function'
+    ) {
+      return (value as { toISOString: () => string }).toISOString();
+    }
+
+    return '';
   }
 
   private buildResponse(profile: any) {

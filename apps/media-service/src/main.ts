@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import { Transport } from '@nestjs/microservices';
 import { join } from 'path';
@@ -10,7 +11,13 @@ const grpcPort = Number(process.env.MEDIA_GRPC_PORT) || 3009;
 const httpPort = Number(process.env.MEDIA_HTTP_PORT) || 4009;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const mediaStoragePath =
+    process.env.MEDIA_STORAGE_PATH || join(process.cwd(), 'storage');
+
+  app.useStaticAssets(mediaStoragePath, {
+    prefix: '/media',
+  });
 
   app.connectMicroservice({
     transport: Transport.GRPC,

@@ -37,14 +37,14 @@ message GetProfileRequest {
 }
 
 message UpdateProfileRequest {
-  string userId   = 1;
-  string name     = 2;
-  string bio      = 3;
-  string avatarMediaId = 4;
-  string coverMediaId  = 5;
-  string location = 6;
-  string website  = 7;
-  string birthDate= 8;
+  string userId         = 1;
+  optional string name  = 2;
+  optional string bio   = 3;
+  optional string avatarMediaId = 4;
+  optional string coverMediaId  = 5;
+  optional string location = 6;
+  optional string website  = 7;
+  optional string birthDate = 8;
 }
 
 message DeleteAccountRequest {
@@ -108,8 +108,8 @@ message UserProfile {
   string name           = 2;
   string email          = 3;
   string bio            = 4;
-  string avatar         = 5;
-  string coverImg       = 6;
+  string avatarMediaId  = 5;
+  string coverMediaId   = 6;
   string location       = 7;
   string website        = 8;
   string birthDate      = 9;
@@ -119,6 +119,8 @@ message UserProfile {
   bool   isFollowing    = 13;
   bool   isOnline       = 14;
   string createdAt      = 15;
+  string avatar         = 16;
+  string coverImg       = 17;
 }
 
 message ProfileResponse {

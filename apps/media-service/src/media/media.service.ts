@@ -167,14 +167,15 @@ export class MediaService {
         status: DbMediaStatus.DONE,
       });
 
-      await this.redis.setMedia(media.id, media.toObject());
+      const plain = media.toObject({ virtuals: true });
+      await this.redis.setMedia(media.id, plain);
 
       return {
         success: true,
 
         message: 'Image uploaded successfully.',
 
-        media,
+        media: this.mapMediaId(plain),
       };
     } catch (error) {
       await Promise.all([
@@ -201,12 +202,13 @@ export class MediaService {
       type: normalizeMediaType(dto.type),
       status: normalizeMediaStatus(dto.status),
     });
-    await this.redis.setMedia(media.id, media.toObject());
+    const plain = media.toObject({ virtuals: true });
+    await this.redis.setMedia(media.id, plain);
 
     return {
       success: true,
       message: 'Media created successfully.',
-      media,
+      media: this.mapMediaId(plain),
     };
   }
 
@@ -217,7 +219,7 @@ export class MediaService {
       return {
         success: true,
         message: 'Media fetched successfully.',
-        media: cached,
+        media: this.mapMediaId(cached),
       };
     }
     const media = await this.mediaModel.findById(mediaId);
@@ -225,13 +227,26 @@ export class MediaService {
     if (!media) {
       throw new NotFoundException('Media not found.');
     }
-    await this.redis.setMedia(media.id, media.toObject());
+    const plain = media.toObject({ virtuals: true });
+    await this.redis.setMedia(media.id, plain);
 
     return {
       success: true,
       message: 'Media fetched successfully.',
-      media,
+      media: this.mapMediaId(plain),
     };
+  }
+
+  private mapMediaId(media: unknown) {
+    if (!media || typeof media !== 'object') {
+      return media;
+    }
+    const rawMedia = media as Record<string, unknown>;
+    const id = rawMedia.id ?? rawMedia._id;
+    if (typeof id === 'string' || typeof id === 'number') {
+      return { ...rawMedia, id: String(id) };
+    }
+    return media;
   }
 
   async listUserMedia(
@@ -349,11 +364,12 @@ export class MediaService {
     if (!media) {
       throw new NotFoundException();
     }
-    await this.redis.setMedia(media.id, media.toObject());
+    const plain = media.toObject({ virtuals: true });
+    await this.redis.setMedia(media.id, plain);
     return {
       success: true,
       message: 'Media fetched successfully.',
-      media,
+      media: this.mapMediaId(plain),
     };
   }
 
@@ -392,7 +408,7 @@ export class MediaService {
       });
 
       for (const media of medias) {
-        const plain = media.toObject();
+        const plain = media.toObject({ virtuals: true });
 
         await this.redis.setMedia(media.id, plain);
 
@@ -403,7 +419,7 @@ export class MediaService {
     return {
       success: true,
       message: 'Media fetched successfully.',
-      media: result,
+      media: result.map((item) => this.mapMediaId(item)),
     };
   }
 }

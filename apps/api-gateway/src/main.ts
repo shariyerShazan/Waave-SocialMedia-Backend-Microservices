@@ -30,5 +30,8 @@ async function bootstrap() {
   const httpPort = Number(process.env.API_GATEWAY_HTTP_PORT!) || 4000;
   await app.listen(httpPort ?? 4000);
   console.log(`🚀 Gateway HTTP Server: http://localhost:${httpPort}`);
+  console.log(
+    `🚀 Gateway HTTP Server Swagger Docs: http://localhost:${httpPort}/docs`,
+  );
 }
 void bootstrap();

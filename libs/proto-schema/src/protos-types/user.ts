@@ -18,13 +18,13 @@ export interface GetProfileRequest {
 
 export interface UpdateProfileRequest {
   userId: string;
-  name: string;
-  bio: string;
-  avatarMediaId: string;
-  coverMediaId: string;
-  location: string;
-  website: string;
-  birthDate: string;
+  name?: string | undefined;
+  bio?: string | undefined;
+  avatarMediaId?: string | undefined;
+  coverMediaId?: string | undefined;
+  location?: string | undefined;
+  website?: string | undefined;
+  birthDate?: string | undefined;
 }
 
 export interface DeleteAccountRequest {
@@ -88,8 +88,8 @@ export interface UserProfile {
   name: string;
   email: string;
   bio: string;
-  avatar: string;
-  coverImg: string;
+  avatarMediaId: string;
+  coverMediaId: string;
   location: string;
   website: string;
   birthDate: string;
@@ -99,6 +99,8 @@ export interface UserProfile {
   isFollowing: boolean;
   isOnline: boolean;
   createdAt: string;
+  avatar: string;
+  coverImg: string;
 }
 
 export interface ProfileResponse {
