@@ -39,7 +39,7 @@ export class AuthClient implements OnModuleInit {
     throw new HttpException(
       {
         success: false,
-        message: err?.details ?? err?.message ?? 'Media Service Error',
+        message: err?.details ?? err?.message ?? 'Something went wrong',
       },
       HttpStatus.BAD_REQUEST,
     );

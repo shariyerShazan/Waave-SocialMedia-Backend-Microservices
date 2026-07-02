@@ -4,6 +4,7 @@ import { Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { GrpcExceptionFilter } from '@app/common';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 const grpcPort = Number(process.env.AUTH_GRPC_PORT) || 3001;
 const httpPort = Number(process.env.AUTH_HTTP_PORT) || 4001;
@@ -39,9 +40,23 @@ async function bootstrap() {
     }),
   );
 
+  const config = new DocumentBuilder()
+    .setTitle('My Product Auth-service API')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addCookieAuth('accessToken')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
   await app.startAllMicroservices();
   await app.listen(httpPort);
   console.log(`🚀 Auth HTTP Server: http://localhost:${httpPort}`);
+  console.log(
+    `🚀 Auth HTTP Server Swagger Docs: http://localhost:${httpPort}/docs`,
+  );
   console.log(`🚀 Auth gRPC Server: 0.0.0.0:${grpcPort}`);
 }
 void bootstrap();

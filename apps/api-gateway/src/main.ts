@@ -17,7 +17,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('My Product  API')
+    .setTitle('My Product API')
     .setDescription('The API description')
     .setVersion('1.0')
     .addBearerAuth()

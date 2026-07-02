@@ -9,6 +9,7 @@ import {
   KAFKA_CONSUMER_GROUPS,
 } from '@app/kafka';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 const grpcPort = Number(process.env.USER_GRPC_PORT) || 3002;
 const httpPort = Number(process.env.USER_HTTP_PORT) || 4002;
@@ -55,9 +56,23 @@ async function bootstrap() {
     }),
   );
 
+  const config = new DocumentBuilder()
+    .setTitle('My Product User-service API')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addCookieAuth('accessToken')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
   await app.startAllMicroservices();
   await app.listen(httpPort);
   console.log(`🚀 User HTTP Server: http://localhost:${httpPort}`);
+  console.log(
+    `🚀 User HTTP Server Swagger Docs: http://localhost:${httpPort}/docs`,
+  );
   console.log(`🚀 User gRPC Server: 0.0.0.0:${grpcPort}`);
 }
 void bootstrap();

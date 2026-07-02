@@ -5,6 +5,7 @@ import { UserRedisModule } from '../redis/redis.module';
 import { UserPrismaModule } from '../prisma/prisma.module';
 import { UserConsumer } from './user.consumer';
 import { KafkaModule } from '@app/kafka';
+import { UserHttpController } from './user.http.controller';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { KafkaModule } from '@app/kafka';
     UserPrismaModule,
     KafkaModule.register('user-service'),
   ],
-  controllers: [UserGrpcController, UserConsumer],
+  controllers: [UserGrpcController, UserHttpController, UserConsumer],
   providers: [UserService],
 })
 export class UserModule {}
