@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -69,7 +68,6 @@ export class AuthHttpController {
   }
 
   @Post('logout')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout user' })
   logout(@Body('userId') userId: string) {
     return this.authService.logout(userId);
@@ -97,7 +95,6 @@ export class AuthHttpController {
   }
 
   @Get('user/:userId')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user by id' })
   @ApiParam({ name: 'userId' })
   getUserById(@Param('userId') userId: string) {
@@ -105,7 +102,6 @@ export class AuthHttpController {
   }
 
   @Get('user-by-email')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user by email' })
   @ApiQuery({ name: 'email' })
   getUserByEmail(@Query('email') email: string) {
@@ -113,7 +109,6 @@ export class AuthHttpController {
   }
 
   @Get('users')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all users with pagination' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })

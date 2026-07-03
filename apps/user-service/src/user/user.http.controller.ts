@@ -8,7 +8,6 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -43,7 +42,6 @@ class UpdateUserProfileDto extends UpdateProfileDto {
 }
 
 @ApiTags('Users')
-@ApiBearerAuth()
 @Controller('users')
 export class UserHttpController {
   constructor(private readonly userService: UserService) {}

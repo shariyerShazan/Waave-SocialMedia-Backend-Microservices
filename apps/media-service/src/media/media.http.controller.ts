@@ -14,7 +14,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
@@ -28,7 +27,6 @@ import { MediaService } from './media.service';
 import { UpdateMediaStatusDto, UploadImageDto } from '@app/common';
 
 @ApiTags('Media')
-@ApiBearerAuth()
 @Controller('media')
 export class MediaHttpController {
   constructor(private readonly mediaService: MediaService) {}

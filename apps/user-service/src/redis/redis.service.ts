@@ -11,8 +11,8 @@ export class UserRedisService implements OnModuleDestroy {
 
   constructor(private config: ConfigService) {
     this.client = new Redis({
-      host: config.get('REDIS_HOST', 'localhost'),
-      port: config.get('REDIS_PORT', 6379),
+      host: process.env.USER_REDIS_HOST || 'localhost',
+      port: Number(process.env.USER_REDIS_PORT) || 6378,
       retryStrategy: (times) => Math.min(times * 200, 3000),
     });
   }

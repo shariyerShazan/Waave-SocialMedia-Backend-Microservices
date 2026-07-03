@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, Logger } from '@nestjs/common';
 import { TokenService } from '../token/token.service';
@@ -15,12 +17,11 @@ import {
 } from '@app/common';
 import { AtuhPrismaService } from '../prisma/prisma.service';
 import { ChangePassRequest } from '@app/proto-schema/protos-types/auth';
-
-export interface UserRegisteredEvent {
-  userId: string;
-  email: string;
-  name: string;
-}
+import type {
+  SendRegistrationOtpEvent,
+  SendResetPassOtpEvent,
+  UserRegisteredEvent,
+} from '@app/kafka/constants/events.type';
 
 export interface UserLoginEvent {
   userId: string;
@@ -73,17 +74,21 @@ export class AuthService {
       KAFKA_TOPICS.USER_REGISTERED,
     );
 
-    await this.kafka.emit(KAFKA_TOPICS.USER_REGISTERED, {
+    const registerEvent: UserRegisteredEvent = {
       userId: authUser.id,
       email: authUser.email,
       name: authUser.name,
-    });
+    };
 
-    await this.kafka.emit(KAFKA_TOPICS.SEND_REGISTRATION_OTP, {
+    await this.kafka.emit(KAFKA_TOPICS.USER_REGISTERED, registerEvent);
+
+    const sendOtpEvent: SendRegistrationOtpEvent = {
       email: authUser.email,
       name: authUser.name,
       otp,
-    });
+    };
+
+    await this.kafka.emit(KAFKA_TOPICS.SEND_REGISTRATION_OTP, sendOtpEvent);
 
     return {
       success: true,
@@ -143,11 +148,15 @@ export class AuthService {
       KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST,
     );
 
-    await this.kafka.emit(KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST, {
+    const resetPassOtpEvent: SendResetPassOtpEvent = {
       email: dto.email,
       name: user.name,
       otp,
-    });
+    };
+    await this.kafka.emit(
+      KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST,
+      resetPassOtpEvent,
+    );
 
     return {
       success: true,

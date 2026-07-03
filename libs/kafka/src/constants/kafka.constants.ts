@@ -29,26 +29,6 @@ export const KAFKA_TOPICS = {
   USER_PROFILE_UPDATED: 'user.profile-updated',
   USER_PROFILE_FOLLOWED: 'user.profile-followed',
   USER_PROFILE_UNFOLLOWED: 'user.profile-unfollowed',
-
-  //EVENT EVENTS
-  EVENT_CREATED: 'event.created',
-  EVENT_UPDATED: 'event.updated',
-  EVENT_CANCELLED: 'event.cancelled',
-  EVENT_PUBLISHED: 'event.published',
-
-  // TICKET EVENTS
-  TICKET_PURCHASED: 'ticket.purchased',
-  TICKET_CANCELLED: 'ticket.cancelled',
-  TICKET_CHECKED_IN: 'ticket.checked-in',
-
-  //PAYMENT EVENTS
-  PAYMENT_COMPLETED: 'payment.completed',
-  PAYMENT_FAILED: 'payment.failed',
-  PAYMENT_REFUNDED: 'payment.refunded',
-
-  // NOTIFICATION EVENTS
-  SEND_MAIL: 'notification.send-mail',
-  SEND_PUSH: 'notification.send-push',
 };
 
 export type KafkaTopics = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];

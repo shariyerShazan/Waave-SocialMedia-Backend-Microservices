@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // user/user.service.ts
@@ -7,6 +10,7 @@ import { RpcException } from '@nestjs/microservices';
 import { UserRedisService } from '../redis/redis.service';
 import { UpdateProfileDto } from '@app/common';
 import { UserPrismaService } from '../prisma/prisma.service';
+import type { UserFollowEvent } from '@app/kafka/constants/events.type';
 
 @Injectable()
 export class UserService {
@@ -167,11 +171,12 @@ export class UserService {
       select: { name: true },
     });
 
-    await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_FOLLOWED, {
+    const followEvent: UserFollowEvent = {
       followerId,
       targetId,
       followerName: follower?.name,
-    });
+    };
+    await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_FOLLOWED, followEvent);
 
     this.logger.log(`✅ ${followerId} followed ${targetId}`);
 
@@ -224,10 +229,18 @@ export class UserService {
     await this.redis.invalidateProfile(targetId);
     await this.redis.invalidateProfile(followerId);
 
-    await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_UNFOLLOWED, {
+    const follower = await this.prisma.profile.findUnique({
+      where: { id: followerId },
+      select: { name: true },
+    });
+
+    const followEvent: UserFollowEvent = {
       followerId,
       targetId,
-    });
+      followerName: follower?.name,
+    };
+
+    await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_UNFOLLOWED, followEvent);
 
     return {
       success: true,

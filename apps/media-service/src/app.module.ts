@@ -13,7 +13,7 @@ import { MediaRedisModule } from './redis/redis.module';
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: process.env.MEDIA_DB_URL_MONGO!,
+        uri: process.env.MEDIA_MONGO_DB_URL!,
       }),
     }),
     MediaModule,

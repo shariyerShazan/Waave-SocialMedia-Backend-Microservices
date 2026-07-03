@@ -6,6 +6,7 @@ import {
   KAFKA_CONSUMER_GROUPS,
 } from '@app/kafka';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,17 @@ async function bootstrap() {
       },
     },
   });
+
+  const config = new DocumentBuilder()
+    .setTitle('My Product Notification API')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addCookieAuth('accessToken')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   await app.startAllMicroservices();
   const httpPort = Number(process.env.NOTIFICATION_HTTP_PORT!) || 4010;

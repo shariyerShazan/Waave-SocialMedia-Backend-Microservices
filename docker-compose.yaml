@@ -1,6 +1,6 @@
 
 services:
-  # ── Databases ──────────────────────────────────
+  # ── Databases Postgres ──────────────────────────────────
   auth-postgres-primary:
     image: postgres:17
     container_name: product_postgres_auth_primary
@@ -25,9 +25,10 @@ services:
     volumes:
       - user-postgres-primary_data:/var/lib/postgresql/data
 
+  # mongodb database
   media_mongo_db_primary:
     image: mongo:7
-    container_name: product_mongo_primary
+    container_name: product_mongo_primary_media
     ports:
       - "27017:27017"
     environment:
@@ -35,6 +36,22 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - media_mongo_primary_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  notification_mongo_db_primary:
+    image: mongo:7
+    container_name: product_mongo_primary_notification
+    ports:
+      - "27016:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo123
+    volumes:
+      - notification_mongo_primary_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -96,7 +113,6 @@ services:
       timeout: 5s
       retries: 5
 
-
   media_redis:
     image: redis:7-alpine
     container_name: product_redis_media
@@ -109,6 +125,24 @@ services:
       --appendonly yes
     volumes:
       - media_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  notification_redis:
+    image: redis:7-alpine
+    container_name: product_redis_notification
+    ports:
+      - "6375:6379"
+    command: >
+      redis-server
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    volumes:
+      - notification_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -215,8 +249,10 @@ volumes:
   auth-postgres-primary_data:
   user-postgres-primary_data:
   media_mongo_primary_data:
+  notification_mongo_primary_data:
   auth_redis_data:
   user_redis_data:
   media_redis_data:
   api_gateway_redis_data:
+  notification_redis_data:
   kafka_data:
