@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { RateLimiterModule } from './rateLimit/rateLimit.module';
 import { MediaModule } from './media/media.module';
 import { SharedEnrichmentModule } from './shared/shared-enrichment.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { SharedEnrichmentModule } from './shared/shared-enrichment.module';
     RateLimiterModule,
     MediaModule,
     SharedEnrichmentModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}

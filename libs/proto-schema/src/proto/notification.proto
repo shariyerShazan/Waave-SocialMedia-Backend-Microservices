@@ -3,19 +3,26 @@ syntax = "proto3";
 package notification;
 
 service NotificationGrpcService {
-  rpc GetNotifications (GetNotificationsRequest) returns (GetNotificationsResponse);
-  rpc GetNotificationById (GetNotificationByIdRequest) returns (NotificationModel);
-  rpc MarkAsRead (MarkAsReadRequest) returns (ActionResponse);
-  rpc MarkAllAsRead (MarkAllAsReadRequest) returns (ActionResponse);
+  rpc GetNotifications(GetNotificationsRequest)
+      returns (GetNotificationsResponse);
+
+  rpc MarkAsRead(MarkAsReadRequest)
+      returns (ActionResponse);
+
+  rpc MarkAllAsRead(MarkAllAsReadRequest)
+      returns (ActionResponse);
+
+  rpc DeleteNotification(DeleteNotificationRequest)
+      returns (ActionResponse);
+
+  rpc GetPreferences(GetPreferencesRequest)
+      returns (NotificationPreference);
+
+  rpc UpdatePreferences(UpdatePreferencesRequest)
+      returns (NotificationPreference);
 }
 
-message GetNotificationsRequest {
-  string userId = 1;
-  int32 page = 2;
-  int32 limit = 3;
-}
-
-message NotificationModel {
+message Notification {
   string id = 1;
   string toUserId = 2;
   string fromUserId = 3;
@@ -24,27 +31,23 @@ message NotificationModel {
   string type = 6;
   string title = 7;
   string body = 8;
-  bool isRead = 9;
-  string createdAt = 10;
-  NotificationData data = 11;
+  string createdAt = 9;
+  bool isRead = 10;
+
+  map<string,string> data = 11;
 }
 
-message NotificationData {
-  string postId = 1;
-  string commentId = 2;
-  string groupId = 3;
+message GetNotificationsRequest {
+  string userId = 1;
+  int32 page = 2;
+  int32 limit = 3;
 }
 
 message GetNotificationsResponse {
-  repeated NotificationModel notifications = 1;
+  repeated Notification notifications = 1;
   int32 total = 2;
   int32 unreadCount = 3;
   int32 page = 4;
-}
-
-message GetNotificationByIdRequest {
-  string userId = 1;
-  string notificationId = 2;
 }
 
 message MarkAsReadRequest {
@@ -56,6 +59,38 @@ message MarkAllAsReadRequest {
   string userId = 1;
 }
 
+message DeleteNotificationRequest {
+  string userId = 1;
+  string notificationId = 2;
+}
+
+message GetPreferencesRequest {
+  string userId = 1;
+}
+
+message UpdatePreferencesRequest {
+  string userId = 1;
+
+  bool likes = 2;
+  bool comments = 3;
+  bool follows = 4;
+  bool unfollows = 5;
+  bool mentions = 6;
+  bool messages = 7;
+}
+
+message NotificationPreference {
+  string userId = 1;
+
+  bool likes = 2;
+  bool comments = 3;
+  bool follows = 4;
+  bool unfollows = 5;
+  bool mentions = 6;
+  bool messages = 7;
+}
+
 message ActionResponse {
   bool success = 1;
+  string message = 2;
 }

@@ -4,7 +4,6 @@ import { NotificationService } from '../notification/notification.service';
 import { EmailModule } from '../email/email.module';
 import { NotificationConsumer } from './notification.consumer';
 import { NotificationRedisService } from '../redis/redis.service';
-// import { FcmService } from '../fcm/fcm.service';
 import { NotificationGateway } from './notification.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
@@ -16,6 +15,7 @@ import {
   NotificationPreference,
   NotificationPreferenceSchema,
 } from '../schemas/notification-preference.schema';
+import { NotificationGrpcController } from './notification.grpc.controller';
 
 @Module({
   imports: [
@@ -31,11 +31,14 @@ import {
       },
     ]),
   ],
-  controllers: [NotificationHttpController, NotificationConsumer],
+  controllers: [
+    NotificationHttpController,
+    NotificationConsumer,
+    NotificationGrpcController,
+  ],
   providers: [
     NotificationService,
     NotificationRedisService,
-    // FcmService,
     NotificationGateway,
   ],
 })

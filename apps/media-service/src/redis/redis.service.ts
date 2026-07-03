@@ -9,7 +9,7 @@ export class MediaRedisService implements OnModuleDestroy {
     this.client = new Redis({
       host: process.env.MEDIA_REDIS_HOST || 'localhost',
       port: Number(process.env.MEDIA_REDIS_PORT) || 6376,
-      retryStrategy: (times) => Math.min(times * 200, 3000),
+      retryStrategy: (times: number) => Math.min(times * 200, 3000),
     });
   }
 

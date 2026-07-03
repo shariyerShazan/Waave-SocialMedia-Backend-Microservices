@@ -13,7 +13,7 @@ export class UserRedisService implements OnModuleDestroy {
     this.client = new Redis({
       host: process.env.USER_REDIS_HOST || 'localhost',
       port: Number(process.env.USER_REDIS_PORT) || 6378,
-      retryStrategy: (times) => Math.min(times * 200, 3000),
+      retryStrategy: (times: number) => Math.min(times * 200, 3000),
     });
   }
 

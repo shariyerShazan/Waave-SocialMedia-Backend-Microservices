@@ -10,13 +10,7 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "notification";
 
-export interface GetNotificationsRequest {
-  userId: string;
-  page: number;
-  limit: number;
-}
-
-export interface NotificationModel {
+export interface Notification {
   id: string;
   toUserId: string;
   fromUserId: string;
@@ -25,27 +19,27 @@ export interface NotificationModel {
   type: string;
   title: string;
   body: string;
-  isRead: boolean;
   createdAt: string;
-  data: NotificationData | undefined;
+  isRead: boolean;
+  data: { [key: string]: string };
 }
 
-export interface NotificationData {
-  postId: string;
-  commentId: string;
-  groupId: string;
+export interface Notification_DataEntry {
+  key: string;
+  value: string;
+}
+
+export interface GetNotificationsRequest {
+  userId: string;
+  page: number;
+  limit: number;
 }
 
 export interface GetNotificationsResponse {
-  notifications: NotificationModel[];
+  notifications: Notification[];
   total: number;
   unreadCount: number;
   page: number;
-}
-
-export interface GetNotificationByIdRequest {
-  userId: string;
-  notificationId: string;
 }
 
 export interface MarkAsReadRequest {
@@ -57,8 +51,38 @@ export interface MarkAllAsReadRequest {
   userId: string;
 }
 
+export interface DeleteNotificationRequest {
+  userId: string;
+  notificationId: string;
+}
+
+export interface GetPreferencesRequest {
+  userId: string;
+}
+
+export interface UpdatePreferencesRequest {
+  userId: string;
+  likes: boolean;
+  comments: boolean;
+  follows: boolean;
+  unfollows: boolean;
+  mentions: boolean;
+  messages: boolean;
+}
+
+export interface NotificationPreference {
+  userId: string;
+  likes: boolean;
+  comments: boolean;
+  follows: boolean;
+  unfollows: boolean;
+  mentions: boolean;
+  messages: boolean;
+}
+
 export interface ActionResponse {
   success: boolean;
+  message: string;
 }
 
 export const NOTIFICATION_PACKAGE_NAME = "notification";
@@ -66,11 +90,15 @@ export const NOTIFICATION_PACKAGE_NAME = "notification";
 export interface NotificationGrpcServiceClient {
   getNotifications(request: GetNotificationsRequest): Observable<GetNotificationsResponse>;
 
-  getNotificationById(request: GetNotificationByIdRequest): Observable<NotificationModel>;
-
   markAsRead(request: MarkAsReadRequest): Observable<ActionResponse>;
 
   markAllAsRead(request: MarkAllAsReadRequest): Observable<ActionResponse>;
+
+  deleteNotification(request: DeleteNotificationRequest): Observable<ActionResponse>;
+
+  getPreferences(request: GetPreferencesRequest): Observable<NotificationPreference>;
+
+  updatePreferences(request: UpdatePreferencesRequest): Observable<NotificationPreference>;
 }
 
 export interface NotificationGrpcServiceController {
@@ -78,18 +106,33 @@ export interface NotificationGrpcServiceController {
     request: GetNotificationsRequest,
   ): Promise<GetNotificationsResponse> | Observable<GetNotificationsResponse> | GetNotificationsResponse;
 
-  getNotificationById(
-    request: GetNotificationByIdRequest,
-  ): Promise<NotificationModel> | Observable<NotificationModel> | NotificationModel;
-
   markAsRead(request: MarkAsReadRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
   markAllAsRead(request: MarkAllAsReadRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+
+  deleteNotification(
+    request: DeleteNotificationRequest,
+  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+
+  getPreferences(
+    request: GetPreferencesRequest,
+  ): Promise<NotificationPreference> | Observable<NotificationPreference> | NotificationPreference;
+
+  updatePreferences(
+    request: UpdatePreferencesRequest,
+  ): Promise<NotificationPreference> | Observable<NotificationPreference> | NotificationPreference;
 }
 
 export function NotificationGrpcServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getNotifications", "getNotificationById", "markAsRead", "markAllAsRead"];
+    const grpcMethods: string[] = [
+      "getNotifications",
+      "markAsRead",
+      "markAllAsRead",
+      "deleteNotification",
+      "getPreferences",
+      "updatePreferences",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("NotificationGrpcService", method)(constructor.prototype[method], method, descriptor);

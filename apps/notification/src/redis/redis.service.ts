@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-empty */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
@@ -13,13 +12,15 @@ export class NotificationRedisService implements OnModuleDestroy {
   private client: Redis;
   private publisher: Redis;
   private subscriber: Redis;
-  socketHandlers: any;
+  private readonly socketHandlers: Array<
+    (data: { userId: string; notification: unknown }) => void
+  > = [];
 
   constructor(private readonly config: ConfigService) {
     const opts = {
       host: process.env.NOTIFICATION_REDIS_HOST || 'localhost',
       port: Number(process.env.NOTIFICATION_REDIS_PORT) || 6375,
-      retryStrategy: (times) => Math.min(times * 200, 3000),
+      retryStrategy: (times: number) => Math.min(times * 200, 3000),
     };
 
     this.client = new Redis(opts);

@@ -42,7 +42,7 @@ export class NotificationGateway
   ) {}
 
   afterInit() {
-    this.logger.log('✅ Notification Gateway initialized');
+    this.logger.log('Notification Gateway initialized');
 
     this.redis.onPushNotification(async ({ userId, notification }) => {
       this.server.to(`user:${userId}`).emit('notification:new', notification);

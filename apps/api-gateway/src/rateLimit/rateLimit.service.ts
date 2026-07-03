@@ -9,7 +9,7 @@ export class RateLimiterService implements OnModuleDestroy {
     this.client = new Redis({
       host: process.env.API_GATEWAY_REDIS_HOST || 'localhost',
       port: Number(process.env.API_GATEWAY_REDIS_PORT) || 6377,
-      retryStrategy: (times) => Math.min(times * 200, 3000),
+      retryStrategy: (times: number) => Math.min(times * 200, 3000),
     });
   }
 

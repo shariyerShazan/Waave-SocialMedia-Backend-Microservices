@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { Transport } from '@nestjs/microservices';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import {
   KAFKA_BROKERS,
   KAFKA_CLIENT_IDS,
@@ -7,9 +7,32 @@ import {
 } from '@app/kafka';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { join } from 'path';
+
+const httpPort = Number(process.env.NOTIFICATION_HTTP_PORT!) || 4010;
+const grpcPort = Number(process.env.NOTIFICATION_GRPC_PORT!) || 3010;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: 'notification',
+      protoPath: join(
+        process.cwd(),
+        'libs/proto-schema/src/proto/notification.proto',
+      ),
+      url: `0.0.0.0:${grpcPort}`,
+      loader: {
+        keepCase: true,
+        longs: String,
+        enums: String,
+        defaults: true,
+        oneofs: true,
+      },
+    },
+  });
 
   app.connectMicroservice({
     transport: Transport.KAFKA,
@@ -36,9 +59,13 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   await app.startAllMicroservices();
-  const httpPort = Number(process.env.NOTIFICATION_HTTP_PORT!) || 4010;
+
   await app.listen(httpPort);
   console.log(`🚀 Notification HTTP Server: http://localhost:${httpPort}`);
+  console.log(
+    `🚀 Notification HTTP Server Swagger Docs: http://localhost:${httpPort}/docs`,
+  );
+  console.log(`🚀 Notification gRPC Server: 0.0.0.0:${grpcPort}`);
 }
 
 void bootstrap();

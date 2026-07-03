@@ -8,7 +8,7 @@ export class AuthRedisService implements OnModuleDestroy {
     this.client = new Redis({
       host: process.env.AUTH_REDIS_HOST || 'localhost',
       port: Number(process.env.AUTH_REDIS_PORT) || 6379,
-      retryStrategy: (times) => Math.min(times * 200, 3000),
+      retryStrategy: (times: number) => Math.min(times * 200, 3000),
     });
   }
   async onModuleDestroy() {
