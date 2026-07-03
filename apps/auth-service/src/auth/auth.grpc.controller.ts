@@ -2,7 +2,6 @@ import { GrpcMethod } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { Controller } from '@nestjs/common';
 import {
-  // ChangePasswordDto,
   ForgotPassDto,
   LoginDto,
   RegisterDto,
