@@ -21,3 +21,9 @@ export interface UserFollowEvent {
   targetId: string;
   followerName: string;
 }
+
+export interface UserUnfollowEvent {
+  followerId: string;
+  targetId: string;
+  followerName: string;
+}

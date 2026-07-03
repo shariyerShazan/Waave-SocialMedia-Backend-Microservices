@@ -10,7 +10,10 @@ import { RpcException } from '@nestjs/microservices';
 import { UserRedisService } from '../redis/redis.service';
 import { UpdateProfileDto } from '@app/common';
 import { UserPrismaService } from '../prisma/prisma.service';
-import type { UserFollowEvent } from '@app/kafka/constants/events.type';
+import type {
+  UserFollowEvent,
+  UserUnfollowEvent,
+} from '@app/kafka/constants/events.type';
 
 @Injectable()
 export class UserService {
@@ -170,6 +173,12 @@ export class UserService {
       where: { id: followerId },
       select: { name: true },
     });
+    if (!follower) {
+      throw new RpcException({
+        code: 5,
+        message: 'Follower not found',
+      });
+    }
 
     const followEvent: UserFollowEvent = {
       followerId,
@@ -233,11 +242,17 @@ export class UserService {
       where: { id: followerId },
       select: { name: true },
     });
+    if (!follower) {
+      throw new RpcException({
+        code: 5,
+        message: 'Follower not found',
+      });
+    }
 
-    const followEvent: UserFollowEvent = {
+    const followEvent: UserUnfollowEvent = {
       followerId,
       targetId,
-      followerName: follower?.name,
+      followerName: follower.name,
     };
 
     await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_UNFOLLOWED, followEvent);

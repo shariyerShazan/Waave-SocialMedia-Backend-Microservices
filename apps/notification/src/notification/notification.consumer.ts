@@ -5,7 +5,9 @@ import { EmailService } from '../email/email.service';
 import { NotificationService } from './notification.service';
 import type {
   SendRegistrationOtpEvent,
+  SendResetPassOtpEvent,
   UserFollowEvent,
+  UserUnfollowEvent,
 } from '@app/kafka/constants/events.type';
 
 @Controller()
@@ -44,7 +46,7 @@ export class NotificationConsumer {
   }
 
   @EventPattern(KAFKA_TOPICS.USER_PROFILE_UNFOLLOWED)
-  async handleUnfollow(@Payload() data: UserFollowEvent) {
+  async handleUnfollow(@Payload() data: UserUnfollowEvent) {
     await this.notificationService.create({
       type: 'unfollow',
       toUserId: data.targetId,
@@ -59,9 +61,7 @@ export class NotificationConsumer {
   }
 
   @EventPattern(KAFKA_TOPICS.USER_FORGOT_PASS_REQUEST)
-  async handleForgotPassword(
-    @Payload() data: { email: string; name: string; otp: string },
-  ) {
+  async handleForgotPassword(@Payload() data: SendResetPassOtpEvent) {
     try {
       await this.emailService.sendForgotPasswordOtp({
         email: data.email,
