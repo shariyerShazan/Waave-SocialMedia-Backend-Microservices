@@ -179,6 +179,24 @@ services:
       timeout: 5s
       retries: 5
 
+  post_redis:
+    image: redis:7-alpine
+    container_name: product_redis_post
+    ports:
+      - "6374:6379"
+    command: >
+      redis-server
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    volumes:
+      - post_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ── Kafka ──────────────────────────────────────
   kafka:
     image: confluentinc/cp-kafka:7.6.0
@@ -286,4 +304,5 @@ volumes:
   media_redis_data:
   api_gateway_redis_data:
   notification_redis_data:
+  post_redis_data:
   kafka_data:

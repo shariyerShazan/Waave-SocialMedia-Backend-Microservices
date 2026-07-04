@@ -13,10 +13,106 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model Post {
   id            String      @id @default(uuid())
   userId        String
   content       String
+  mediaUrls     String[]    @default([])
+  feeling       String?
+  location      String?
+  privacy       Privacy     @default(PUBLIC)
+  likesCount    Int         @default(0)
+  commentsCount Int         @default(0)
+  sharesCount   Int         @default(0)
+  viewsCount    Int         @default(0)
+  isDeleted     Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
+  comments   Comment[]
+  reactions  Reaction[]
+  bookmarks  Bookmark[]
+  shares     Share[]
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@map("posts")
+}
+
+model Comment {
+  id            String    @id @default(uuid())
+  postId        String
+  userId        String
+  text          String
+  parentId      String?
+  likesCount    Int       @default(0)
+  repliesCount  Int       @default(0)
+  isDeleted     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  post     Post      @relation(fields: [postId],   references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("Replies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("Replies")
+
+  @@index([postId])
+  @@index([parentId])
+  @@index([userId])
+  @@map("comments")
+}
+
+model Reaction {
+  id           String       @id @default(uuid())
+  postId       String
+  userId       String
+  reactionType ReactionType @default(LIKE)
+  createdAt    DateTime     @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@map("reactions")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@map("bookmarks")
+}
+
+model Share {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  comment   String?
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([userId])
+  @@map("shares")
+}
+
+enum Privacy {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
+enum ReactionType {
+  LIKE
+  LOVE
+  HAHA
+  WOW
+  SAD
+  ANGRY
 }

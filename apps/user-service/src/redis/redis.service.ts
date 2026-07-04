@@ -17,6 +17,10 @@ export class UserRedisService implements OnModuleDestroy {
     });
   }
 
+  async onModuleDestroy() {
+    await this.client.quit();
+  }
+
   // ── Profile Cache ─────────────────────────────
   async cacheProfile(userId: string, profile: any) {
     await this.client.set(
@@ -122,9 +126,5 @@ export class UserRedisService implements OnModuleDestroy {
   async getCachedSearch(query: string): Promise<any[] | null> {
     const data = await this.client.get(`search:users:${query.toLowerCase()}`);
     return data ? JSON.parse(data) : null;
-  }
-
-  async onModuleDestroy() {
-    await this.client.quit();
   }
 }
