@@ -22,4 +22,4 @@ import { MediaRedisModule } from './redis/redis.module';
     MediaRedisModule,
   ],
 })
-export class AppModule {}
+export class MediaAppModule {}

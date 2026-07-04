@@ -1,25 +1,22 @@
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { GrpcExceptionFilter } from '@app/common';
 import { ValidationPipe } from '@nestjs/common';
+import { Transport } from '@nestjs/microservices';
 import { join } from 'path';
-import {
-  KAFKA_BROKERS,
-  KAFKA_CLIENT_IDS,
-  KAFKA_CONSUMER_GROUPS,
-} from '@app/kafka';
-import { UserAppModule } from './app.module';
+import { GrpcExceptionFilter } from '@app/common';
+import { PostAppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-const grpcPort = Number(process.env.USER_GRPC_PORT) || 3002;
-const httpPort = Number(process.env.USER_HTTP_PORT) || 4002;
+const grpcPort = Number(process.env.POST_GRPC_PORT) || 3003;
+const httpPort = Number(process.env.POST_HTTP_PORT) || 4003;
+
 async function bootstrap() {
-  const app = await NestFactory.create(UserAppModule);
-  app.connectMicroservice<MicroserviceOptions>({
+  const app = await NestFactory.create(PostAppModule);
+
+  app.connectMicroservice({
     transport: Transport.GRPC,
     options: {
-      package: 'user',
-      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/user.proto'),
+      package: 'post',
+      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/post.proto'),
       url: `0.0.0.0:${grpcPort}`,
       loader: {
         keepCase: true,
@@ -27,19 +24,6 @@ async function bootstrap() {
         enums: String,
         defaults: true,
         oneofs: true,
-      },
-    },
-  });
-
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.KAFKA,
-    options: {
-      client: {
-        clientId: KAFKA_CLIENT_IDS.USER,
-        brokers: [KAFKA_BROKERS],
-      },
-      consumer: {
-        groupId: KAFKA_CONSUMER_GROUPS.USER,
       },
     },
   });
@@ -57,7 +41,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('My Product User-service API')
+    .setTitle('My Product Post-service API')
     .setDescription('The API description')
     .setVersion('1.0')
     .addBearerAuth()
@@ -69,10 +53,10 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
   await app.listen(httpPort);
-  console.log(`🚀 User HTTP Server: http://localhost:${httpPort}`);
+  console.log(`🚀 Post HTTP Server: http://localhost:${httpPort}`);
   console.log(
-    `🚀 User HTTP Server Swagger Docs: http://localhost:${httpPort}/docs`,
+    `🚀 Post HTTP Server Swagger Docs: http://localhost:${httpPort}/docs`,
   );
-  console.log(`🚀 User gRPC Server: 0.0.0.0:${grpcPort}`);
+  console.log(`🚀 Post gRPC Server: 0.0.0.0:${grpcPort}`);
 }
 void bootstrap();

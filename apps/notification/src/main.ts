@@ -5,7 +5,7 @@ import {
   KAFKA_CLIENT_IDS,
   KAFKA_CONSUMER_GROUPS,
 } from '@app/kafka';
-import { AppModule } from './app.module';
+import { NotificationAppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
 
@@ -13,7 +13,7 @@ const httpPort = Number(process.env.NOTIFICATION_HTTP_PORT!) || 4010;
 const grpcPort = Number(process.env.NOTIFICATION_GRPC_PORT!) || 3010;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(NotificationAppModule);
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,

@@ -17,4 +17,4 @@ import { TokenModule } from './token/token.module';
     ConfigModule.forRoot({ isGlobal: true }),
   ],
 })
-export class AppModule {}
+export class AuthAppModule {}

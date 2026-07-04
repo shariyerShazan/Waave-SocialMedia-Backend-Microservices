@@ -1,0 +1,218 @@
+syntax = "proto3";
+
+package post;
+
+service PostService {
+  // Post CRUD
+  rpc CreatePost    (CreatePostRequest)   returns (PostResponse);
+  rpc GetPost       (GetPostRequest)      returns (PostResponse);
+  rpc UpdatePost    (UpdatePostRequest)   returns (PostResponse);
+  rpc DeletePost    (DeletePostRequest)   returns (DeleteResponse);
+  rpc GetUserPosts  (GetUserPostsRequest) returns (PostsListResponse);
+
+  // Reactions
+  rpc LikePost      (ReactionRequest)    returns (ReactionResponse);
+  rpc UnlikePost    (ReactionRequest)    returns (ReactionResponse);
+  rpc ReactToPost   (ReactRequest)       returns (ReactionResponse);
+
+  // Comments
+  rpc AddComment    (AddCommentRequest)   returns (CommentResponse);
+  rpc GetComments   (GetCommentsRequest)  returns (CommentsListResponse);
+  rpc DeleteComment (DeleteCommentRequest)returns (DeleteResponse);
+  rpc LikeComment   (ReactionRequest)    returns (ReactionResponse);
+
+  // Share & Bookmark
+  rpc SharePost     (ShareRequest)       returns (ShareResponse);
+  rpc BookmarkPost  (ReactionRequest)    returns (ReactionResponse);
+
+  // Internal
+  rpc GetPostsByIds (GetPostsByIdsRequest)returns (PostsListResponse);
+  rpc IncrViewCount (ViewCountRequest)   returns (ViewCountResponse);
+}
+
+// ── Post Messages ─────────────────────────────────
+message CreatePostRequest {
+  string        userId     = 1;
+  optional string        content    = 2;
+  repeated string mediaUrls = 3;
+  optional string        feeling    = 4;
+  optional string        location   = 5;
+  PostPrivacy   privacy    = 6;
+  optional string        taggedUsers= 7;
+}
+
+message GetPostRequest {
+  string postId      = 1;
+  string requesterId = 2;
+}
+
+message UpdatePostRequest {
+  string      postId  = 1;
+  string      userId  = 2;
+  string      content = 3;
+  PostPrivacy privacy = 4;
+}
+
+message DeletePostRequest {
+  string postId = 1;
+  string userId = 2;
+}
+
+message GetUserPostsRequest {
+  string userId      = 1;
+  string requesterId = 2;
+  int32  page        = 3;
+  int32  limit       = 4;
+}
+
+message DeleteResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+// ── Reaction Messages ─────────────────────────────
+message ReactionRequest {
+  string postId = 1;
+  string userId = 2;
+}
+
+message ReactRequest {
+  string       postId       = 1;
+  string       userId       = 2;
+  ReactionType reactionType = 3;
+}
+
+message ReactionResponse {
+  bool   success       = 1;
+  string message       = 2;
+  int32  likesCount    = 3;
+  bool   isLiked       = 4;
+  string reactionType  = 5;
+}
+
+// ── Comment Messages ──────────────────────────────
+message AddCommentRequest {
+  string postId   = 1;
+  string userId   = 2;
+  string text     = 3;
+  string parentId = 4; 
+}
+
+message GetCommentsRequest {
+  string postId   = 1;
+  string parentId = 2;
+  int32  page     = 3;
+  int32  limit    = 4;
+}
+
+message DeleteCommentRequest {
+  string commentId = 1;
+  string userId    = 2;
+}
+
+message Comment {
+  string   id            = 1;
+  string   postId        = 2;
+  string   userId        = 3;
+  string   userName      = 4;
+  string   userAvatar    = 5;
+  string   text          = 6;
+  string   parentId      = 7;
+  int32    likesCount    = 8;
+  int32    repliesCount  = 9;
+  bool     isLiked       = 10;
+  string   createdAt     = 11;
+}
+
+message CommentResponse {
+  bool    success = 1;
+  string  message = 2;
+  Comment comment = 3;
+}
+
+message CommentsListResponse {
+  bool             success  = 1;
+  repeated Comment comments = 2;
+  int32            total    = 3;
+  int32            page     = 4;
+}
+
+// ── Share & Bookmark ──────────────────────────────
+message ShareRequest {
+  string postId  = 1;
+  string userId  = 2;
+  string comment = 3;
+}
+
+message ShareResponse {
+  bool   success     = 1;
+  string message     = 2;
+  int32  sharesCount = 3;
+}
+
+// ── View Count ────────────────────────────────────
+message ViewCountRequest {
+  string postId = 1;
+  string userId = 2;
+}
+
+message ViewCountResponse {
+  int32 viewsCount = 1;
+}
+
+// ── Internal ──────────────────────────────────────
+message GetPostsByIdsRequest {
+  repeated string postIds    = 1;
+  string          requesterId= 2;
+}
+
+// ── Post Object ───────────────────────────────────
+message Post {
+  string          id            = 1;
+  string          userId        = 2;
+  string          userName      = 3;
+  string          userAvatar    = 4;
+  string          content       = 5;
+  repeated string mediaUrls     = 6;
+  string          feeling       = 7;
+  string          location      = 8;
+  string          privacy       = 9;
+  int32           likesCount    = 10;
+  int32           commentsCount = 11;
+  int32           sharesCount   = 12;
+  int32           viewsCount    = 13;
+  bool            isLiked       = 14;
+  bool            isBookmarked  = 15;
+  string          reactionType  = 16;
+  string          createdAt     = 17;
+  string          updatedAt     = 18;
+}
+
+message PostResponse {
+  bool   success = 1;
+  string message = 2;
+  Post   post    = 3;
+}
+
+message PostsListResponse {
+  bool          success = 1;
+  repeated Post posts   = 2;
+  int32         total   = 3;
+  int32         page    = 4;
+}
+
+// ── Enums ─────────────────────────────────────────
+enum PostPrivacy {
+  PUBLIC   = 0;
+  FRIENDS  = 1;
+  PRIVATE  = 2;
+}
+
+enum ReactionType {
+  LIKE  = 0;
+  LOVE  = 1;
+  HAHA  = 2;
+  WOW   = 3;
+  SAD   = 4;
+  ANGRY = 5;
+}

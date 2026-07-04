@@ -4,14 +4,14 @@ import { ValidationPipe } from '@nestjs/common';
 import { Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { GrpcExceptionFilter } from '@app/common';
-import { AppModule } from './app.module';
+import { MediaAppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 const grpcPort = Number(process.env.MEDIA_GRPC_PORT) || 3009;
 const httpPort = Number(process.env.MEDIA_HTTP_PORT) || 4009;
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(MediaAppModule);
   const mediaStoragePath =
     process.env.MEDIA_STORAGE_PATH || join(process.cwd(), 'storage');
 

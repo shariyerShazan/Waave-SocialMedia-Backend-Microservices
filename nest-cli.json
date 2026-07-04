@@ -65,6 +65,15 @@
         "tsConfigPath": "apps/notification/tsconfig.app.json"
       }
     },
+    "post-service": {
+      "type": "application",
+      "root": "apps/post-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/post-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/post-service/tsconfig.app.json"
+      }
+    },
     "proto-schema": {
       "type": "library",
       "root": "libs/proto-schema",

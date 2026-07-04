@@ -37,6 +37,24 @@ services:
       retries: 5
       start_period: 10s
 
+  post-postgres-primary:
+    image: postgres:17
+    container_name: product_postgres_post_primary
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: post_db
+    volumes:
+      - post-postgres-primary_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   # mongodb database
   media_mongo_db_primary:
     image: mongo:7
@@ -260,6 +278,7 @@ services:
 volumes:
   auth-postgres-primary_data:
   user-postgres-primary_data:
+  post-postgres-primary_data:
   media_mongo_primary_data:
   notification_mongo_primary_data:
   auth_redis_data:

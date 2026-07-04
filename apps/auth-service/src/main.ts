@@ -3,14 +3,14 @@ import { ValidationPipe } from '@nestjs/common';
 import { Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { GrpcExceptionFilter } from '@app/common';
-import { AppModule } from './app.module';
+import { AuthAppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 const grpcPort = Number(process.env.AUTH_GRPC_PORT) || 3001;
 const httpPort = Number(process.env.AUTH_HTTP_PORT) || 4001;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AuthAppModule);
 
   app.connectMicroservice({
     transport: Transport.GRPC,
