@@ -8,9 +8,9 @@ RUN npm install
 
 COPY . .
 
-RUN npx prisma generate --schema=./apps/notification/prisma/schema.prisma
+RUN npx prisma generate --schema=./apps/post-service/prisma/schema.prisma
 
-RUN npm run build notification
+RUN npm run build post-service
 
 RUN npm prune --production
 
@@ -22,9 +22,9 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/notification/prisma ./apps/notification/prisma
+COPY --from=builder /app/apps/post-service/prisma ./apps/post-service/prisma
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 3010
+EXPOSE 3003
 
-CMD ["node", "dist/apps/notification/main.js"]
+CMD ["node", "dist/apps/post-service/main.js"]
