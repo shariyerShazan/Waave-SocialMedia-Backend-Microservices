@@ -3,7 +3,7 @@ services:
   # ── Databases Postgres ──────────────────────────────────
   auth-postgres-primary:
     image: postgres:17
-    container_name: product_postgres_auth_primary
+    container_name: waave_postgres_auth_primary
     ports:
       - "5432:5432"
     environment:
@@ -28,7 +28,7 @@ services:
 
   auth-postgres-replica:
     image: postgres:17
-    container_name: product_postgres_auth_replica
+    container_name: waave_postgres_auth_replica
     ports:
       - "5442:5432"
     environment:
@@ -57,7 +57,7 @@ services:
 
   user-postgres-primary:
     image: postgres:17
-    container_name: product_postgres_user_primary
+    container_name: waave_postgres_user_primary
     ports:
       - "5433:5432"
     environment:
@@ -76,7 +76,7 @@ services:
 
   user-postgres-replica:
     image: postgres:17
-    container_name: product_postgres_user_replica
+    container_name: waave_postgres_user_replica
     ports:
       - "5443:5432"
     environment:
@@ -105,7 +105,7 @@ services:
 
   post-postgres-primary:
     image: postgres:17
-    container_name: product_postgres_post_primary
+    container_name: waave_postgres_post_primary
     ports:
       - "5434:5432"
     environment:
@@ -124,7 +124,7 @@ services:
 
   post-postgres-replica:
     image: postgres:17
-    container_name: product_postgres_post_replica
+    container_name: waave_postgres_post_replica
     ports:
       - "5444:5432"
     environment:
@@ -154,7 +154,7 @@ services:
   # mongodb database for media
   media_mongo_db_1:
     image: mongo:7
-    container_name: product_mongo_1_media
+    container_name: waave_mongo_1_media
     command: ["mongod", "--replSet", "media-rs", "--bind_ip_all"]
     ports:
       - "27017:27017"
@@ -171,7 +171,7 @@ services:
 
   media_mongo_db_2:
     image: mongo:7
-    container_name: product_mongo_db_2_media
+    container_name: waave_mongo_db_2_media
     command: ["mongod", "--replSet", "media-rs", "--bind_ip_all"]
     ports:
       - "27027:27017"
@@ -188,7 +188,7 @@ services:
 
   media_mongo_db_3:
     image: mongo:7
-    container_name: product_mongo_db_3_media
+    container_name: waave_mongo_db_3_media
     command: ["mongod", "--replSet", "media-rs", "--bind_ip_all"]
     ports:
       - "27037:27017"
@@ -212,7 +212,7 @@ services:
         condition: service_healthy
       media_mongo_db_3:
         condition: service_healthy
-    container_name: product_media_mongo_db_init
+    container_name: waave_media_mongo_db_init
     volumes:
       - ./mongo-init/replica-init.sh:/replica-init.sh:ro
     environment:
@@ -230,7 +230,7 @@ services:
   # mongodb database for notification   
   notification_mongo_db_1:
     image: mongo:7
-    container_name: product_mongo_db_1_notification
+    container_name: waave_mongo_db_1_notification
     command: ["mongod", "--replSet", "notification-rs", "--bind_ip_all"]
     ports:
       - "27016:27017"
@@ -247,7 +247,7 @@ services:
 
   notification_mongo_db_2:
     image: mongo:7
-    container_name: product_mongo_db_2_notification
+    container_name: waave_mongo_db_2_notification
     command: ["mongod", "--replSet", "notification-rs", "--bind_ip_all"]
     ports:
       - "27026:27017"
@@ -264,7 +264,7 @@ services:
 
   notification_mongo_db_3:
     image: mongo:7
-    container_name: product_mongo_db_3_notification
+    container_name: waave_mongo_db_3_notification
     command: ["mongod", "--replSet", "notification-rs", "--bind_ip_all"]
     ports:
       - "27036:27017"
@@ -288,7 +288,7 @@ services:
         condition: service_healthy
       notification_mongo_db_3:
         condition: service_healthy
-    container_name: product_notification_mongo_db_init
+    container_name: waave_notification_mongo_db_init
     volumes:
       - ./mongo-init/replica-init.sh:/replica-init.sh:ro
     environment:
@@ -306,7 +306,7 @@ services:
   # ── Redis ──────────────────────────────────────
   auth_redis:
     image: redis:7-alpine
-    container_name: product_redis_auth
+    container_name: waave_redis_auth
     ports:
       - "6379:6379"
     command: >
@@ -324,7 +324,7 @@ services:
 
   user_redis:
     image: redis:7-alpine
-    container_name: product_redis_user
+    container_name: waave_redis_user
     ports:
       - "6378:6379"
     command: >
@@ -342,7 +342,7 @@ services:
 
   api_gateway_redis:
     image: redis:7-alpine
-    container_name: product_redis_api_gateway
+    container_name: waave_redis_api_gateway
     ports:
       - "6377:6379"
     command: >
@@ -360,7 +360,7 @@ services:
 
   media_redis:
     image: redis:7-alpine
-    container_name: product_redis_media
+    container_name: waave_redis_media
     ports:
       - "6376:6379"
     command: >
@@ -378,7 +378,7 @@ services:
 
   notification_redis:
     image: redis:7-alpine
-    container_name: product_redis_notification
+    container_name: waave_redis_notification
     ports:
       - "6375:6379"
     command: >
@@ -396,7 +396,7 @@ services:
 
   post_redis:
     image: redis:7-alpine
-    container_name: product_redis_post
+    container_name: waave_redis_post
     ports:
       - "6374:6379"
     command: >
@@ -415,7 +415,7 @@ services:
   # ── Kafka ──────────────────────────────────────
   kafka:
     image: confluentinc/cp-kafka:7.6.0
-    container_name: product_kafka
+    container_name: waave_kafka
     ports:
       - "9092:9092"
 
@@ -447,7 +447,7 @@ services:
   # ── Kafka UI ───────────────────────────────────
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    container_name: product_kafka_ui
+    container_name: waave_kafka_ui
     ports:
       - "8080:8080"
     environment:
@@ -463,7 +463,7 @@ services:
   #   build:
   #     context: .
   #     dockerfile: apps/auth-service/Dockerfile
-  #   container_name: product_auth
+  #   container_name: waave_auth
   #   ports:
   #     - "3001:3001"
   #   environment:
@@ -488,7 +488,7 @@ services:
   #   build:
   #     context: .
   #     dockerfile: apps/user-service/Dockerfile
-  #   container_name: product_user
+  #   container_name: waave_user
   #   ports:
   #     - "3002:3002"
   #   environment:
