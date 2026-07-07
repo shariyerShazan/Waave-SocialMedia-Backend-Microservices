@@ -10,14 +10,50 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
       POSTGRES_DB: auth_db
+    command: >
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+      -c hot_standby=on
     volumes:
       - auth-postgres-primary_data:/var/lib/postgresql/data
+      - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  auth-postgres-replica:
+    image: postgres:17
+    container_name: product_postgres_auth_replica
+    ports:
+      - "5442:5432"
+    environment:
+      PGPASSWORD: replicator_pass
+    volumes:
+      - auth-postgres-replica_data:/var/lib/postgresql/data
+    depends_on:
+      auth-postgres-primary:
+        condition: service_healthy
+    entrypoint: >
+      bash -c "
+      set -e;
+      if [ -z \"$$(ls -A /var/lib/postgresql/data 2>/dev/null)\" ]; then
+        echo 'No data found, cloning from primary...';
+        pg_basebackup -h auth-postgres-primary -p 5432 -D /var/lib/postgresql/data -U replicator -Fp -Xs -P -R;
+        chmod 0700 /var/lib/postgresql/data;
+      fi;
+      exec docker-entrypoint.sh postgres
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   user-postgres-primary:
     image: postgres:17
@@ -30,12 +66,42 @@ services:
       POSTGRES_DB: user_db
     volumes:
       - user-postgres-primary_data:/var/lib/postgresql/data
+      - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d user_db"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  user-postgres-replica:
+    image: postgres:17
+    container_name: product_postgres_user_replica
+    ports:
+      - "5443:5432"
+    environment:
+      PGPASSWORD: replicator_pass
+    volumes:
+      - user-postgres-replica_data:/var/lib/postgresql/data
+    depends_on:
+      user-postgres-primary:
+        condition: service_healthy
+    entrypoint: >
+      bash -c "
+      set -e;
+      if [ -z \"$$(ls -A /var/lib/postgresql/data 2>/dev/null)\" ]; then
+        echo 'No data found, cloning from primary...';
+        pg_basebackup -h user-postgres-primary -p 5432 -D /var/lib/postgresql/data -U replicator -Fp -Xs -P -R;
+        chmod 0700 /var/lib/postgresql/data;
+      fi;
+      exec docker-entrypoint.sh postgres
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d user_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   post-postgres-primary:
     image: postgres:17
@@ -48,45 +114,194 @@ services:
       POSTGRES_DB: post_db
     volumes:
       - post-postgres-primary_data:/var/lib/postgresql/data
+      - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d post_db"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
 
-  # mongodb database
-  media_mongo_db_primary:
+  post-postgres-replica:
+    image: postgres:17
+    container_name: product_postgres_post_replica
+    ports:
+      - "5444:5432"
+    environment:
+      PGPASSWORD: replicator_pass
+    volumes:
+      - post-postgres-replica_data:/var/lib/postgresql/data
+    depends_on:
+      post-postgres-primary:
+        condition: service_healthy
+    entrypoint: >
+      bash -c "
+      set -e;
+      if [ -z \"$$(ls -A /var/lib/postgresql/data 2>/dev/null)\" ]; then
+        echo 'No data found, cloning from primary...';
+        pg_basebackup -h post-postgres-primary -p 5432 -D /var/lib/postgresql/data -U replicator -Fp -Xs -P -R;
+        chmod 0700 /var/lib/postgresql/data;
+      fi;
+      exec docker-entrypoint.sh postgres
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d post_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # mongodb database for media
+  media_mongo_db_1:
     image: mongo:7
-    container_name: product_mongo_primary_media
+    container_name: product_mongo_1_media
+    command: ["mongod", "--replSet", "media-rs", "--bind_ip_all"]
     ports:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
-      - media_mongo_primary_data:/data/db
+      - media_mongo_db_1_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
-      
-  notification_mongo_db_primary:
+
+  media_mongo_db_2:
     image: mongo:7
-    container_name: product_mongo_primary_notification
+    container_name: product_mongo_db_2_media
+    command: ["mongod", "--replSet", "media-rs", "--bind_ip_all"]
+    ports:
+      - "27027:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo123
+    volumes:
+      - media_mongo_db_2_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  media_mongo_db_3:
+    image: mongo:7
+    container_name: product_mongo_db_3_media
+    command: ["mongod", "--replSet", "media-rs", "--bind_ip_all"]
+    ports:
+      - "27037:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo123
+    volumes:
+      - media_mongo_db_3_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  media-mongo-init:
+    image: mongo:7
+    depends_on:
+      media_mongo_db_1:
+        condition: service_healthy
+      media_mongo_db_2:
+        condition: service_healthy
+      media_mongo_db_3:
+        condition: service_healthy
+    container_name: product_media_mongo_db_init
+    volumes:
+      - ./mongo-init/replica-init.sh:/replica-init.sh:ro
+    environment:
+      MONGO_USERNAME: mongo
+      MONGO_PASSWORD: mongo123
+      PRIMARY_HOST: media_mongo_db_1:27017
+      REPLICA_SET_NAME: media-rs
+      MEMBER_1: media_mongo_db_1:27017
+      MEMBER_2: media_mongo_db_2:27017
+      MEMBER_3: media_mongo_db_3:27017
+    entrypoint: ["/bin/bash", "/replica-init.sh"]
+    restart: "no"
+      
+
+  # mongodb database for notification   
+  notification_mongo_db_1:
+    image: mongo:7
+    container_name: product_mongo_db_1_notification
+    command: ["mongod", "--replSet", "notification-rs", "--bind_ip_all"]
     ports:
       - "27016:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
-      - notification_mongo_primary_data:/data/db
+      - notification_mongo_db_1_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  notification_mongo_db_2:
+    image: mongo:7
+    container_name: product_mongo_db_2_notification
+    command: ["mongod", "--replSet", "notification-rs", "--bind_ip_all"]
+    ports:
+      - "27026:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo123
+    volumes:
+      - notification_mongo_db_2_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  notification_mongo_db_3:
+    image: mongo:7
+    container_name: product_mongo_db_3_notification
+    command: ["mongod", "--replSet", "notification-rs", "--bind_ip_all"]
+    ports:
+      - "27036:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo123
+    volumes:
+      - notification_mongo_db_3_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+  notification-mongo-init:
+    image: mongo:7
+    depends_on:
+      notification_mongo_db_1:
+        condition: service_healthy
+      notification_mongo_db_2:
+        condition: service_healthy
+      notification_mongo_db_3:
+        condition: service_healthy
+    container_name: product_notification_mongo_db_init
+    volumes:
+      - ./mongo-init/replica-init.sh:/replica-init.sh:ro
+    environment:
+      MONGO_USERNAME: mongo
+      MONGO_PASSWORD: mongo123
+      PRIMARY_HOST: notification_mongo_db_1:27017
+      REPLICA_SET_NAME: notification-rs
+      MEMBER_1: notification_mongo_db_1:27017
+      MEMBER_2: notification_mongo_db_2:27017
+      MEMBER_3: notification_mongo_db_3:27017
+    entrypoint: ["/bin/bash", "/replica-init.sh"]
+    restart: "no"
+
 
   # ── Redis ──────────────────────────────────────
   auth_redis:
@@ -295,14 +510,27 @@ services:
 
 volumes:
   auth-postgres-primary_data:
+  auth-postgres-replica_data:
+
   user-postgres-primary_data:
+  user-postgres-replica_data:
+
   post-postgres-primary_data:
-  media_mongo_primary_data:
-  notification_mongo_primary_data:
+  post-postgres-replica_data:
+
+  media_mongo_db_1_data: 
+  media_mongo_db_2_data: 
+  media_mongo_db_3_data: 
+
+  notification_mongo_db_1_data:
+  notification_mongo_db_2_data:
+  notification_mongo_db_3_data:
+
   auth_redis_data:
   user_redis_data:
   media_redis_data:
   api_gateway_redis_data:
   notification_redis_data:
   post_redis_data:
+
   kafka_data:

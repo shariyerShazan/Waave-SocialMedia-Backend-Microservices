@@ -26,7 +26,7 @@ export class UserService {
   ) {}
 
   async createUser(data: { userId: string; email: string; name: string }) {
-    await this.prisma.profile.upsert({
+    await this.prisma.writeDb.profile.upsert({
       where: {
         id: data.userId,
       },
@@ -57,7 +57,7 @@ export class UserService {
       return this.buildResponse(hydrated);
     }
 
-    const user = await this.prisma.profile.findUnique({
+    const user = await this.prisma.readDb.profile.findUnique({
       where: { id: userId },
     });
 
@@ -91,7 +91,7 @@ export class UserService {
 
   // ── Update Profile ────────────────────────────
   async updateProfile(userId: string, data: UpdateProfileDto) {
-    const user = await this.prisma.profile.update({
+    const user = await this.prisma.writeDb.profile.update({
       where: { id: userId },
       data: {
         ...(data.name !== undefined && { name: data.name }),
@@ -135,7 +135,7 @@ export class UserService {
       });
     }
 
-    const existing = await this.prisma.follow.findUnique({
+    const existing = await this.prisma.readDb.follow.findUnique({
       where: {
         followerId_followingId: {
           followerId,
@@ -151,15 +151,15 @@ export class UserService {
       });
     }
 
-    const [, target] = await this.prisma.$transaction([
-      this.prisma.follow.create({
+    const [, target] = await this.prisma.writeDb.$transaction([
+      this.prisma.writeDb.follow.create({
         data: { followerId, followingId: targetId },
       }),
-      this.prisma.profile.update({
+      this.prisma.writeDb.profile.update({
         where: { id: targetId },
         data: { followersCount: { increment: 1 } },
       }),
-      this.prisma.profile.update({
+      this.prisma.writeDb.profile.update({
         where: { id: followerId },
         data: { followingCount: { increment: 1 } },
       }),
@@ -169,7 +169,7 @@ export class UserService {
     await this.redis.invalidateProfile(targetId);
     await this.redis.invalidateProfile(followerId);
 
-    const follower = await this.prisma.profile.findUnique({
+    const follower = await this.prisma.readDb.profile.findUnique({
       where: { id: followerId },
       select: { name: true },
     });
@@ -199,7 +199,7 @@ export class UserService {
 
   // ── Unfollow ──────────────────────────────────
   async unfollowUser(followerId: string, targetId: string) {
-    const existing = await this.prisma.follow.findUnique({
+    const existing = await this.prisma.readDb.follow.findUnique({
       where: {
         followerId_followingId: {
           followerId,
@@ -215,8 +215,8 @@ export class UserService {
       });
     }
 
-    const [, target] = await this.prisma.$transaction([
-      this.prisma.follow.delete({
+    const [, target] = await this.prisma.writeDb.$transaction([
+      this.prisma.writeDb.follow.delete({
         where: {
           followerId_followingId: {
             followerId,
@@ -224,11 +224,11 @@ export class UserService {
           },
         },
       }),
-      this.prisma.profile.update({
+      this.prisma.writeDb.profile.update({
         where: { id: targetId },
         data: { followersCount: { decrement: 1 } },
       }),
-      this.prisma.profile.update({
+      this.prisma.writeDb.profile.update({
         where: { id: followerId },
         data: { followingCount: { decrement: 1 } },
       }),
@@ -238,7 +238,7 @@ export class UserService {
     await this.redis.invalidateProfile(targetId);
     await this.redis.invalidateProfile(followerId);
 
-    const follower = await this.prisma.profile.findUnique({
+    const follower = await this.prisma.readDb.profile.findUnique({
       where: { id: followerId },
       select: { name: true },
     });
@@ -270,14 +270,14 @@ export class UserService {
     const skip = (page - 1) * limit;
 
     const [follows, total] = await Promise.all([
-      this.prisma.follow.findMany({
+      this.prisma.readDb.follow.findMany({
         where: { followingId: userId },
         include: { follower: true },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.follow.count({
+      this.prisma.readDb.follow.count({
         where: { followingId: userId },
       }),
     ]);
@@ -302,14 +302,14 @@ export class UserService {
     const skip = (page - 1) * limit;
 
     const [follows, total] = await Promise.all([
-      this.prisma.follow.findMany({
+      this.prisma.readDb.follow.findMany({
         where: { followerId: userId },
         include: { following: true },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.follow.count({
+      this.prisma.readDb.follow.count({
         where: { followerId: userId },
       }),
     ]);
@@ -344,7 +344,7 @@ export class UserService {
 
     const skip = (page - 1) * limit;
 
-    const users = await this.prisma.profile.findMany({
+    const users = await this.prisma.readDb.profile.findMany({
       where: {
         OR: [
           { name: { contains: query, mode: 'insensitive' } },
@@ -378,7 +378,7 @@ export class UserService {
 
   // ── Friend Suggestions ────────────────────────
   async getSuggestions(userId: string, limit: number) {
-    const myFollowingIds = await this.prisma.follow
+    const myFollowingIds = await this.prisma.readDb.follow
       .findMany({
         where: { followerId: userId },
         select: { followingId: true },
@@ -389,7 +389,7 @@ export class UserService {
       return this.getPopularUsers(userId, limit);
     }
 
-    const suggestions = await this.prisma.profile.findMany({
+    const suggestions = await this.prisma.readDb.profile.findMany({
       where: {
         AND: [
           { id: { not: userId } },
@@ -426,7 +426,7 @@ export class UserService {
     const cached = await this.redis.getFollowerIds(userId);
     if (cached.length > 0) return cached;
 
-    const follows = await this.prisma.follow.findMany({
+    const follows = await this.prisma.readDb.follow.findMany({
       where: { followingId: userId },
       select: { followerId: true },
     });
@@ -441,7 +441,7 @@ export class UserService {
   }
 
   async getUsersByIds(userIds: string[]) {
-    const users = await this.prisma.profile.findMany({
+    const users = await this.prisma.readDb.profile.findMany({
       where: { id: { in: userIds } },
     });
 
@@ -481,7 +481,7 @@ export class UserService {
     followerId: string,
     targetId: string,
   ): Promise<boolean> {
-    const follow = await this.prisma.follow.findUnique({
+    const follow = await this.prisma.readDb.follow.findUnique({
       where: {
         followerId_followingId: { followerId, followingId: targetId },
       },
@@ -493,7 +493,7 @@ export class UserService {
     userId: string,
     targetIds: string[],
   ): Promise<Set<string>> {
-    const follows = await this.prisma.follow.findMany({
+    const follows = await this.prisma.readDb.follow.findMany({
       where: {
         followerId: userId,
         followingId: { in: targetIds },
@@ -504,7 +504,7 @@ export class UserService {
   }
 
   private async getPopularUsers(userId: string, limit: number) {
-    const users = await this.prisma.profile.findMany({
+    const users = await this.prisma.readDb.profile.findMany({
       where: { id: { not: userId } },
       take: limit,
       orderBy: { followersCount: 'desc' },

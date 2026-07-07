@@ -3,23 +3,32 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/post-client';
 
 @Injectable()
-export class PostPrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
-  [x: string]: any;
+export class PostPrismaService implements OnModuleInit, OnModuleDestroy {
+  readonly writeDb: PrismaClient;
+  readonly readDb: PrismaClient;
   constructor() {
-    const adapter = new PrismaPg({
-      connectionString: process.env.POST_DB_PRIMARY_URL!,
+    this.writeDb = new PrismaClient({
+      adapter: new PrismaPg({
+        connectionString: process.env.POST_DB_PRIMARY_URL!,
+      }),
     });
-    super({ adapter });
+
+    this.readDb = new PrismaClient({
+      adapter: new PrismaPg({
+        connectionString: process.env.POST_DB_REPLICA_URL!,
+      }),
+    });
   }
+
   async onModuleInit() {
-    await this.$connect();
-    console.log('User Prisma connected');
+    await Promise.all([this.writeDb.$connect(), this.readDb.$connect()]);
+
+    console.log('Post Prisma connected');
   }
+
   async onModuleDestroy() {
-    await this.$disconnect();
-    console.log('User Prisma disconnected');
+    await Promise.all([this.writeDb.$disconnect(), this.readDb.$disconnect()]);
+
+    console.log('Post Prisma disconnected');
   }
 }

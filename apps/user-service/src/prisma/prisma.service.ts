@@ -1,25 +1,33 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/user-client';
 
 @Injectable()
-export class UserPrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
-  [x: string]: any;
+export class UserPrismaService implements OnModuleInit, OnModuleDestroy {
+  readonly writeDb: PrismaClient;
+  readonly readDb: PrismaClient;
   constructor() {
-    const adapter = new PrismaPg({
-      connectionString: process.env.USER_DB_PRIMARY_URL!,
+    this.writeDb = new PrismaClient({
+      adapter: new PrismaPg({
+        connectionString: process.env.USER_DB_PRIMARY_URL!,
+      }),
     });
-    super({ adapter });
+
+    this.readDb = new PrismaClient({
+      adapter: new PrismaPg({
+        connectionString: process.env.USER_DB_REPLICA_URL!,
+      }),
+    });
   }
   async onModuleInit() {
-    await this.$connect();
+    await Promise.all([this.readDb.$connect(), this.writeDb.$connect()]);
     console.log('User Prisma connected');
   }
   async onModuleDestroy() {
-    await this.$disconnect();
+    await Promise.all([this.readDb.$disconnect(), this.writeDb.$disconnect()]);
     console.log('User Prisma disconnected');
   }
 }

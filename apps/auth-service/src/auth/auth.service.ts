@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -39,7 +40,7 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const userExist = await this.prisma.user.findUnique({
+    const userExist = await this.prisma.readDb.user.findUnique({
       where: { email: dto.email },
     });
     if (userExist && userExist.isEmailVerified) {
@@ -54,14 +55,14 @@ export class AuthService {
     );
 
     const authUser = !userExist
-      ? await this.prisma.user.create({
+      ? await this.prisma.writeDb.user.create({
           data: {
             name: dto.name,
             email: dto.email,
             password: hashPass,
           },
         })
-      : await this.prisma.user.update({
+      : await this.prisma.writeDb.user.update({
           where: { email: dto.email },
           data: {
             name: dto.name,
@@ -112,7 +113,7 @@ export class AuthService {
       });
     }
 
-    await this.prisma.user.update({
+    await this.prisma.writeDb.user.update({
       where: { email },
       data: {
         isEmailVerified: true,
@@ -128,7 +129,7 @@ export class AuthService {
   }
 
   async forgotPassword(dto: ForgotPassDto) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.readDb.user.findUnique({
       where: { email: dto.email },
     });
     if (!user) {
@@ -186,7 +187,7 @@ export class AuthService {
       Number(process.env.HASH_SOLT!),
     );
 
-    await this.prisma.user.update({
+    await this.prisma.writeDb.user.update({
       where: { email },
       data: {
         password: hashPass,
@@ -203,7 +204,7 @@ export class AuthService {
   }
 
   async changePassword(dto: ChangePassRequest) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.readDb.user.findUnique({
       where: { id: dto.userId },
     });
     if (!user) {
@@ -236,7 +237,7 @@ export class AuthService {
       dto.newPassword,
       Number(process.env.HASH_SOLT!),
     );
-    await this.prisma.user.update({
+    await this.prisma.writeDb.user.update({
       where: { id: dto.userId },
       data: {
         password: hashPass,
@@ -257,7 +258,7 @@ export class AuthService {
         message: 'Too many login attempts. Try again in 15 minutes.',
       });
     }
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.readDb.user.findUnique({
       where: { email: dto.email },
     });
 
@@ -299,7 +300,7 @@ export class AuthService {
       refreshToken,
       Number(process.env.HASH_SOLT!),
     );
-    await this.prisma.user.update({
+    await this.prisma.writeDb.user.update({
       where: { id: user.id },
       data: {
         refreshToken: refreshTokenHash,
@@ -331,7 +332,7 @@ export class AuthService {
   async logout(userId: string) {
     try {
       await this.redis.deleteRefreshToken(userId);
-      await this.prisma.user.update({
+      await this.prisma.writeDb.user.update({
         where: { id: userId },
         data: { refreshToken: null },
       });
@@ -378,7 +379,7 @@ export class AuthService {
       });
     }
 
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.readDb.user.findUnique({
       where: { id: payload.userId },
     });
     if (!user) {
@@ -397,7 +398,21 @@ export class AuthService {
     const newRefreshToken = this.tokens.generateRefreshToken(newPayload);
 
     const refreshTtl = this.tokens.getTokenTTL(refreshToken);
-    await this.redis.saveRefreshToken(user.id, refreshToken, refreshTtl);
+    await this.redis.saveRefreshToken(user.id, newRefreshToken, refreshTtl);
+
+    const refreshTokenHash = await bcrypt.hash(
+      newRefreshToken,
+      Number(process.env.HASH_SOLT!),
+    );
+
+    await this.prisma.writeDb.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        refreshToken: refreshTokenHash,
+      },
+    });
 
     return {
       success: true,
@@ -426,7 +441,7 @@ export class AuthService {
       };
     }
 
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.readDb.user.findUnique({
       where: { id: userId },
     });
 
@@ -463,7 +478,7 @@ export class AuthService {
       };
     }
 
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.readDb.user.findUnique({
       where: { email },
     });
 
@@ -512,12 +527,12 @@ export class AuthService {
     }
 
     const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
+      this.prisma.readDb.user.findMany({
         skip: skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.user.count(),
+      this.prisma.readDb.user.count(),
     ]);
 
     const usersData = users.map((user) => ({
