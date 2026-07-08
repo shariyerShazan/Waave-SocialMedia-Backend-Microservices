@@ -34,7 +34,7 @@ service PostService {
 message CreatePostRequest {
   string        userId     = 1;
   optional string        content    = 2;
-  repeated string mediaUrls = 3;
+  repeated string mediaIds = 3;
   optional string        feeling    = 4;
   optional string        location   = 5;
   PostPrivacy   privacy    = 6;
@@ -173,7 +173,7 @@ message Post {
   string          userName      = 3;
   string          userAvatar    = 4;
   string          content       = 5;
-  repeated string mediaUrls     = 6;
+  repeated string mediaIds     = 6;
   string          feeling       = 7;
   string          location      = 8;
   string          privacy       = 9;

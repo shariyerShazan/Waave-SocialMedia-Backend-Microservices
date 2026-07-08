@@ -27,3 +27,37 @@ export interface UserUnfollowEvent {
   targetId: string;
   followerName: string;
 }
+
+export interface PostCreatedEvent {
+  postId: string;
+  userId: string;
+  content: string;
+  mediaIds: string[];
+  privacy: string;
+}
+
+export interface PostDeleteEvent {
+  postId: string;
+  userId: string;
+}
+
+export interface PostLikedEvent {
+  postId: string;
+  userId: string;
+  authorId: string;
+}
+
+export interface PostCommentEvent {
+  postId: string;
+  commentId: string;
+  userId: string;
+  authorId: string;
+  text: string;
+  parentId: string | undefined;
+}
+
+export interface PostSharedEvent {
+  postId: string;
+  userId: string;
+  shareId: string;
+}

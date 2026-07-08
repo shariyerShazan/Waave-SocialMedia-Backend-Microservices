@@ -17,10 +17,10 @@ model Post {
   id            String      @id @default(uuid())
   userId        String
   content       String
-  mediaUrls     String[]    @default([])
+  mediaIds      String[]    @default([])
   feeling       String?
   location      String?
-  privacy       Privacy     @default(PUBLIC)
+  privacy       PostPrivacy     @default(PUBLIC)
   likesCount    Int         @default(0)
   commentsCount Int         @default(0)
   sharesCount   Int         @default(0)
@@ -102,7 +102,7 @@ model Share {
   @@map("shares")
 }
 
-enum Privacy {
+enum PostPrivacy {
   PUBLIC
   FRIENDS
   PRIVATE

@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
 @Injectable()
@@ -16,7 +15,7 @@ export class NotificationRedisService implements OnModuleDestroy {
     (data: { userId: string; notification: unknown }) => void
   > = [];
 
-  constructor(private readonly config: ConfigService) {
+  constructor() {
     const opts = {
       host: process.env.NOTIFICATION_REDIS_HOST || 'localhost',
       port: Number(process.env.NOTIFICATION_REDIS_PORT) || 6375,

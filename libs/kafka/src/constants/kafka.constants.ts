@@ -29,6 +29,13 @@ export const KAFKA_TOPICS = {
   USER_PROFILE_UPDATED: 'user.profile-updated',
   USER_PROFILE_FOLLOWED: 'user.profile-followed',
   USER_PROFILE_UNFOLLOWED: 'user.profile-unfollowed',
+
+  // post events
+  POST_CREATED: 'post.created',
+  POST_DELETED: 'post.deleted',
+  POST_LIKED: 'post.liked',
+  POST_COMMENTED: 'post.commented',
+  POST_SHARED: 'post.shared',
 };
 
 export type KafkaTopics = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];

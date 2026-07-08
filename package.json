@@ -21,15 +21,12 @@
     "auth:prisma:migrate": "npx prisma migrate dev --schema=apps/auth-service/prisma/schema.prisma --config apps/auth-service/prisma/prisma.config.ts",
     "auth:prisma:generate": "npx prisma generate --schema=apps/auth-service/prisma/schema.prisma --config apps/auth-service/prisma/prisma.config.ts",
     "auth:prisma:studio": "dotenv npx prisma studio --url=\"$AUTH_DB_PRIMARY_URL\"",
-    
     "user:prisma:migrate": "npx prisma migrate dev --schema=apps/user-service/prisma/schema.prisma --config apps/user-service/prisma/prisma.config.ts",
     "user:prisma:generate": "npx prisma generate --schema=apps/user-service/prisma/schema.prisma --config apps/user-service/prisma/prisma.config.ts",
     "user:prisma:studio": "dotenv npx prisma studio --url=\"$USER_DB_PRIMARY_URL\"",
-
     "post:prisma:migrate": "npx prisma migrate dev --schema=apps/post-service/prisma/schema.prisma --config apps/post-service/prisma/prisma.config.ts",
     "post:prisma:generate": "npx prisma generate --schema=apps/post-service/prisma/schema.prisma --config apps/post-service/prisma/prisma.config.ts",
     "post:prisma:studio": "dotenv npx prisma studio --url=\"$POST_DB_PRIMARY_URL\"",
-
     "proto:generate": "rm -rf libs/proto-schema/src/protos-types && mkdir -p libs/proto-schema/src/protos-types && grpc_tools_node_protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --proto_path=./libs/proto-schema/src/proto --ts_proto_out=./libs/proto-schema/src/protos-types --ts_proto_opt=nestJs=true ./libs/proto-schema/src/proto/*.proto"
   },
   "dependencies": {
@@ -44,6 +41,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/platform-socket.io": "^11.1.27",
+    "@nestjs/schedule": "^6.1.3",
     "@nestjs/swagger": "^11.4.4",
     "@nestjs/websockets": "^11.1.27",
     "@prisma/adapter-pg": "^7.8.0",

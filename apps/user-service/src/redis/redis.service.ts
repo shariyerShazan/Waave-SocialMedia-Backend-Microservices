@@ -3,13 +3,12 @@
 // redis/user-redis.service.ts
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserRedisService implements OnModuleDestroy {
   private client: Redis;
 
-  constructor(private config: ConfigService) {
+  constructor() {
     this.client = new Redis({
       host: process.env.USER_REDIS_HOST || 'localhost',
       port: Number(process.env.USER_REDIS_PORT) || 6378,
