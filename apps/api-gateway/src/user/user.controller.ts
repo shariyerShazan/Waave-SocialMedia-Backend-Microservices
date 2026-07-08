@@ -14,6 +14,11 @@ import { AuthGuard, UpdateProfileDto } from '@app/common';
 
 import { UserClient } from './user.client';
 import * as Express from 'express';
+import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
+import {
+  RateLimit,
+  RateLimitKeyType,
+} from '../rateLimit/decorator/rate-limit.decorator';
 
 @ApiTags('Users')
 @Controller('users')
@@ -21,28 +26,32 @@ export class UserController {
   constructor(private readonly userClient: UserClient) {}
 
   @Get('profile/:userId')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(30, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   getProfile(@Param('userId') userId: string, @Req() req: Express.Request) {
     return this.userClient.getProfile(userId, req?.user?.userId || '');
   }
 
   @Patch('profile')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   updateProfile(@Req() req: Express.Request, @Body() dto: UpdateProfileDto) {
     return this.userClient.updateProfile(req?.user?.userId, dto);
   }
 
   @Post(':targetId/follow')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   followUser(@Param('targetId') targetId: string, @Req() req: Express.Request) {
     return this.userClient.followUser(req?.user?.userId, targetId);
   }
 
   @Post(':targetId/unfollow')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   unfollowUser(
     @Param('targetId') targetId: string,
@@ -52,7 +61,8 @@ export class UserController {
   }
 
   @Get(':userId/followers')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   getFollowers(
     @Param('userId') userId: string,
@@ -67,7 +77,8 @@ export class UserController {
   }
 
   @Get(':userId/following')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   getFollowing(
     @Param('userId') userId: string,
@@ -82,7 +93,8 @@ export class UserController {
   }
 
   @Get(':targetId/is-following')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   isFollowing(
     @Param('targetId') targetId: string,
@@ -92,7 +104,8 @@ export class UserController {
   }
 
   @Get('search/list')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   searchUsers(
     @Req() req: Express.Request,
@@ -109,7 +122,8 @@ export class UserController {
   }
 
   @Get('suggestions/list')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   getSuggestions(@Req() req: Express.Request, @Query('limit') limit?: string) {
     return this.userClient.getSuggestions(
@@ -119,7 +133,8 @@ export class UserController {
   }
 
   @Get(':userId/online-status')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   getOnlineStatus(@Param('userId') userId: string) {
     return this.userClient.getOnlineStatus(userId);

@@ -1,6 +1,7 @@
 
 services:
   # ── Databases Postgres ──────────────────────────────────
+  # auth postgres
   auth-postgres-primary:
     image: postgres:17
     container_name: waave_postgres_auth_primary
@@ -55,6 +56,7 @@ services:
       retries: 5
       start_period: 15s
 
+  # user postgres
   user-postgres-primary:
     image: postgres:17
     container_name: waave_postgres_user_primary
@@ -102,7 +104,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
-
+  
+  # post postgres
   post-postgres-primary:
     image: postgres:17
     container_name: waave_postgres_post_primary
@@ -304,6 +307,7 @@ services:
 
 
   # ── Redis ──────────────────────────────────────
+  # ── Auth Redis 
   auth_redis:
     image: redis:7-alpine
     container_name: waave_redis_auth
@@ -322,6 +326,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── User Redis 
   user_redis:
     image: redis:7-alpine
     container_name: waave_redis_user
@@ -340,6 +345,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Gateway Redis 
   api_gateway_redis:
     image: redis:7-alpine
     container_name: waave_redis_api_gateway
@@ -358,6 +364,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Media Redis 
   media_redis:
     image: redis:7-alpine
     container_name: waave_redis_media
@@ -376,6 +383,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Notification Redis 
   notification_redis:
     image: redis:7-alpine
     container_name: waave_redis_notification
@@ -394,6 +402,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Post Redis 
   post_redis:
     image: redis:7-alpine
     container_name: waave_redis_post

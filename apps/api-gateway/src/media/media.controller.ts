@@ -19,6 +19,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@app/common';
 import * as Express from 'express';
 import { MediaClient } from './media.client';
+import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
+import {
+  RateLimit,
+  RateLimitKeyType,
+} from '../rateLimit/decorator/rate-limit.decorator';
 
 @ApiTags('Media')
 @Controller('media')
@@ -26,7 +31,8 @@ export class MediaController {
   constructor(private readonly mediaClient: MediaClient) {}
 
   @Post('upload/image')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -52,7 +58,8 @@ export class MediaController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   create(@Req() req: Express.Request, @Body() dto: any) {
     return this.mediaClient.createMedia({
@@ -71,8 +78,11 @@ export class MediaController {
     return this.mediaClient.getMediaByIds(mediaIds);
   }
 
+  @UseGuards(RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP })
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(30, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   list(
     @Req() req: Express.Request,
@@ -89,14 +99,16 @@ export class MediaController {
   }
 
   @Delete(':mediaId')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   remove(@Req() req: Express.Request, @Param('mediaId') mediaId: string) {
     return this.mediaClient.deleteMedia(mediaId, req.user.userId);
   }
 
   @Patch(':mediaId/status')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   updateStatus(@Param('mediaId') mediaId: string, @Body() dto: any) {
     return this.mediaClient.updateMediaStatus({
@@ -105,11 +117,15 @@ export class MediaController {
     });
   }
 
+  @UseGuards(RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP })
   @Get(':mediaId/exists')
   exists(@Param('mediaId') mediaId: string) {
     return this.mediaClient.exists(mediaId);
   }
 
+  @UseGuards(RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP })
   @Get('path/find')
   getByPath(@Query('path') path: string) {
     return this.mediaClient.getMediaByPath(path);

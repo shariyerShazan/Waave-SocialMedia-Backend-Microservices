@@ -24,6 +24,11 @@ import * as Express from 'express';
 import { AuthGuard } from '@app/common';
 
 import { NotificationClient } from './notification.client';
+import {
+  RateLimit,
+  RateLimitKeyType,
+} from '../rateLimit/decorator/rate-limit.decorator';
+import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -31,7 +36,8 @@ export class NotificationController {
   constructor(private readonly notificationClient: NotificationClient) {}
 
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get notifications',
@@ -59,35 +65,40 @@ export class NotificationController {
   }
 
   @Patch(':id/read')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   markAsRead(@Req() req: Express.Request, @Param('id') id: string) {
     return this.notificationClient.markAsRead(req?.user?.userId, id);
   }
 
   @Patch('read-all')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   markAllAsRead(@Req() req: Express.Request) {
     return this.notificationClient.markAllAsRead(req?.user?.userId);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   deleteNotification(@Req() req: Express.Request, @Param('id') id: string) {
     return this.notificationClient.deleteNotification(req?.user?.userId, id);
   }
 
   @Get('preferences')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(30, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   getPreferences(@Req() req: Express.Request) {
     return this.notificationClient.getPreferences(req?.user?.userId);
   }
 
   @Patch('preferences')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(10, 60, { key: RateLimitKeyType.IP_USER_ID })
   @ApiBearerAuth()
   @ApiBody({
     schema: {
