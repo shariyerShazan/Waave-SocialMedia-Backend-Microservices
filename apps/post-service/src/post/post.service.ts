@@ -592,7 +592,7 @@ export class PostService {
       userName: '',
       userAvatar: '',
       content: post.content,
-      mediaUrls: post.mediaUrls || [],
+      mediaIds: post.mediaIds || [],
       feeling: post.feeling || '',
       location: post.location || '',
       privacy: post.privacy || 'PUBLIC',

@@ -32,7 +32,7 @@ export enum ReactionType {
 export interface CreatePostRequest {
   userId: string;
   content?: string | undefined;
-  mediaUrls: string[];
+  mediaIds: string[];
   feeling?: string | undefined;
   location?: string | undefined;
   privacy: PostPrivacy;
@@ -171,7 +171,7 @@ export interface Post {
   userName: string;
   userAvatar: string;
   content: string;
-  mediaUrls: string[];
+  mediaIds: string[];
   feeling: string;
   location: string;
   privacy: string;

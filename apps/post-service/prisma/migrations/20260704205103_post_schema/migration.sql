@@ -18,7 +18,7 @@ CREATE TABLE "posts" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "mediaUrls" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "mediaIds" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "feeling" TEXT,
     "location" TEXT,
     "privacy" "Privacy" NOT NULL DEFAULT 'PUBLIC',
