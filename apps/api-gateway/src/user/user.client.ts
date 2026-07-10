@@ -11,7 +11,7 @@ import {
 import { Client, type ClientGrpc, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { firstValueFrom } from 'rxjs';
-import { MediaEnrichmentService } from '../shared/media-enrichment.service';
+import { EnrichmentService } from '../shared/enrichment.service';
 
 @Injectable()
 export class UserClient implements OnModuleInit {
@@ -27,7 +27,7 @@ export class UserClient implements OnModuleInit {
 
   private userService: UserServiceClient;
 
-  constructor(private readonly mediaEnrichment: MediaEnrichmentService) {}
+  constructor(private readonly enrichment: EnrichmentService) {}
 
   onModuleInit() {
     this.userService = this.client.getService<UserServiceClient>('UserService');
@@ -54,7 +54,7 @@ export class UserClient implements OnModuleInit {
         }),
       );
       if (response?.user) {
-        const [enriched] = await this.mediaEnrichment.enrichProfilesWithMedia([
+        const [enriched] = await this.enrichment.enrichProfilesWithMedia([
           response.user,
         ]);
         return { ...response, user: enriched };
@@ -75,7 +75,7 @@ export class UserClient implements OnModuleInit {
       );
 
       if (response?.user) {
-        const [enriched] = await this.mediaEnrichment.enrichProfilesWithMedia([
+        const [enriched] = await this.enrichment.enrichProfilesWithMedia([
           response.user,
         ]);
         return { ...response, user: enriched };
@@ -124,7 +124,7 @@ export class UserClient implements OnModuleInit {
       );
 
       if (response?.users?.length > 0) {
-        const enriched = await this.mediaEnrichment.enrichProfilesWithMedia(
+        const enriched = await this.enrichment.enrichProfilesWithMedia(
           response.users,
         );
         return { ...response, users: enriched };
@@ -147,7 +147,7 @@ export class UserClient implements OnModuleInit {
       );
 
       if (response?.users?.length > 0) {
-        const enriched = await this.mediaEnrichment.enrichProfilesWithMedia(
+        const enriched = await this.enrichment.enrichProfilesWithMedia(
           response.users,
         );
         return { ...response, users: enriched };
@@ -189,7 +189,7 @@ export class UserClient implements OnModuleInit {
       );
 
       if (response?.users?.length > 0) {
-        const enriched = await this.mediaEnrichment.enrichProfilesWithMedia(
+        const enriched = await this.enrichment.enrichProfilesWithMedia(
           response.users,
         );
         return { ...response, users: enriched };
@@ -211,7 +211,7 @@ export class UserClient implements OnModuleInit {
       );
 
       if (response?.users?.length > 0) {
-        const enriched = await this.mediaEnrichment.enrichProfilesWithMedia(
+        const enriched = await this.enrichment.enrichProfilesWithMedia(
           response.users,
         );
         return { ...response, users: enriched };

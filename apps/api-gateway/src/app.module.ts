@@ -7,6 +7,7 @@ import { RateLimiterModule } from './rateLimit/rateLimit.module';
 import { MediaModule } from './media/media.module';
 import { SharedEnrichmentModule } from './shared/shared-enrichment.module';
 import { NotificationModule } from './notification/notification.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { NotificationModule } from './notification/notification.module';
     MediaModule,
     SharedEnrichmentModule,
     NotificationModule,
+    PostModule,
   ],
 })
 export class GatewayAppModule {}

@@ -7,6 +7,8 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
+
+export type PrivacyType = 'PUBLIC' | 'FRIENDS' | 'PRIVATE';
 export class CreatePostDto {
   @ApiProperty()
   @IsString()
@@ -36,5 +38,5 @@ export class CreatePostDto {
   })
   @IsOptional()
   @IsIn(['PUBLIC', 'FRIENDS', 'PRIVATE'])
-  privacy?: string;
+  privacy?: PrivacyType;
 }
