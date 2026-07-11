@@ -5,10 +5,10 @@
 // source: user.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "user";
+export const protobufPackage = 'user';
 
 /** ── Profile Messages ────────────────────────────── */
 export interface GetProfileRequest {
@@ -128,7 +128,7 @@ export interface FollowerIdsResponse {
   followerIds: string[];
 }
 
-export const USER_PACKAGE_NAME = "user";
+export const USER_PACKAGE_NAME = 'user';
 
 export interface UserServiceClient {
   /** Profile */
@@ -169,96 +169,156 @@ export interface UserServiceClient {
 
   getUsersByIds(request: GetUsersByIdsRequest): Observable<UsersListResponse>;
 
-  getFollowerIds(request: GetFollowerIdsRequest): Observable<FollowerIdsResponse>;
+  getFollowerIds(
+    request: GetFollowerIdsRequest,
+  ): Observable<FollowerIdsResponse>;
 }
 
 export interface UserServiceController {
   /** Profile */
 
-  getProfile(request: GetProfileRequest): Promise<ProfileResponse> | Observable<ProfileResponse> | ProfileResponse;
+  getProfile(
+    request: GetProfileRequest,
+  ): Promise<ProfileResponse> | Observable<ProfileResponse> | ProfileResponse;
 
   updateProfile(
     request: UpdateProfileRequest,
   ): Promise<ProfileResponse> | Observable<ProfileResponse> | ProfileResponse;
 
-  deleteAccount(request: DeleteAccountRequest): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
+  deleteAccount(
+    request: DeleteAccountRequest,
+  ): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
 
   /** Follow System */
 
-  followUser(request: FollowRequest): Promise<FollowResponse> | Observable<FollowResponse> | FollowResponse;
+  followUser(
+    request: FollowRequest,
+  ): Promise<FollowResponse> | Observable<FollowResponse> | FollowResponse;
 
-  unfollowUser(request: FollowRequest): Promise<FollowResponse> | Observable<FollowResponse> | FollowResponse;
+  unfollowUser(
+    request: FollowRequest,
+  ): Promise<FollowResponse> | Observable<FollowResponse> | FollowResponse;
 
   getFollowers(
     request: PaginationRequest,
-  ): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   getFollowing(
     request: PaginationRequest,
-  ): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   isFollowing(
     request: FollowRequest,
-  ): Promise<IsFollowingResponse> | Observable<IsFollowingResponse> | IsFollowingResponse;
+  ):
+    | Promise<IsFollowingResponse>
+    | Observable<IsFollowingResponse>
+    | IsFollowingResponse;
 
   /** Search & Suggest */
 
-  searchUsers(request: SearchRequest): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  searchUsers(
+    request: SearchRequest,
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   getSuggestions(
     request: SuggestionRequest,
-  ): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   /** Presence */
 
-  setOnline(request: PresenceRequest): Promise<PresenceResponse> | Observable<PresenceResponse> | PresenceResponse;
+  setOnline(
+    request: PresenceRequest,
+  ):
+    | Promise<PresenceResponse>
+    | Observable<PresenceResponse>
+    | PresenceResponse;
 
-  setOffline(request: PresenceRequest): Promise<PresenceResponse> | Observable<PresenceResponse> | PresenceResponse;
+  setOffline(
+    request: PresenceRequest,
+  ):
+    | Promise<PresenceResponse>
+    | Observable<PresenceResponse>
+    | PresenceResponse;
 
   getOnlineStatus(
     request: PresenceRequest,
-  ): Promise<PresenceResponse> | Observable<PresenceResponse> | PresenceResponse;
+  ):
+    | Promise<PresenceResponse>
+    | Observable<PresenceResponse>
+    | PresenceResponse;
 
   /** Internal — other services call */
 
   getUsersByIds(
     request: GetUsersByIdsRequest,
-  ): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   getFollowerIds(
     request: GetFollowerIdsRequest,
-  ): Promise<FollowerIdsResponse> | Observable<FollowerIdsResponse> | FollowerIdsResponse;
+  ):
+    | Promise<FollowerIdsResponse>
+    | Observable<FollowerIdsResponse>
+    | FollowerIdsResponse;
 }
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "getProfile",
-      "updateProfile",
-      "deleteAccount",
-      "followUser",
-      "unfollowUser",
-      "getFollowers",
-      "getFollowing",
-      "isFollowing",
-      "searchUsers",
-      "getSuggestions",
-      "setOnline",
-      "setOffline",
-      "getOnlineStatus",
-      "getUsersByIds",
-      "getFollowerIds",
+      'getProfile',
+      'updateProfile',
+      'deleteAccount',
+      'followUser',
+      'unfollowUser',
+      'getFollowers',
+      'getFollowing',
+      'isFollowing',
+      'searchUsers',
+      'getSuggestions',
+      'setOnline',
+      'setOffline',
+      'getOnlineStatus',
+      'getUsersByIds',
+      'getFollowerIds',
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('UserService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('UserService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const USER_SERVICE_NAME = "UserService";
+export const USER_SERVICE_NAME = 'UserService';

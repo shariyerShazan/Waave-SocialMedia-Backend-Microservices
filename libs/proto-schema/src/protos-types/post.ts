@@ -5,10 +5,10 @@
 // source: post.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "post";
+export const protobufPackage = 'post';
 
 /** ── Enums ───────────────────────────────────────── */
 export enum PostPrivacy {
@@ -199,7 +199,7 @@ export interface PostsListResponse {
   page: number;
 }
 
-export const POST_PACKAGE_NAME = "post";
+export const POST_PACKAGE_NAME = 'post';
 
 export interface PostServiceClient {
   /** Post CRUD */
@@ -248,85 +248,150 @@ export interface PostServiceClient {
 export interface PostServiceController {
   /** Post CRUD */
 
-  createPost(request: CreatePostRequest): Promise<PostResponse> | Observable<PostResponse> | PostResponse;
+  createPost(
+    request: CreatePostRequest,
+  ): Promise<PostResponse> | Observable<PostResponse> | PostResponse;
 
-  getPost(request: GetPostRequest): Promise<PostResponse> | Observable<PostResponse> | PostResponse;
+  getPost(
+    request: GetPostRequest,
+  ): Promise<PostResponse> | Observable<PostResponse> | PostResponse;
 
-  updatePost(request: UpdatePostRequest): Promise<PostResponse> | Observable<PostResponse> | PostResponse;
+  updatePost(
+    request: UpdatePostRequest,
+  ): Promise<PostResponse> | Observable<PostResponse> | PostResponse;
 
-  deletePost(request: DeletePostRequest): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
+  deletePost(
+    request: DeletePostRequest,
+  ): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
 
   getUserPosts(
     request: GetUserPostsRequest,
-  ): Promise<PostsListResponse> | Observable<PostsListResponse> | PostsListResponse;
+  ):
+    | Promise<PostsListResponse>
+    | Observable<PostsListResponse>
+    | PostsListResponse;
 
   /** Reactions */
 
-  likePost(request: ReactionRequest): Promise<ReactionResponse> | Observable<ReactionResponse> | ReactionResponse;
+  likePost(
+    request: ReactionRequest,
+  ):
+    | Promise<ReactionResponse>
+    | Observable<ReactionResponse>
+    | ReactionResponse;
 
-  unlikePost(request: ReactionRequest): Promise<ReactionResponse> | Observable<ReactionResponse> | ReactionResponse;
+  unlikePost(
+    request: ReactionRequest,
+  ):
+    | Promise<ReactionResponse>
+    | Observable<ReactionResponse>
+    | ReactionResponse;
 
-  reactToPost(request: ReactRequest): Promise<ReactionResponse> | Observable<ReactionResponse> | ReactionResponse;
+  reactToPost(
+    request: ReactRequest,
+  ):
+    | Promise<ReactionResponse>
+    | Observable<ReactionResponse>
+    | ReactionResponse;
 
   /** Comments */
 
-  addComment(request: AddCommentRequest): Promise<CommentResponse> | Observable<CommentResponse> | CommentResponse;
+  addComment(
+    request: AddCommentRequest,
+  ): Promise<CommentResponse> | Observable<CommentResponse> | CommentResponse;
 
   getComments(
     request: GetCommentsRequest,
-  ): Promise<CommentsListResponse> | Observable<CommentsListResponse> | CommentsListResponse;
+  ):
+    | Promise<CommentsListResponse>
+    | Observable<CommentsListResponse>
+    | CommentsListResponse;
 
-  deleteComment(request: DeleteCommentRequest): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
+  deleteComment(
+    request: DeleteCommentRequest,
+  ): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
 
-  likeComment(request: ReactionRequest): Promise<ReactionResponse> | Observable<ReactionResponse> | ReactionResponse;
+  likeComment(
+    request: ReactionRequest,
+  ):
+    | Promise<ReactionResponse>
+    | Observable<ReactionResponse>
+    | ReactionResponse;
 
   /** Share & Bookmark */
 
-  sharePost(request: ShareRequest): Promise<ShareResponse> | Observable<ShareResponse> | ShareResponse;
+  sharePost(
+    request: ShareRequest,
+  ): Promise<ShareResponse> | Observable<ShareResponse> | ShareResponse;
 
-  bookmarkPost(request: ReactionRequest): Promise<ReactionResponse> | Observable<ReactionResponse> | ReactionResponse;
+  bookmarkPost(
+    request: ReactionRequest,
+  ):
+    | Promise<ReactionResponse>
+    | Observable<ReactionResponse>
+    | ReactionResponse;
 
   /** Internal */
 
   getPostsByIds(
     request: GetPostsByIdsRequest,
-  ): Promise<PostsListResponse> | Observable<PostsListResponse> | PostsListResponse;
+  ):
+    | Promise<PostsListResponse>
+    | Observable<PostsListResponse>
+    | PostsListResponse;
 
   incrViewCount(
     request: ViewCountRequest,
-  ): Promise<ViewCountResponse> | Observable<ViewCountResponse> | ViewCountResponse;
+  ):
+    | Promise<ViewCountResponse>
+    | Observable<ViewCountResponse>
+    | ViewCountResponse;
 }
 
 export function PostServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "createPost",
-      "getPost",
-      "updatePost",
-      "deletePost",
-      "getUserPosts",
-      "likePost",
-      "unlikePost",
-      "reactToPost",
-      "addComment",
-      "getComments",
-      "deleteComment",
-      "likeComment",
-      "sharePost",
-      "bookmarkPost",
-      "getPostsByIds",
-      "incrViewCount",
+      'createPost',
+      'getPost',
+      'updatePost',
+      'deletePost',
+      'getUserPosts',
+      'likePost',
+      'unlikePost',
+      'reactToPost',
+      'addComment',
+      'getComments',
+      'deleteComment',
+      'likeComment',
+      'sharePost',
+      'bookmarkPost',
+      'getPostsByIds',
+      'incrViewCount',
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("PostService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('PostService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("PostService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('PostService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const POST_SERVICE_NAME = "PostService";
+export const POST_SERVICE_NAME = 'PostService';
