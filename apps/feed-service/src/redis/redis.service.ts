@@ -36,11 +36,9 @@ export class FeedRedisService implements OnModuleDestroy {
     await pipeline.exec();
   }
 
-  // Batch push — fanout এ ব্যবহার
   async batchPushToFeeds(userIds: string[], postId: string): Promise<void> {
     if (!userIds.length) return;
 
-    // Chunk করো — খুব বড় pipeline avoid করতে
     const chunkSize = 500;
     for (let i = 0; i < userIds.length; i += chunkSize) {
       const chunk = userIds.slice(i, i + chunkSize);
@@ -57,12 +55,10 @@ export class FeedRedisService implements OnModuleDestroy {
     }
   }
 
-  // Feed থেকে post remove করো (post delete হলে)
   async removeFromFeed(userId: string, postId: string): Promise<void> {
     await this.client.lrem(`feed:${userId}`, 0, postId);
   }
 
-  // Batch remove from feeds
   async batchRemoveFromFeeds(userIds: string[], postId: string): Promise<void> {
     const pipeline = this.client.pipeline();
     for (const userId of userIds) {
@@ -71,9 +67,6 @@ export class FeedRedisService implements OnModuleDestroy {
     await pipeline.exec();
   }
 
-  // ── Feed Read ─────────────────────────────────
-
-  // Page-based read
   async getFeedPage(
     userId: string,
     page: number,
@@ -91,7 +84,6 @@ export class FeedRedisService implements OnModuleDestroy {
     return { postIds, total };
   }
 
-  // Cursor-based read (infinite scroll)
   async getFeedByCursor(
     userId: string,
     cursor: string | null,
@@ -101,7 +93,6 @@ export class FeedRedisService implements OnModuleDestroy {
 
     let start = 0;
     if (cursor) {
-      // Cursor = last postId এর index
       const idx = await this.getFeedIndex(userId, cursor);
       start = idx !== -1 ? idx + 1 : 0;
     }
@@ -120,29 +111,22 @@ export class FeedRedisService implements OnModuleDestroy {
     return feed.indexOf(postId);
   }
 
-  // Feed এ কতো post আছে
   async getFeedLength(userId: string): Promise<number> {
     return this.client.llen(`feed:${userId}`);
   }
 
-  // Feed আছে কিনা (cold start check)
   async feedExists(userId: string): Promise<boolean> {
     return (await this.client.exists(`feed:${userId}`)) === 1;
   }
 
-  // Feed clear করো (invalidate)
   async clearFeed(userId: string): Promise<void> {
     await this.client.del(`feed:${userId}`);
   }
 
-  // ── Celebrity Posts ───────────────────────────
-  // Celebrity user দের posts আলাদা রাখো
-  // Feed read এর সময় merge করো
-
   async addCelebrityPost(authorId: string, postId: string): Promise<void> {
     const key = `celebrity:posts:${authorId}`;
     await this.client.lpush(key, postId);
-    await this.client.ltrim(key, 0, 99); // max 100 posts
+    await this.client.ltrim(key, 0, 99);
     await this.client.expire(key, FEED_TTL);
   }
 
@@ -150,7 +134,6 @@ export class FeedRedisService implements OnModuleDestroy {
     return this.client.lrange(`celebrity:posts:${authorId}`, 0, 19);
   }
 
-  // User যাদের follow করে তাদের celebrity posts
   async getMergedCelebrityPosts(
     celebIds: string[],
     limit: number,
@@ -169,16 +152,13 @@ export class FeedRedisService implements OnModuleDestroy {
       if (Array.isArray(posts)) allPosts.push(...posts);
     });
 
-    // Shuffle করো (random order)
     return allPosts.sort(() => Math.random() - 0.5).slice(0, limit);
   }
 
-  // ── Trending ──────────────────────────────────
   async getTrendingPostIds(limit: number): Promise<string[]> {
     return this.client.zrevrange('trending:posts:global', 0, limit - 1);
   }
 
-  // ── Celebrity Check ───────────────────────────
   async isCelebrity(userId: string): Promise<boolean> {
     const count = await this.client.get(`user:followerCount:${userId}`);
     return parseInt(count || '0') >= CELEBRITY_LIMIT;
@@ -193,7 +173,6 @@ export class FeedRedisService implements OnModuleDestroy {
     );
   }
 
-  // ── Feed Cache (full page cache) ──────────────
   async cacheFeedPage(
     userId: string,
     page: number,
@@ -221,5 +200,13 @@ export class FeedRedisService implements OnModuleDestroy {
     stream.on('data', async (keys: string[]) => {
       if (keys.length) await this.client.del(...keys);
     });
+  }
+
+  async addToTrending(postId: string, score = 1): Promise<void> {
+    await this.client.zincrby('trending:posts:global', score, postId);
+  }
+
+  async removeFromTrending(postId: string): Promise<void> {
+    await this.client.zrem('trending:posts:global', postId);
   }
 }

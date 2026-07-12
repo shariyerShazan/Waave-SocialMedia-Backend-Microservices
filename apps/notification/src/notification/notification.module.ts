@@ -2,9 +2,7 @@ import { Module } from '@nestjs/common';
 import { NotificationHttpController } from './notification.http.controller';
 import { NotificationService } from '../notification/notification.service';
 import { EmailModule } from '../email/email.module';
-import { NotificationConsumer } from './notification.consumer';
 import { NotificationRedisService } from '../redis/redis.service';
-import { NotificationGateway } from './notification.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
   Notification,
@@ -16,6 +14,8 @@ import {
   NotificationPreferenceSchema,
 } from '../schemas/notification-preference.schema';
 import { NotificationGrpcController } from './notification.grpc.controller';
+import { NotificationConsumer } from './consumers/notification.consumer';
+import { NotificationGateway } from './gateway/notification.gateway';
 
 @Module({
   imports: [

@@ -8,7 +8,11 @@ RUN npm install
 
 COPY . .
 
-RUN npx prisma generate --schema=./apps/auth-service/prisma/schema.prisma
+# Generate proto types
+RUN npm run proto:generate
+# Generate prisma client
+RUN npm run auth:prisma:generate
+
 
 RUN npm run build auth-service
 
@@ -22,9 +26,9 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/auth-service/prisma ./apps/auth-service/prisma
 COPY --from=builder /app/dist ./dist
 
+EXPOSE 4001
 EXPOSE 3001
 
 CMD ["node", "dist/apps/auth-service/main.js"]

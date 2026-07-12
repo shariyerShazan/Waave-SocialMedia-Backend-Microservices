@@ -8,13 +8,7 @@ RUN npm install
 
 COPY . .
 
-
-# Generate proto types
-RUN npm run proto:generate
-# Generate prisma client
-RUN npm run post:prisma:generate
-
-RUN npm run build post-service
+RUN npm run build feed-service
 
 RUN npm prune --production
 
@@ -28,7 +22,7 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 3003
-EXPOSE 4003
+EXPOSE 4004
+EXPOSE 3004
 
-CMD ["node", "dist/apps/post-service/main.js"]
+CMD ["node", "dist/apps/feed-service/main.js"]

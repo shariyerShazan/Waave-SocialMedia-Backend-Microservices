@@ -1,14 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { KAFKA_TOPICS } from '@app/kafka';
-import { EmailService } from '../email/email.service';
-import { NotificationService } from './notification.service';
+
 import type {
   SendRegistrationOtpEvent,
   SendResetPassOtpEvent,
   UserFollowEvent,
   UserUnfollowEvent,
 } from '@app/kafka/constants/events.type';
+import { EmailService } from '../../email/email.service';
+import { NotificationService } from '../notification.service';
 
 @Controller()
 export class NotificationConsumer {

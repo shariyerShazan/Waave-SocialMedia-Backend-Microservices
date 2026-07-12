@@ -13,8 +13,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import { NotificationService } from '../notification/notification.service';
-import { NotificationRedisService } from '../redis/redis.service';
+import { NotificationRedisService } from '../../redis/redis.service';
+import { NotificationService } from '../notification.service';
 
 interface AuthSocket extends Socket {
   userId: string;
