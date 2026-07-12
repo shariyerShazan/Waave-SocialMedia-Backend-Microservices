@@ -5,7 +5,7 @@ This repository is a NestJS monorepo for a multi-service product platform. It is
 ## High-level layout
 
 ```text
-my-product/
+Waave/
 ├── apps/                  # Independent NestJS applications
 ├── libs/                  # Shared libraries and generated proto types
 ├── storage/               # Local storage for uploaded media assets
@@ -79,6 +79,16 @@ Key folders:
 
 - `src/email` – email delivery implementation
 - `src/notification` – Kafka consumer handlers
+
+### `apps/post-service`
+
+This service manages posts and scheduled workflows.
+
+Key folders:
+
+- `src/post` – post CRUD, publish, and revision logic
+- `src/prisma` – Prisma schema and database access
+- `src/scheduler` – scheduled job handlers
 
 ## Shared libraries
 

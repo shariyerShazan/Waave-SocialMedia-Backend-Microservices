@@ -50,7 +50,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
 
   const config = new DocumentBuilder()
-    .setTitle('My Product Media-service API')
+    .setTitle('Waave Media Service API')
     .setDescription('The API description')
     .setVersion('1.0')
     .addBearerAuth()

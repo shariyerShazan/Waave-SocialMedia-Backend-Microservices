@@ -4,23 +4,25 @@ This project is built as a NestJS monorepo with multiple services that work toge
 
 ## Service documentation
 
-Each service now has its own dedicated markdown guide:
+Each service has a dedicated markdown guide. New services are added as the codebase evolves.
 
 - [API Gateway](./api-gateway.md)
 - [Auth Service](./auth-service.md)
 - [User Service](./user-service.md)
 - [Media Service](./media-service.md)
+- [Post Service](./post-service.md)
 - [Notification Service](./notification.md)
 
 ## Architecture at a glance
 
-The system consists of five main runtime pieces:
+The system consists of several domain services and an orchestrating gateway. Primary runtime pieces include:
 
-- API Gateway – the public entry point for clients
-- Auth Service – authentication, authorization, and identity operations
-- User Service – profile management, follow relationships, and presence
-- Media Service – media metadata, storage integration, and media lookup
-- Notification Service – outbound email notifications
+- API Gateway — public entry point and orchestration layer
+- Auth Service — identity, token lifecycle, and verification flows
+- User Service — profiles, follow relationships, and presence
+- Media Service — media metadata, processing, and storage
+- Post Service — post creation, publishing, and scheduled tasks
+- Notification Service — outbound notification delivery (email, etc.)
 
 Supporting infrastructure includes:
 
@@ -205,24 +207,24 @@ Key fields include:
 
 The storage layer writes processed files into the `storage/` directory for images, avatars, covers, videos, and temporary files.
 
-## 5. Notification Service
+## Notification Service
 
-The notification service is an event-driven consumer for outbound communication.
+The notification service is an event-driven consumer responsible for outbound communications (email, SMS integrations, etc.). It subscribes to domain events and executes delivery workflows.
 
 ### Responsibilities
 
-- Consume Kafka events
-- Send registration OTP emails
-- Send password reset OTP emails
+- Consume Kafka events and map them to notification templates
+- Deliver registration OTPs, password resets, and transactional emails
+- Implement retry and backoff policies for transient failures
 
 ### Communication
 
 - Kafka consumer
-- SMTP/email transport through the email service layer
+- SMTP or external email providers via a pluggable transport layer
 
 ### Data layer
 
-It does not own a long-lived business database. It reacts to events emitted by the auth service.
+The service is mostly stateless and event-driven; persistent storage is optional (for audit or retry tracking) and currently not required.
 
 ## Shared infrastructure
 

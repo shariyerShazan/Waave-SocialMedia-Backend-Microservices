@@ -1,0 +1,64 @@
+// proto/feed.proto
+syntax = "proto3";
+
+package feed;
+
+service FeedService {
+  rpc GetFeed          (GetFeedRequest)    returns (FeedResponse);
+  rpc GetExploreFeed   (ExploreRequest)    returns (FeedResponse);
+  rpc GetTrendingPosts (TrendingRequest)   returns (FeedResponse);
+  rpc InvalidateFeed   (InvalidateRequest) returns (InvalidateResponse);
+}
+
+message GetFeedRequest {
+  string userId  = 1;
+  int32  page    = 2;
+  int32  limit   = 3;
+  string cursor  = 4;  
+}
+
+message ExploreRequest {
+  string userId = 1;
+  int32  page   = 2;
+  int32  limit  = 3;
+}
+
+message TrendingRequest {
+  int32 limit = 1;
+}
+
+message InvalidateRequest {
+  string userId = 1;
+}
+
+message InvalidateResponse {
+  bool success = 1;
+}
+
+message FeedPost {
+  string          id            = 1;
+  string          userId        = 2;
+  string          userName      = 3;
+  string          userAvatar    = 4;
+  string          content       = 5;
+  repeated string mediaUrls     = 6;
+  string          feeling       = 7;
+  string          location      = 8;
+  int32           likesCount    = 9;
+  int32           commentsCount = 10;
+  int32           sharesCount   = 11;
+  int32           viewsCount    = 12;
+  bool            isLiked       = 13;
+  bool            isBookmarked  = 14;
+  string          userName2     = 15;
+  string          createdAt     = 16;
+  bool            isOnline      = 17;
+}
+
+message FeedResponse {
+  bool             success    = 1;
+  repeated FeedPost posts     = 2;
+  int32            total      = 3;
+  string           nextCursor = 4;
+  bool             hasMore    = 5;
+}

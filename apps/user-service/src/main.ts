@@ -57,7 +57,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('My Product User-service API')
+    .setTitle('Waave User Service API')
     .setDescription('The API description')
     .setVersion('1.0')
     .addBearerAuth()

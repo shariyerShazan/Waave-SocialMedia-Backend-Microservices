@@ -38,6 +38,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "feed-service": {
+      "type": "application",
+      "root": "apps/feed-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/feed-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/feed-service/tsconfig.app.json"
+      }
+    },
     "kafka": {
       "type": "library",
       "root": "libs/kafka",

@@ -5,6 +5,7 @@ export const KAFKA_CLIENT_IDS = {
   AUTH: 'auth-kafka-client-id',
   USER: 'user-kafka-client-id',
   NOTIFICATION: 'notification-kafka-client-id',
+  FEED: 'feed-service-kafka-client-id',
 } as const;
 
 export const KAFKA_CONSUMER_GROUPS = {
@@ -12,6 +13,7 @@ export const KAFKA_CONSUMER_GROUPS = {
   AUTH: 'auth-service-group',
   USER: 'user-service-group',
   NOTIFICATION: 'notification-service-group',
+  FEED: 'feed-service-group',
 } as const;
 
 export const KAFKA_SERVICE = 'KAFKA_SERVICE';

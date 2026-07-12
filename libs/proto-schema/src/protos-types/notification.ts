@@ -5,10 +5,10 @@
 // source: notification.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Observable } from "rxjs";
 
-export const protobufPackage = 'notification';
+export const protobufPackage = "notification";
 
 export interface Notification {
   id: string;
@@ -85,45 +85,30 @@ export interface ActionResponse {
   message: string;
 }
 
-export const NOTIFICATION_PACKAGE_NAME = 'notification';
+export const NOTIFICATION_PACKAGE_NAME = "notification";
 
 export interface NotificationGrpcServiceClient {
-  getNotifications(
-    request: GetNotificationsRequest,
-  ): Observable<GetNotificationsResponse>;
+  getNotifications(request: GetNotificationsRequest): Observable<GetNotificationsResponse>;
 
   markAsRead(request: MarkAsReadRequest): Observable<ActionResponse>;
 
   markAllAsRead(request: MarkAllAsReadRequest): Observable<ActionResponse>;
 
-  deleteNotification(
-    request: DeleteNotificationRequest,
-  ): Observable<ActionResponse>;
+  deleteNotification(request: DeleteNotificationRequest): Observable<ActionResponse>;
 
-  getPreferences(
-    request: GetPreferencesRequest,
-  ): Observable<NotificationPreference>;
+  getPreferences(request: GetPreferencesRequest): Observable<NotificationPreference>;
 
-  updatePreferences(
-    request: UpdatePreferencesRequest,
-  ): Observable<NotificationPreference>;
+  updatePreferences(request: UpdatePreferencesRequest): Observable<NotificationPreference>;
 }
 
 export interface NotificationGrpcServiceController {
   getNotifications(
     request: GetNotificationsRequest,
-  ):
-    | Promise<GetNotificationsResponse>
-    | Observable<GetNotificationsResponse>
-    | GetNotificationsResponse;
+  ): Promise<GetNotificationsResponse> | Observable<GetNotificationsResponse> | GetNotificationsResponse;
 
-  markAsRead(
-    request: MarkAsReadRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  markAsRead(request: MarkAsReadRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
-  markAllAsRead(
-    request: MarkAllAsReadRequest,
-  ): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
+  markAllAsRead(request: MarkAllAsReadRequest): Promise<ActionResponse> | Observable<ActionResponse> | ActionResponse;
 
   deleteNotification(
     request: DeleteNotificationRequest,
@@ -131,53 +116,33 @@ export interface NotificationGrpcServiceController {
 
   getPreferences(
     request: GetPreferencesRequest,
-  ):
-    | Promise<NotificationPreference>
-    | Observable<NotificationPreference>
-    | NotificationPreference;
+  ): Promise<NotificationPreference> | Observable<NotificationPreference> | NotificationPreference;
 
   updatePreferences(
     request: UpdatePreferencesRequest,
-  ):
-    | Promise<NotificationPreference>
-    | Observable<NotificationPreference>
-    | NotificationPreference;
+  ): Promise<NotificationPreference> | Observable<NotificationPreference> | NotificationPreference;
 }
 
 export function NotificationGrpcServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      'getNotifications',
-      'markAsRead',
-      'markAllAsRead',
-      'deleteNotification',
-      'getPreferences',
-      'updatePreferences',
+      "getNotifications",
+      "markAsRead",
+      "markAllAsRead",
+      "deleteNotification",
+      "getPreferences",
+      "updatePreferences",
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method,
-      );
-      GrpcMethod('NotificationGrpcService', method)(
-        constructor.prototype[method],
-        method,
-        descriptor,
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("NotificationGrpcService", method)(constructor.prototype[method], method, descriptor);
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method,
-      );
-      GrpcStreamMethod('NotificationGrpcService', method)(
-        constructor.prototype[method],
-        method,
-        descriptor,
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("NotificationGrpcService", method)(constructor.prototype[method], method, descriptor);
     }
   };
 }
 
-export const NOTIFICATION_GRPC_SERVICE_NAME = 'NotificationGrpcService';
+export const NOTIFICATION_GRPC_SERVICE_NAME = "NotificationGrpcService";

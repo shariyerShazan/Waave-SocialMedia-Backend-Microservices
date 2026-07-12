@@ -41,7 +41,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('My Product Post-service API')
+    .setTitle('Waave Post Service API')
     .setDescription('The API description')
     .setVersion('1.0')
     .addBearerAuth()
