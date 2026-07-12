@@ -2,11 +2,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { FeedRedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
     JwtModule.register({ global: true }),
     ConfigModule.forRoot({ isGlobal: true }),
+    FeedRedisModule,
   ],
 })
 export class FeedAppModule {}

@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-// redis/user-redis.service.ts
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
 
@@ -31,7 +30,7 @@ export class FeedRedisService implements OnModuleDestroy {
     const pipeline = this.client.pipeline();
 
     pipeline.lpush(key, postId);
-    pipeline.ltrim(key, 0, FEED_MAX_SIZE - 1); // max 1000
+    pipeline.ltrim(key, 0, FEED_MAX_SIZE - 1);
     pipeline.expire(key, FEED_TTL);
 
     await pipeline.exec();
