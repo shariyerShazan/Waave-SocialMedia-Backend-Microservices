@@ -30,7 +30,7 @@ on:
       - 'tsconfig*.json'
 
 jobs:
-  post-service:
+  feed-service:
     runs-on: ubuntu-latest
 
     steps:
@@ -46,5 +46,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Post Service
-        run: npx nest build post-service
+      - name: Build Feed Service
+        run: npx nest build feed-service
