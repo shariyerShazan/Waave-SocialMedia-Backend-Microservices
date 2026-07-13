@@ -11,6 +11,7 @@ Each service has a dedicated markdown guide. New services are added as the codeb
 - [User Service](./user-service.md)
 - [Media Service](./media-service.md)
 - [Post Service](./post-service.md)
+- [Feed Service](./feed-service.md)
 - [Notification Service](./notification.md)
 
 ## Architecture at a glance
