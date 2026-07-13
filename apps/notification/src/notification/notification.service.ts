@@ -86,7 +86,7 @@ export class NotificationService {
       unreadCount,
     });
 
-    this.logger.log(`✅ Notification created: ${dto.type} → ${dto.toUserId}`);
+    this.logger.log(`Notification created: ${dto.type} → ${dto.toUserId}`);
   }
 
   // ── Get Notifications ─────────────────────────

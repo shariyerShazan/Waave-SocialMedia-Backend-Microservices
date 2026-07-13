@@ -5,9 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { RateLimiterModule } from './rateLimit/rateLimit.module';
 import { MediaModule } from './media/media.module';
-import { SharedEnrichmentModule } from './shared/shared-enrichment.module';
+import { SharedEnrichmentModule } from './enrichments/shared-enrichment.module';
 import { NotificationModule } from './notification/notification.module';
 import { PostModule } from './post/post.module';
+import { FeedModule } from './feed/feed.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PostModule } from './post/post.module';
     SharedEnrichmentModule,
     NotificationModule,
     PostModule,
+    FeedModule,
   ],
 })
 export class GatewayAppModule {}

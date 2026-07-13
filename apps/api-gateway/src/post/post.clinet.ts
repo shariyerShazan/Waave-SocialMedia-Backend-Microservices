@@ -25,7 +25,7 @@ import {
   GetPostsByIdsRequest,
 } from '@app/proto-schema/protos-types/post';
 
-import { EnrichmentService } from '../shared/enrichment.service';
+import { EnrichmentService } from '../enrichments/enrichment.service';
 
 @Injectable()
 export class PostClient implements OnModuleInit {

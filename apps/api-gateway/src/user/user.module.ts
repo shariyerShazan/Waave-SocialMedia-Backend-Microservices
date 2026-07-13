@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserClient } from './user.client';
-import { EnrichmentService } from '../shared/enrichment.service';
+import { EnrichmentService } from '../enrichments/enrichment.service';
 import { MediaModule } from '../media/media.module';
 
 @Module({

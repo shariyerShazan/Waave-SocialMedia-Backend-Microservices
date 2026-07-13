@@ -40,7 +40,7 @@ export function getTemplate(
       body: `${fromUser}: ${textContent.substring(0, 50)}`,
     },
     group_invite: {
-      title: '👥 Group Invite',
+      title: 'Group Invite',
       body: `${fromUser} added you to ${(data.groupName as string) || 'a group'}`,
     },
     post_tag: {

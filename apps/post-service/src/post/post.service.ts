@@ -481,9 +481,21 @@ export class PostService {
     await this.redis.addToTrending(postId, 5);
     await this.redis.invalidatePost(postId);
 
+    const post = await this.prisma.readDb.post.findUnique({
+      where: { id: postId },
+      select: {
+        userId: true,
+      },
+    });
+
+    if (!post) {
+      throw new RpcException({ code: 5, message: 'Post not found' });
+    }
+
     const sharedData: PostSharedEvent = {
       postId,
       userId,
+      authorId: post.userId,
       shareId: share.id,
     };
 

@@ -25,6 +25,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    restart: unless-stopped
+    networks:
+      - waave
 
   auth-postgres-replica:
     image: postgres:17
@@ -54,6 +57,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    restart: unless-stopped
+    networks:
+      - waave
 
   # user postgres
   user-postgres-primary:
@@ -74,6 +80,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    restart: unless-stopped
+    networks:
+      - waave
 
   user-postgres-replica:
     image: postgres:17
@@ -103,6 +112,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    restart: unless-stopped
+    networks:
+      - waave
 
   # post postgres
   post-postgres-primary:
@@ -123,6 +135,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    restart: unless-stopped
+    networks:
+      - waave
 
   post-postgres-replica:
     image: postgres:17
@@ -152,6 +167,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    restart: unless-stopped
+    networks:
+      - waave
 
   # mongodb database for media
   media_mongo_db_1:
@@ -176,34 +194,19 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [
-          'CMD',
-          'mongosh',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
+        ['CMD','mongosh','-u','mongo', '-p', 'mongo123','--authenticationDatabase','admin',  '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   media_mongo_db_2:
     image: mongo:7
     container_name: waave_mongo_db_2_media
     command:
-      [
-        'mongod',
-        '--replSet',
-        'media-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
+      [ 'mongod',  '--replSet', 'media-rs', '--bind_ip_all','--keyFile','/data/keyfile/mongo-keyfile',]
     ports:
       - '27027:27017'
     environment:
@@ -214,34 +217,19 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [
-          'CMD',
-          'mongosh',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
+        ['CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval',"db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   media_mongo_db_3:
     image: mongo:7
     container_name: waave_mongo_db_3_media
     command:
-      [
-        'mongod',
-        '--replSet',
-        'media-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
+      ['mongod', '--replSet', 'media-rs', '--bind_ip_all',  '--keyFile',  '/data/keyfile/mongo-keyfile',]
     ports:
       - '27037:27017'
     environment:
@@ -252,21 +240,13 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [
-          'CMD',
-          'mongosh',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
+        [  'CMD',  'mongosh', '-u',  'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   media-mongo-init:
     image: mongo:7
@@ -289,21 +269,16 @@ services:
       MEMBER_2: media_mongo_db_2:27017
       MEMBER_3: media_mongo_db_3:27017
     entrypoint: ['/bin/bash', '/replica-init.sh']
-    restart: 'no'
+    restart: "no"
+    networks:
+      - waave
 
   # mongodb database for notification
   notification_mongo_db_1:
     image: mongo:7
     container_name: waave_mongo_db_1_notification
     command:
-      [
-        'mongod',
-        '--replSet',
-        'notification-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
+      ['mongod', '--replSet', 'notification-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
     ports:
       - '27016:27017'
     environment:
@@ -314,34 +289,19 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [
-          'CMD',
-          'mongosh',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
+        [ 'CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase',  'admin', '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   notification_mongo_db_2:
     image: mongo:7
     container_name: waave_mongo_db_2_notification
     command:
-      [
-        'mongod',
-        '--replSet',
-        'notification-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
+      [ 'mongod',  '--replSet', 'notification-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
     ports:
       - '27026:27017'
     environment:
@@ -352,34 +312,19 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [
-          'CMD',
-          'mongosh',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
+        [ 'CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase', 'admin',  '--eval',  "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   notification_mongo_db_3:
     image: mongo:7
     container_name: waave_mongo_db_3_notification
     command:
-      [
-        'mongod',
-        '--replSet',
-        'notification-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
+      [  'mongod', '--replSet',  'notification-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
     ports:
       - '27036:27017'
     environment:
@@ -390,21 +335,13 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [
-          'CMD',
-          'mongosh',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
+        [ 'CMD', 'mongosh',  '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   notification-mongo-init:
     image: mongo:7
@@ -428,6 +365,8 @@ services:
       MEMBER_3: notification_mongo_db_3:27017
     entrypoint: ['/bin/bash', '/replica-init.sh']
     restart: 'no'
+    networks:
+      - waave
 
   # ── Redis ──────────────────────────────────────
   # ── Auth Redis
@@ -438,8 +377,8 @@ services:
       - '6379:6379'
     command: >
       redis-server
-      --maxmemory 1gb
-      --maxmemory-policy allkeys-lru
+      --maxmemory 256mb
+      --maxmemory-policy volatile-ttl
       --appendonly yes
     volumes:
       - auth_redis_data:/data
@@ -448,6 +387,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── User Redis
   user_redis:
@@ -457,7 +399,7 @@ services:
       - '6378:6379'
     command: >
       redis-server
-      --maxmemory 1gb
+      --maxmemory 256mb
       --maxmemory-policy allkeys-lru
       --appendonly yes
     volumes:
@@ -467,6 +409,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── Gateway Redis
   api_gateway_redis:
@@ -476,8 +421,8 @@ services:
       - '6377:6379'
     command: >
       redis-server
-      --maxmemory 1gb
-      --maxmemory-policy allkeys-lru
+      --maxmemory 256mb
+      --maxmemory-policy volatile-ttl
       --appendonly yes
     volumes:
       - api_gateway_redis_data:/data
@@ -486,6 +431,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── Media Redis
   media_redis:
@@ -495,7 +443,7 @@ services:
       - '6376:6379'
     command: >
       redis-server
-      --maxmemory 1gb
+      --maxmemory 512mb
       --maxmemory-policy allkeys-lru
       --appendonly yes
     volumes:
@@ -505,6 +453,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── Notification Redis
   notification_redis:
@@ -514,8 +465,8 @@ services:
       - '6375:6379'
     command: >
       redis-server
-      --maxmemory 1gb
-      --maxmemory-policy allkeys-lru
+      --maxmemory 256mb
+      --maxmemory-policy volatile-ttl
       --appendonly yes
     volumes:
       - notification_redis_data:/data
@@ -524,6 +475,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── Post Redis
   post_redis:
@@ -543,6 +497,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── Post Redis
   feed_redis:
@@ -552,7 +509,7 @@ services:
       - '6373:6379'
     command: >
       redis-server
-      --maxmemory 1gb
+      --maxmemory 2gb
       --maxmemory-policy allkeys-lru
       --appendonly yes
     volumes:
@@ -562,6 +519,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── Kafka ──────────────────────────────────────
   kafka:
@@ -569,37 +529,28 @@ services:
     container_name: waave_kafka
     ports:
       - '9092:9092'
-
     environment:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-
     healthcheck:
       test:
-        [
-          'CMD',
-          'bash',
-          '-c',
-          'kafka-topics --bootstrap-server localhost:9092 --list',
-        ]
+        [ 'CMD',  'bash',  '-c', 'kafka-topics --bootstrap-server localhost:9092 --list',]
       interval: 10s
       timeout: 5s
       retries: 5
-
     volumes:
       - kafka_data:/var/lib/kafka/data
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── Kafka UI ───────────────────────────────────
   kafka-ui:
@@ -613,6 +564,9 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - waave
 
   # ── Services ───────────────────────────────────
 
@@ -691,3 +645,8 @@ volumes:
   feed_redis_data:
 
   kafka_data:
+
+
+networks:
+  waave:
+    driver: bridge

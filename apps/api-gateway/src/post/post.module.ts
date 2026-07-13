@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { EnrichmentService } from '../shared/enrichment.service';
+import { EnrichmentService } from '../enrichments/enrichment.service';
 import { MediaModule } from '../media/media.module';
 import { PostClient } from './post.clinet';
 import { PostController } from './post.controller';

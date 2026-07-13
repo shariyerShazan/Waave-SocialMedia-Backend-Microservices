@@ -59,5 +59,6 @@ export interface PostCommentEvent {
 export interface PostSharedEvent {
   postId: string;
   userId: string;
+  authorId: string;
   shareId: string;
 }

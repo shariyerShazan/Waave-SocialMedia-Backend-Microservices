@@ -6,7 +6,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PostGrpcClient } from './clients/post-grpc.client';
 import { UserGrpcClient } from './clients/user-grpc.client';
 import { FeedRedisService } from '../redis/redis.service';
-import { FeedEnrichmentService } from './enrich/enrichment.service';
+import { FeedEnrichmentService } from './enrichments/enrichment.service';
 
 @Injectable()
 export class FeedService {

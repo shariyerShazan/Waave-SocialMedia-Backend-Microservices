@@ -11,7 +11,7 @@ import {
 import { Client, type ClientGrpc, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { firstValueFrom } from 'rxjs';
-import { EnrichmentService } from '../shared/enrichment.service';
+import { EnrichmentService } from '../enrichments/enrichment.service';
 
 @Injectable()
 export class UserClient implements OnModuleInit {
