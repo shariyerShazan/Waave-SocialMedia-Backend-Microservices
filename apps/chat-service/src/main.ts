@@ -5,24 +5,21 @@ import {
   KAFKA_CLIENT_IDS,
   KAFKA_CONSUMER_GROUPS,
 } from '@app/kafka';
-import { NotificationAppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
+import { ChatServiceAppModule } from './app.module';
 
-const httpPort = Number(process.env.NOTIFICATION_HTTP_PORT!) || 4010;
-const grpcPort = Number(process.env.NOTIFICATION_GRPC_PORT!) || 3010;
+const httpPort = Number(process.env.CHAT_HTTP_PORT!) || 4005;
+const grpcPort = Number(process.env.CHAT_GRPC_PORT!) || 3005;
 
 async function bootstrap() {
-  const app = await NestFactory.create(NotificationAppModule);
+  const app = await NestFactory.create(ChatServiceAppModule);
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
-      package: 'notification',
-      protoPath: join(
-        process.cwd(),
-        'libs/proto-schema/src/proto/notification.proto',
-      ),
+      package: 'chat',
+      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/chat.proto'),
       url: `0.0.0.0:${grpcPort}`,
       loader: {
         keepCase: true,
@@ -38,17 +35,17 @@ async function bootstrap() {
     transport: Transport.KAFKA,
     options: {
       client: {
-        clientId: KAFKA_CLIENT_IDS.NOTIFICATION,
+        clientId: KAFKA_CLIENT_IDS.CHAT,
         brokers: [KAFKA_BROKERS],
       },
       consumer: {
-        groupId: KAFKA_CONSUMER_GROUPS.NOTIFICATION,
+        groupId: KAFKA_CONSUMER_GROUPS.CHAT,
       },
     },
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Waave Notification API')
+    .setTitle('Waave Chat API')
     .setDescription('The API description')
     .setVersion('1.0')
     .addBearerAuth()
@@ -61,14 +58,12 @@ async function bootstrap() {
   await app.startAllMicroservices();
 
   await app.listen(httpPort);
-  console.log(`🚀 Notification HTTP Server: http://localhost:${httpPort}`);
+  console.log(`🚀 Chat HTTP Server: http://localhost:${httpPort}`);
+  console.log(`🚀 Chat Socket.io Server: http://localhost:${httpPort}/chat`);
   console.log(
-    `🚀 Notification Socket.io Server: http://localhost:${httpPort}/notifications`,
+    `🚀 Chat HTTP Server Swagger Docs: http://localhost:${httpPort}/docs`,
   );
-  console.log(
-    `🚀 Notification HTTP Server Swagger Docs: http://localhost:${httpPort}/docs`,
-  );
-  console.log(`🚀 Notification gRPC Server: 0.0.0.0:${grpcPort}`);
+  console.log(`🚀 Chat gRPC Server: 0.0.0.0:${grpcPort}`);
 }
 
 void bootstrap();
