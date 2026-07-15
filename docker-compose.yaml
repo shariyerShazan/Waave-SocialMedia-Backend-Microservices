@@ -368,6 +368,102 @@ services:
     networks:
       - waave
 
+
+  # mongodb database for chat
+  chat_mongo_db_1:
+    image: mongo:7
+    container_name: waave_mongo_db_1_chat
+    command:
+      ['mongod', '--replSet', 'chat-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+    ports:
+      - '27015:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo123
+    volumes:
+      - chat_mongo_db_1_data:/data/db
+      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+    healthcheck:
+      test:
+        [ 'CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase',  'admin', '--eval', "db.adminCommand('ping')", ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
+
+  chat_mongo_db_2:
+    image: mongo:7
+    container_name: waave_mongo_db_2_chat
+    command:
+      [ 'mongod',  '--replSet', 'chat-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+    ports:
+      - '27025:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo123
+    volumes:
+      - chat_mongo_db_2_data:/data/db
+      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+    healthcheck:
+      test:
+        [ 'CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase', 'admin',  '--eval',  "db.adminCommand('ping')", ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
+
+  chat_mongo_db_3:
+    image: mongo:7
+    container_name: waave_mongo_db_3_chat
+    command:
+      [  'mongod', '--replSet',  'chat-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+    ports:
+      - '27035:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo123
+    volumes:
+      - chat_mongo_db_3_data:/data/db
+      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+    healthcheck:
+      test:
+        [ 'CMD', 'mongosh',  '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
+
+  chat-mongo-init:
+    image: mongo:7
+    depends_on:
+      chat_mongo_db_1:
+        condition: service_healthy
+      chat_mongo_db_2:
+        condition: service_healthy
+      chat_mongo_db_3:
+        condition: service_healthy
+    container_name: waave_chat_mongo_db_init
+    volumes:
+      - ./mongo-init/replica-init.sh:/replica-init.sh:ro
+    environment:
+      MONGO_USERNAME: mongo
+      MONGO_PASSWORD: mongo123
+      PRIMARY_HOST: chat_mongo_db_1:27017
+      REPLICA_SET_NAME: chat-rs
+      MEMBER_1: chat_mongo_db_1:27017
+      MEMBER_2: chat_mongo_db_2:27017
+      MEMBER_3: chat_mongo_db_3:27017
+    entrypoint: ['/bin/bash', '/replica-init.sh']
+    restart: 'no'
+    networks:
+      - waave
+
   # ── Redis ──────────────────────────────────────
   # ── Auth Redis
   auth_redis:
@@ -501,7 +597,7 @@ services:
     networks:
       - waave
 
-  # ── Post Redis
+  # ── feed Redis
   feed_redis:
     image: redis:7-alpine
     container_name: waave_redis_feed
@@ -514,6 +610,28 @@ services:
       --appendonly yes
     volumes:
       - feed_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
+
+  # ── feed Redis
+  chat_redis:
+    image: redis:7-alpine
+    container_name: waave_redis_chat
+    ports:
+      - '6372:6379'
+    command: >
+      redis-server
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    volumes:
+      - chat_redis_data:/data
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
@@ -636,6 +754,10 @@ volumes:
   notification_mongo_db_2_data:
   notification_mongo_db_3_data:
 
+  chat_mongo_db_1_data:
+  chat_mongo_db_2_data:
+  chat_mongo_db_3_data:
+
   auth_redis_data:
   user_redis_data:
   media_redis_data:
@@ -643,6 +765,7 @@ volumes:
   notification_redis_data:
   post_redis_data:
   feed_redis_data:
+  chat_redis_data:
 
   kafka_data:
 

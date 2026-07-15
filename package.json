@@ -118,7 +118,6 @@
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/kafka(|/.*)$": "<rootDir>/libs/kafka/src/$1",
-      "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1",
       "^@app/proto-schema(|/.*)$": "<rootDir>/libs/proto-schema/src/$1"
     }
   }
