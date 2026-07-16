@@ -55,7 +55,7 @@ export interface Media {
   path: string;
   originalUrl: string;
   thumbnailUrl: string;
-  mediumUrl: string;
+  mediaIds: string;
   mimeType: string;
   size: number;
   status: MediaStatus;
@@ -74,7 +74,7 @@ export interface CreateMediaRequest {
   path: string;
   originalUrl: string;
   thumbnailUrl: string;
-  mediumUrl: string;
+  mediaIds: string;
   mimeType: string;
   size: number;
   status: MediaStatus;
@@ -103,7 +103,7 @@ export interface UpdateMediaStatusRequest {
   status: MediaStatus;
   originalUrl: string;
   thumbnailUrl: string;
-  mediumUrl: string;
+  mediaIds: string;
 }
 
 export interface DeleteMediaRequest {

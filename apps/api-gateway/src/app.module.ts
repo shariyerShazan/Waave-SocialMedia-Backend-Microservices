@@ -9,6 +9,7 @@ import { SharedEnrichmentModule } from './enrichments/shared-enrichment.module';
 import { NotificationModule } from './notification/notification.module';
 import { PostModule } from './post/post.module';
 import { FeedModule } from './feed/feed.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { FeedModule } from './feed/feed.module';
     NotificationModule,
     PostModule,
     FeedModule,
+    ChatModule,
   ],
 })
 export class GatewayAppModule {}

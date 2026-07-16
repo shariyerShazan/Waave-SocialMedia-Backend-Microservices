@@ -58,7 +58,7 @@ message Media {
   string path = 6;
   string originalUrl = 7;
   string thumbnailUrl = 8;
-  string mediumUrl = 9;
+  string mediaIds = 9;
   string mimeType = 10;
   int64 size = 11;
   MediaStatus status = 12;
@@ -77,7 +77,7 @@ message CreateMediaRequest {
   string path = 5;
   string originalUrl = 6;
   string thumbnailUrl = 7;
-  string mediumUrl = 8;
+  string mediaIds = 8;
   string mimeType = 9;
   int64 size = 10;
   MediaStatus status = 11;
@@ -106,7 +106,7 @@ message UpdateMediaStatusRequest {
   MediaStatus status = 2;
   string originalUrl = 3;
   string thumbnailUrl = 4;
-  string mediumUrl = 5;
+  string mediaIds = 5;
 }
 
 message DeleteMediaRequest {
