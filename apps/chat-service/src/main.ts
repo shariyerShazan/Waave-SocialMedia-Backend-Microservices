@@ -7,13 +7,13 @@ import {
 } from '@app/kafka';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
-import { ChatServiceAppModule } from './app.module';
+import { ChatAppModule } from './app.module';
 
 const httpPort = Number(process.env.CHAT_HTTP_PORT!) || 4005;
 const grpcPort = Number(process.env.CHAT_GRPC_PORT!) || 3005;
 
 async function bootstrap() {
-  const app = await NestFactory.create(ChatServiceAppModule);
+  const app = await NestFactory.create(ChatAppModule);
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,

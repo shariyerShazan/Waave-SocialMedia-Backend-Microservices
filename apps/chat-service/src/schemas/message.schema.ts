@@ -21,7 +21,7 @@ export class Message {
   text: string;
 
   @Prop({ type: [String], default: [] })
-  mediaUrls: string[];
+  mediaIds: string[];
 
   @Prop({
     type: String,

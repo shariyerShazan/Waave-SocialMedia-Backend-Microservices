@@ -16,7 +16,6 @@ export interface GetFeedRequest {
   userId: string;
   page: number;
   limit: number;
-  /** cursor-based pagination */
   cursor: string;
 }
 

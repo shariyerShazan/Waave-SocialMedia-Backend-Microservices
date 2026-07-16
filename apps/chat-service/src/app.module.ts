@@ -14,4 +14,4 @@ import { ChatRedisModule } from './redis/redis.module';
     }),
   ],
 })
-export class ChatServiceAppModule {}
+export class ChatAppModule {}

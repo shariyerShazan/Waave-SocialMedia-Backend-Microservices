@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package chat;
+
+service ChatService {
+  // Direct conversation
+  rpc GetOrCreateConversation(GetOrCreateConversationRequest)
+      returns (ConversationResponse);
+
+  // Group
+  rpc CreateGroup(CreateGroupRequest) returns (ConversationResponse);
+  rpc AddGroupMember(AddGroupMemberRequest) returns (OperationResponse);
+
+  // Messages
+  rpc SendMessage(SendMessageRequest) returns (MessageResponse);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc DeleteMessage(DeleteMessageRequest) returns (OperationResponse);
+
+  // Read status
+  rpc MarkAsRead(MarkAsReadRequest) returns (OperationResponse);
+
+  // Reactions
+  rpc ReactToMessage(ReactToMessageRequest) returns (MessageResponse);
+
+  // Conversation list
+  rpc GetConversations(GetConversationsRequest)
+      returns (GetConversationsResponse);
+}
+
+
+message Conversation {
+  string id = 1;
+  repeated string participants = 2;
+  string type = 3; // direct | group
+  string name = 4;
+  string avatar = 5;
+  string lastMessage = 6;
+  int64 lastMessageAt = 7;
+  string lastSenderId = 8;
+  map<string, int32> unreadCounts = 9;
+  repeated string admins = 10;
+  bool isDeleted = 11;
+  int64 createdAt = 12;
+  int64 updatedAt = 13;
+}
+
+message ConversationResponse {
+  Conversation conversation = 1;
+}
+
+
+message Message {
+  string id = 1;
+  string conversationId = 2;
+  string senderId = 3;
+  string senderName = 4;
+  string senderAvatar = 5;
+  string text = 6;
+  repeated string mediaIds = 7;
+  string type = 8; // text | image | video | audio | file | gif
+  repeated string readBy = 9;
+  map<string, StringList> reactions = 10;
+  bool isDeleted = 11;
+  string replyTo = 12;
+  int64 createdAt = 13;
+  int64 updatedAt = 14;
+}
+
+message StringList {
+  repeated string values = 1;
+}
+
+message MessageResponse {
+  Message message = 1;
+}
+
+message GetOrCreateConversationRequest {
+  string userId1 = 1;
+  string userId2 = 2;
+}
+
+message CreateGroupRequest {
+  string name = 1;
+  string creatorId = 2;
+  repeated string participantIds = 3;
+  string avatar = 4;
+}
+
+message AddGroupMemberRequest {
+  string conversationId = 1;
+  string adminId = 2;
+  string userId = 3;
+}
+
+message SendMessageRequest {
+  string conversationId = 1;
+  string senderId = 2;
+  string senderName = 3;
+  string senderAvatar = 4;
+  string text = 5;
+  repeated string mediaIds = 6;
+  string type = 7;
+  string replyTo = 8;
+}
+
+message GetMessagesRequest {
+  string conversationId = 1;
+  string userId = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message DeleteMessageRequest {
+  string messageId = 1;
+  string userId = 2;
+}
+
+message MarkAsReadRequest {
+  string conversationId = 1;
+  string userId = 2;
+}
+
+message ReactToMessageRequest {
+  string messageId = 1;
+  string userId = 2;
+  string emoji = 3;
+}
+
+message GetConversationsRequest {
+  string userId = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
+  int32 total = 2;
+  int32 page = 3;
+}
+
+message ConversationItem {
+  string id = 1;
+  string type = 2;
+  string name = 3;
+  string avatar = 4;
+  repeated string participants = 5;
+  string lastMessage = 6;
+  int64 lastMessageAt = 7;
+  string lastSenderId = 8;
+  int32 unreadCount = 9;
+  bool isOnline = 10;
+}
+
+message GetConversationsResponse {
+  repeated ConversationItem conversations = 1;
+  int32 total = 2;
+  int32 page = 3;
+}
+
+
+message OperationResponse {
+  bool success = 1;
+  string message = 2;
+}
