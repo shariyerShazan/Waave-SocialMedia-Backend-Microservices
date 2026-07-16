@@ -49,21 +49,34 @@ message ConversationResponse {
 }
 
 
+message Media {
+  string id       = 1;
+  string url      = 2;
+  string mimeType = 3;
+  string type     = 4;
+}
+
+message User {
+  string id       = 1;
+  string username = 2;
+  string fullName = 3;
+  string avatar   = 4;
+  bool   verified = 5;
+}
+
 message Message {
   string id = 1;
   string conversationId = 2;
-  string senderId = 3;
-  string senderName = 4;
-  string senderAvatar = 5;
-  string text = 6;
-  repeated string mediaIds = 7;
-  string type = 8; // text | image | video | audio | file | gif
-  repeated string readBy = 9;
-  map<string, StringList> reactions = 10;
-  bool isDeleted = 11;
-  string replyTo = 12;
-  int64 createdAt = 13;
-  int64 updatedAt = 14;
+  string text = 3;
+  string type = 4; // text | image | video | audio | file | gif
+  repeated string readBy = 5;
+  map<string, StringList> reactions = 6;
+  bool isDeleted = 7;
+  string replyTo = 8;
+  int64 createdAt = 9;
+  int64 updatedAt = 10;
+  User sender = 11;
+  repeated Media media = 12;
 }
 
 message StringList {

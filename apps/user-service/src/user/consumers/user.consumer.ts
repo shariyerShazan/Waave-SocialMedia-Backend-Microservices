@@ -1,7 +1,7 @@
 import { KAFKA_TOPICS } from '@app/kafka';
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { UserService } from './user.service';
+import { UserService } from '../user.service';
 import type { UserRegisteredEvent } from '@app/kafka/constants/events.type';
 
 @Controller()

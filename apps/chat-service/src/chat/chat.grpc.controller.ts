@@ -97,28 +97,7 @@ export class ChatGrpcController implements ChatServiceController {
     );
 
     return {
-      messages: result.messages.map((m) => ({
-        id: m.id,
-        conversationId: m.conversationId,
-        senderId: m.senderId,
-        senderName: m.senderName,
-        senderAvatar: m.senderAvatar,
-        text: m.text,
-        mediaIds: m.mediaIds,
-        type: m.type,
-        readBy: m.readBy,
-        reactions: Object.entries(m.reactions || {}).reduce(
-          (acc, [emoji, users]) => {
-            acc[emoji] = { values: users as string[] };
-            return acc;
-          },
-          {},
-        ),
-        isDeleted: m.isDeleted,
-        replyTo: m.replyTo ?? '',
-        createdAt: new Date(m.createdAt).getTime(),
-        updatedAt: 0,
-      })),
+      messages: result.messages.map((m) => this.toMessage(m)),
       total: result.total,
       page: result.page,
     };
@@ -213,11 +192,7 @@ export class ChatGrpcController implements ChatServiceController {
     return {
       id: message._id?.toString() ?? message.id,
       conversationId: message.conversationId,
-      senderId: message.senderId,
-      senderName: message.senderName,
-      senderAvatar: message.senderAvatar,
       text: message.text,
-      mediaIds: message.mediaIds ?? [],
       type: message.type,
       readBy: message.readBy ?? [],
       reactions: Object.entries(message.reactions ?? {}).reduce(
@@ -232,7 +207,20 @@ export class ChatGrpcController implements ChatServiceController {
       isDeleted: message.isDeleted,
       replyTo: message.replyTo ?? '',
       createdAt: new Date(message.createdAt).getTime(),
-      updatedAt: new Date(message.updatedAt).getTime(),
+      updatedAt: message.updatedAt ? new Date(message.updatedAt).getTime() : 0,
+      sender: {
+        id: message.senderId || '',
+        username: message.senderName || '',
+        fullName: message.senderName || '',
+        avatar: message.senderAvatar || '',
+        verified: false,
+      },
+      media: (message.mediaIds || []).map((id: string) => ({
+        id,
+        url: '',
+        mimeType: '',
+        type: 'IMAGE',
+      })),
     };
   }
 }

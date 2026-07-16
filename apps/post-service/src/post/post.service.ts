@@ -16,6 +16,7 @@ import {
   PostLikedEvent,
   PostSharedEvent,
 } from '@app/kafka/constants/events.type';
+import { PostEnrichmentService } from './enrichments/enrichment.service';
 
 @Injectable()
 export class PostService {
@@ -25,6 +26,7 @@ export class PostService {
     private prisma: PostPrismaService,
     private redis: PostRedisService,
     private kafka: KafkaService,
+    private readonly enrichment: PostEnrichmentService,
   ) {}
 
   // ── Create Post ───────────────────────────────
@@ -69,13 +71,14 @@ export class PostService {
     return {
       success: true,
       message: 'Post created',
-      post: this.formatPost(post),
+      post: await this.enrichment.enrichPost(this.formatPost(post)),
     };
   }
 
   // ── Get Post ──────────────────────────────────
   async getPost(postId: string, requesterId: string) {
     const cached = await this.redis.getCachedPost(postId);
+
     if (cached) {
       const isLiked = requesterId
         ? await this.redis.userLikedPost(requesterId, postId)
@@ -90,15 +93,16 @@ export class PostService {
           }
         });
       }
+      const enriched = await this.enrichment.enrichPost({
+        ...cached,
+        isLiked,
+        likesCount: cachedLikes ?? cached.likesCount,
+      });
 
       return {
         success: true,
         message: 'Success',
-        post: {
-          ...cached,
-          isLiked,
-          likesCount: cachedLikes ?? cached.likesCount,
-        },
+        post: enriched,
       };
     }
 
@@ -144,7 +148,12 @@ export class PostService {
       });
     }
 
-    return { success: true, message: 'Success', post: formatted };
+    const enriched = await this.enrichment.enrichPost(formatted);
+    return {
+      success: true,
+      message: 'Success',
+      post: enriched,
+    };
   }
 
   // ── Update Post ───────────────────────────────
@@ -178,7 +187,7 @@ export class PostService {
     return {
       success: true,
       message: 'Post updated',
-      post: this.formatPost(updated),
+      post: await this.enrichment.enrichPost(this.formatPost(updated)),
     };
   }
 
@@ -253,7 +262,13 @@ export class PostService {
       likesCount: likeCounts[p.id] ?? p.likesCount,
     }));
 
-    return { success: true, posts: formatted, total, page };
+    const enriched = await this.enrichment.enrichPosts(formatted);
+    return {
+      success: true,
+      posts: enriched,
+      total,
+      page,
+    };
   }
 
   // ── Like Post ─────────────────────────────────
@@ -401,22 +416,26 @@ export class PostService {
       commentData,
     );
 
+    const formattedComment = {
+      id: comment.id,
+      postId: comment.postId,
+      userId: comment.userId,
+      text: comment.text,
+      parentId: comment.parentId || '',
+      likesCount: 0,
+      repliesCount: 0,
+      isLiked: false,
+      createdAt: comment.createdAt.toISOString(),
+    };
+
+    const [enrichedComment] = await this.enrichment.enrichComments([
+      formattedComment,
+    ]);
+
     return {
       success: true,
       message: 'Comment added',
-      comment: {
-        id: comment.id,
-        postId: comment.postId,
-        userId: comment.userId,
-        userName: '',
-        userAvatar: '',
-        text: comment.text,
-        parentId: comment.parentId || '',
-        likesCount: 0,
-        repliesCount: 0,
-        isLiked: false,
-        createdAt: comment.createdAt.toISOString(),
-      },
+      comment: enrichedComment,
     };
   }
 
@@ -463,7 +482,14 @@ export class PostService {
       createdAt: c.createdAt.toISOString(),
     }));
 
-    return { success: true, comments: formatted, total, page };
+    const enriched = await this.enrichment.enrichComments(formatted);
+
+    return {
+      success: true,
+      comments: enriched,
+      total,
+      page,
+    };
   }
 
   // ── Share Post ────────────────────────────────
@@ -570,10 +596,12 @@ export class PostService {
       likesCount: likeCounts[p.id] ?? p.likesCount,
     }));
 
+    const enriched = await this.enrichment.enrichPosts(formatted);
+
     return {
       success: true,
-      posts: formatted,
-      total: formatted.length,
+      posts: enriched,
+      total: enriched.length,
       page: 1,
     };
   }
@@ -601,8 +629,6 @@ export class PostService {
     return {
       id: post.id,
       userId: post.userId,
-      userName: '',
-      userAvatar: '',
       content: post.content,
       mediaIds: post.mediaIds || [],
       feeling: post.feeling || '',

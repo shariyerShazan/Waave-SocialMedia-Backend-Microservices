@@ -102,14 +102,20 @@ message PresenceResponse {
   int64  lastSeen  = 2;
 }
 
-// ── Shared Messages ───────────────────────────────
+message UserMedia {
+  string id       = 1;
+  string url      = 2;
+  string mimeType = 3;
+  string type     = 4;
+}
+
 message UserProfile {
   string id             = 1;
   string name           = 2;
   string email          = 3;
   string bio            = 4;
-  string avatarMediaId  = 5;
-  string coverMediaId   = 6;
+  UserMedia avatar      = 5;
+  UserMedia coverImg    = 6;
   string location       = 7;
   string website        = 8;
   string birthDate      = 9;
@@ -119,8 +125,6 @@ message UserProfile {
   bool   isFollowing    = 13;
   bool   isOnline       = 14;
   string createdAt      = 15;
-  string avatar         = 16;
-  string coverImg       = 17;
 }
 
 message ProfileResponse {

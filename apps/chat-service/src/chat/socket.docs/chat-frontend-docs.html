@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Service Integration Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0817;
+      --surface: #130e26;
+      --border: #2c1a4e;
+      --text: #cbd5e1;
+      --text-muted: #7c729c;
+      --primary: #d946ef;
+      --primary-dim: rgba(217, 70, 239, 0.1);
+      --secondary: #d946ef;
+      --success: #10b981;
+      --radius: 12px;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 3rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2rem;
+      position: relative;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 120px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), #a855f7);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: var(--cols, 1fr 1fr);
+      }
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-ws {
+      background-color: rgba(217, 70, 239, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(217, 70, 239, 0.3);
+    }
+
+    .badge-http {
+      background-color: rgba(168, 85, 247, 0.15);
+      color: #a855f7;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .spec-table th, .spec-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .spec-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .route-item {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      background-color: rgba(12, 8, 23, 0.4);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .route-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .method {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #a855f7;
+      margin-right: 0.5rem;
+    }
+
+    .method.post { color: #ec4899; }
+    .method.delete { color: #f43f5e; }
+    .method.get { color: #10b981; }
+
+    .path {
+      font-family: var(--font-mono);
+      color: #fff;
+    }
+
+    pre {
+      background-color: #07040f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #e2e8f0;
+    }
+
+    .accent-glow {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, var(--primary-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Chat Service Integration Portal</h1>
+      <div class="subtitle">Developer Specification Sheet for Real-Time Messages, Group Chats, and Socket Gateways</div>
+    </header>
+
+    <div class="grid" style="--cols: 1fr;">
+      
+      <!-- WebSocket Section -->
+      <div class="card">
+        <div class="accent-glow"></div>
+        <div class="card-title">
+          <span>Real-time Chat Layer</span>
+          <span class="badge badge-ws">WebSockets (Socket.io)</span>
+        </div>
+        <p>Uses bidirectional Socket.io pipelines to stream live conversations, presence updates, and read states.</p>
+        
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th>Websocket Event Type</th>
+              <th>Direction</th>
+              <th>Handshake Parameters Needed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code style="color: var(--primary);">sendMessage</code></td>
+              <td>Client &rarr; Server</td>
+              <td>Token, avatar URL, display userName</td>
+            </tr>
+            <tr>
+              <td><code style="color: var(--primary);">message</code></td>
+              <td>Server &rarr; Client</td>
+              <td>Active Socket session mapping</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code>// Client socket emission example
+socket.emit('sendMessage', {
+  conversationId: "conv-5f80b2d4",
+  text: "Hello team!",
+  type: "text",
+  mediaIds: ["med-3ff02da4"],
+  replyTo: "msg-7d1a2b3c"
+});</code></pre>
+
+        <p style="margin-top: 1.5rem; font-weight: 600; color: #fff;">Incoming Message Object Payload:</p>
+        <pre><code>{
+  "id": "msg-8f2c3d0b",
+  "conversationId": "conv-5f80b2d4",
+  "text": "Hello team!",
+  "type": "text",
+  "readBy": ["usr-user1"],
+  "reactions": {},
+  "isDeleted": false,
+  "replyTo": "msg-7d1a2b3c",
+  "createdAt": 1781658429000,
+  "sender": {
+    "id": "usr-sender-uuid",
+    "username": "sarahconnor",
+    "fullName": "Sarah Connor",
+    "avatar": "http://localhost:4009/media/uploads/avatars/sarah.jpg",
+    "verified": true
+  },
+  "media": [
+    {
+      "id": "med-3ff02da4",
+      "url": "http://localhost:4009/media/uploads/images/diagram.png",
+      "mimeType": "image/png",
+      "type": "IMAGE"
+    }
+  ]
+}</code></pre>
+      </div>
+
+      <!-- HTTP Section -->
+      <div class="card">
+        <div class="card-title">
+          <span>HTTP Endpoint Routing</span>
+          <span class="badge badge-http">REST API Gateway</span>
+        </div>
+        <p class="subtitle" style="margin-bottom: 1.5rem;">API Base URL: <code>http://localhost:4000</code></p>
+        
+        <div class="route-item">
+          <div><span class="badge method get">GET</span> <span class="path">/conversations</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Retrieve current conversations (paginated).</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method post">POST</span> <span class="path">/conversations</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Get or start a direct conversation with a targeted member using <code>userId</code>.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method post">POST</span> <span class="path">/conversations/group</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Build a group chat. Arguments: <code>name</code>, <code>participantIds</code>, <code>avatar</code>.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method post">POST</span> <span class="path">/conversations/:id/members</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Add a member to a group chat using <code>userId</code>.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method get">GET</span> <span class="path">/conversations/:id/messages</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Get message history. Queries: <code>page</code>, <code>limit</code>.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method post">POST</span> <span class="path">/messages/:id/react</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">React to a message with an <code>emoji</code> key.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method delete">DELETE</span> <span class="path">/messages/:id</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Recall/delete a sent message.</p>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>

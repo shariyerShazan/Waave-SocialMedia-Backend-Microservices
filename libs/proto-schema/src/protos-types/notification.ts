@@ -10,12 +10,18 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "notification";
 
+export interface User {
+  id: string;
+  username: string;
+  fullName: string;
+  avatar: string;
+  verified: boolean;
+}
+
 export interface Notification {
   id: string;
   toUserId: string;
-  fromUserId: string;
-  fromUserName: string;
-  fromUserAvatar: string;
+  sender: User | undefined;
   type: string;
   title: string;
   body: string;

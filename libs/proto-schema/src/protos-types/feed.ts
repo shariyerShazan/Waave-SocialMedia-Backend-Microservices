@@ -37,13 +37,24 @@ export interface InvalidateResponse {
   success: boolean;
 }
 
+export interface Media {
+  id: string;
+  url: string;
+  mimeType: string;
+  type: string;
+}
+
+export interface User {
+  id: string;
+  username: string;
+  fullName: string;
+  avatar: string;
+  verified: boolean;
+}
+
 export interface FeedPost {
   id: string;
-  userId: string;
-  userName: string;
-  userAvatar: string;
   content: string;
-  mediaUrls: string[];
   feeling: string;
   location: string;
   likesCount: number;
@@ -52,9 +63,9 @@ export interface FeedPost {
   viewsCount: number;
   isLiked: boolean;
   isBookmarked: boolean;
-  userName2: string;
   createdAt: string;
-  isOnline: boolean;
+  author: User | undefined;
+  media: Media[];
 }
 
 export interface FeedResponse {

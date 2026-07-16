@@ -114,14 +114,13 @@ message Comment {
   string   id            = 1;
   string   postId        = 2;
   string   userId        = 3;
-  string   userName      = 4;
-  string   userAvatar    = 5;
-  string   text          = 6;
-  string   parentId      = 7;
-  int32    likesCount    = 8;
-  int32    repliesCount  = 9;
-  bool     isLiked       = 10;
-  string   createdAt     = 11;
+  string   text          = 4;
+  string   parentId      = 5;
+  int32    likesCount    = 6;
+  int32    repliesCount  = 7;
+  bool     isLiked       = 8;
+  string   createdAt     = 9;
+  PostAuthor author      = 10;
 }
 
 message CommentResponse {
@@ -170,22 +169,21 @@ message GetPostsByIdsRequest {
 message Post {
   string          id            = 1;
   string          userId        = 2;
-  string          userName      = 3;
-  string          userAvatar    = 4;
-  string          content       = 5;
-  repeated string mediaIds     = 6;
-  string          feeling       = 7;
-  string          location      = 8;
-  string          privacy       = 9;
-  int32           likesCount    = 10;
-  int32           commentsCount = 11;
-  int32           sharesCount   = 12;
-  int32           viewsCount    = 13;
-  bool            isLiked       = 14;
-  bool            isBookmarked  = 15;
-  string          reactionType  = 16;
-  string          createdAt     = 17;
-  string          updatedAt     = 18;
+  string          content       = 3;
+  string          feeling       = 4;
+  string          location      = 5;
+  string          privacy       = 6;
+  int32           likesCount    = 7;
+  int32           commentsCount = 8;
+  int32           sharesCount   = 9;
+  int32           viewsCount    = 10;
+  bool            isLiked       = 11;
+  bool            isBookmarked  = 12;
+  string          reactionType  = 13;
+  string          createdAt     = 14;
+  string          updatedAt     = 15;
+  repeated PostMedia media      = 16;
+  PostAuthor        author     = 17;
 }
 
 message PostResponse {
@@ -215,4 +213,19 @@ enum ReactionType {
   WOW   = 3;
   SAD   = 4;
   ANGRY = 5;
+}
+
+message PostMedia {
+  string id = 1;
+  string url = 2;
+  string mimeType = 3;
+  string type = 4;
+}
+
+message PostAuthor {
+  string id = 1;
+  string username = 2;
+  string fullName = 3;
+  string avatar = 4;
+  bool verified = 5;
 }

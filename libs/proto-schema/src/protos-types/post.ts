@@ -112,14 +112,13 @@ export interface Comment {
   id: string;
   postId: string;
   userId: string;
-  userName: string;
-  userAvatar: string;
   text: string;
   parentId: string;
   likesCount: number;
   repliesCount: number;
   isLiked: boolean;
   createdAt: string;
+  author: PostAuthor | undefined;
 }
 
 export interface CommentResponse {
@@ -168,10 +167,7 @@ export interface GetPostsByIdsRequest {
 export interface Post {
   id: string;
   userId: string;
-  userName: string;
-  userAvatar: string;
   content: string;
-  mediaIds: string[];
   feeling: string;
   location: string;
   privacy: string;
@@ -184,6 +180,8 @@ export interface Post {
   reactionType: string;
   createdAt: string;
   updatedAt: string;
+  media: PostMedia[];
+  author: PostAuthor | undefined;
 }
 
 export interface PostResponse {
@@ -197,6 +195,21 @@ export interface PostsListResponse {
   posts: Post[];
   total: number;
   page: number;
+}
+
+export interface PostMedia {
+  id: string;
+  url: string;
+  mimeType: string;
+  type: string;
+}
+
+export interface PostAuthor {
+  id: string;
+  username: string;
+  fullName: string;
+  avatar: string;
+  verified: boolean;
 }
 
 export const POST_PACKAGE_NAME = "post";

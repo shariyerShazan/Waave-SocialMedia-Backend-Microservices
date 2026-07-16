@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // feed/feed.service.ts
 import { Injectable, Logger } from '@nestjs/common';
-import { PostGrpcClient } from './clients/post-grpc.client';
-import { UserGrpcClient } from './clients/user-grpc.client';
 import { FeedRedisService } from '../redis/redis.service';
 import { FeedEnrichmentService } from './enrichments/enrichment.service';
+import { PostGrpcClient } from '@app/clients/clients/post-grpc.client';
+import { UserGrpcClient } from '@app/clients/clients/user-grpc.client';
 
 @Injectable()
 export class FeedService {

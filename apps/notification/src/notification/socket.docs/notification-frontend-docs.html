@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notification Integration Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b10;
+      --surface: #10141e;
+      --border: #1f2738;
+      --text: #c0caf5;
+      --text-muted: #565f89;
+      --primary: #00f0ff;
+      --primary-dim: rgba(0, 240, 255, 0.1);
+      --secondary: #bb9af3;
+      --success: #73daca;
+      --radius: 12px;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 3rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2rem;
+      position: relative;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 120px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: var(--cols, 1fr 1fr);
+      }
+    }
+
+    .card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-ws {
+      background-color: rgba(187, 154, 243, 0.15);
+      color: var(--secondary);
+      border: 1px solid rgba(187, 154, 243, 0.3);
+    }
+
+    .badge-http {
+      background-color: var(--primary-dim);
+      color: var(--primary);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .spec-table th, .spec-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .spec-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .route-item {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      background-color: rgba(9, 11, 16, 0.4);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .route-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .method {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--primary);
+      margin-right: 0.5rem;
+    }
+
+    .method.patch { color: #f0c674; }
+    .method.delete { color: #f7768e; }
+    .method.get { color: #9ece6a; }
+
+    .path {
+      font-family: var(--font-mono);
+      color: #fff;
+    }
+
+    pre {
+      background-color: #0b0e14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #a9b1d6;
+    }
+
+    .accent-glow {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, var(--primary-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Notification Integration Portal</h1>
+      <div class="subtitle">Developer Specification Sheet for Outbound Alerts, Inbound Requests, and WebSockets</div>
+    </header>
+
+    <div class="grid" style="--cols: 1fr;">
+      
+      <!-- WebSocket Section -->
+      <div class="card">
+        <div class="accent-glow"></div>
+        <div class="card-title">
+          <span>Real-time Outbound Delivery</span>
+          <span class="badge badge-ws">WebSockets (Socket.io)</span>
+        </div>
+        <p>Establish a persistent connection and subscribe to the channels described below to capture server pushes instantly.</p>
+        
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th>Target Event Channel</th>
+              <th>Direction</th>
+              <th>Internal Provider</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code style="color: var(--primary);">notification</code></td>
+              <td>Server &rarr; Client</td>
+              <td>Notification Service Gateway Pub/Sub</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code>// Client Subscription Hook Example
+socket.on('notification', (payload) => {
+  console.log('Received active notification:', payload);
+  showToastNotification({
+    title: payload.title,
+    body: payload.body,
+    avatar: payload.sender?.avatar
+  });
+  updateBadgeCounter(payload.unreadCount);
+});</code></pre>
+
+        <p style="margin-top: 1.5rem; font-weight: 600; color: #fff;">Payload Signature Sample:</p>
+        <pre><code>{
+  "id": "603d29a5-8ec0-449a-bd9b-e7b3a4a7541d",
+  "toUserId": "usr-8a2bf610",
+  "type": "like",
+  "title": "Sarah Connor liked your post",
+  "body": "Sarah Connor liked your recent post about Skynet",
+  "data": {
+    "postId": "post-1cd2eef0"
+  },
+  "isRead": false,
+  "createdAt": "2026-07-17T01:30:15.000Z",
+  "sender": {
+    "id": "usr-9c98ef20-d09f-44df-be78-0e86a7ff1c0a",
+    "username": "sarahconnor",
+    "fullName": "Sarah Connor",
+    "avatar": "http://localhost:4009/media/uploads/avatars/sarah.jpg",
+    "verified": true
+  },
+  "unreadCount": 3
+}</code></pre>
+      </div>
+
+      <!-- HTTP Section -->
+      <div class="card">
+        <div class="card-title">
+          <span>HTTP Endpoint Inventory</span>
+          <span class="badge badge-http">REST API Gateway</span>
+        </div>
+        <p class="subtitle" style="margin-bottom: 1.5rem;">API Base URL: <code>http://localhost:4000</code></p>
+        
+        <div class="route-item">
+          <div><span class="badge method get">GET</span> <span class="path">/notifications</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Retrieve paginated list of alerts. Queries: <code>page</code>, <code>limit</code>.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method patch">PATCH</span> <span class="path">/notifications/:id/read</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Mark a targeted record as read.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method patch">PATCH</span> <span class="path">/notifications/read-all</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Mark every unread alert belonging to the current user as read.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method delete">DELETE</span> <span class="path">/notifications/:id</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Delete/dismiss an alert record completely.</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method get">GET</span> <span class="path">/notifications/preferences</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Get subscription configurations (comments, likes, follows, etc.).</p>
+        </div>
+
+        <div class="route-item">
+          <div><span class="badge method patch">PATCH</span> <span class="path">/notifications/preferences</span></div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Enable/disable specific triggers. Accepts: <code>likes</code>, <code>comments</code>, <code>follows</code>, etc.</p>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>

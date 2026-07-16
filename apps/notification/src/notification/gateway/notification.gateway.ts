@@ -24,7 +24,7 @@ interface AuthSocket extends Socket {
   port: 3003,
   namespace: '/notifications',
   cors: {
-    origin: process.env.NOTIFICATION_SOCKET_URL || 'http://localhost:4010',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
   },
 })

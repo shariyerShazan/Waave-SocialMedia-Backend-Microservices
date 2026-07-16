@@ -10,6 +10,7 @@ import { RpcException } from '@nestjs/microservices';
 import { UserRedisService } from '../redis/redis.service';
 import { UpdateProfileDto } from '@app/common';
 import { UserPrismaService } from '../prisma/prisma.service';
+import { UserEnrichmentService } from './enrichments/enrichment.service';
 import type {
   UserFollowEvent,
   UserUnfollowEvent,
@@ -23,6 +24,7 @@ export class UserService {
     private prisma: UserPrismaService,
     private redis: UserRedisService,
     private kafka: KafkaService,
+    private enrichment: UserEnrichmentService,
   ) {}
 
   async createUser(data: { userId: string; email: string; name: string }) {
@@ -51,7 +53,7 @@ export class UserService {
           ? await this.checkIsFollowing(requesterId, userId)
           : false;
       const isOnline = await this.redis.isOnline(userId);
-      const [hydrated] = this.enrichProfilesWithMedia([
+      const [hydrated] = await this.enrichment.enrichProfilesWithMedia([
         { ...cached, isFollowing, isOnline },
       ]);
       return this.buildResponse(hydrated);
@@ -85,7 +87,7 @@ export class UserService {
       isFollowing: false,
     });
 
-    const [hydratedProfile] = this.enrichProfilesWithMedia([profile]);
+    const [hydratedProfile] = await this.enrichment.enrichProfilesWithMedia([profile]);
     return this.buildResponse(hydratedProfile);
   }
 
@@ -119,7 +121,7 @@ export class UserService {
       coverMediaId: user.coverMediaId,
     });
 
-    const [hydratedProfile] = this.enrichProfilesWithMedia([
+    const [hydratedProfile] = await this.enrichment.enrichProfilesWithMedia([
       this.createProfilePayload(user, { isFollowing: false, isOnline: false }),
     ]);
 
@@ -292,7 +294,7 @@ export class UserService {
       }),
     );
 
-    const users = this.enrichProfilesWithMedia(profiles);
+    const users = await this.enrichment.enrichProfilesWithMedia(profiles);
 
     return { success: true, users, total, page };
   }
@@ -324,7 +326,7 @@ export class UserService {
       }),
     );
 
-    const users = this.enrichProfilesWithMedia(profiles);
+    const users = await this.enrichment.enrichProfilesWithMedia(profiles);
 
     return { success: true, users, total, page };
   }
@@ -369,7 +371,7 @@ export class UserService {
       }),
     );
 
-    const result = this.enrichProfilesWithMedia(profiles);
+    const result = await this.enrichment.enrichProfilesWithMedia(profiles);
 
     await this.redis.cacheSearch(cacheKey, result);
 
@@ -417,7 +419,7 @@ export class UserService {
       }),
     );
 
-    const users = this.enrichProfilesWithMedia(profiles);
+    const users = await this.enrichment.enrichProfilesWithMedia(profiles);
 
     return { success: true, users, total: users.length, page: 1 };
   }
@@ -454,7 +456,7 @@ export class UserService {
       }),
     );
 
-    const result = this.enrichProfilesWithMedia(profiles);
+    const result = await this.enrichment.enrichProfilesWithMedia(profiles);
 
     return { success: true, users: result, total: result.length, page: 1 };
   }
@@ -517,7 +519,7 @@ export class UserService {
       }),
     );
 
-    const hydratedUsers = this.enrichProfilesWithMedia(profiles);
+    const hydratedUsers = await this.enrichment.enrichProfilesWithMedia(profiles);
 
     return {
       success: true,
@@ -533,8 +535,8 @@ export class UserService {
       name: user.name,
       email: user.email,
       bio: user.bio || '',
-      avatar: user.avatar || '',
-      coverImg: user.coverImg || '',
+      avatar: null,
+      coverImg: null,
       avatarMediaId: user.avatarMediaId || null,
       coverMediaId: user.coverMediaId || null,
       location: user.location || '',
@@ -550,42 +552,7 @@ export class UserService {
     };
   }
 
-  private enrichProfilesWithMedia<T extends Record<string, any>>(
-    profiles: T[],
-  ) {
-    // Media enrichment moved to API Gateway
-    return profiles.map((profile) => ({
-      ...profile,
-      avatar: profile.avatar || '',
-      coverImg: profile.coverImg || '',
-      birthDate: this.formatDate(profile.birthDate),
-      createdAt: this.formatDate(profile.createdAt),
-      location: profile.location || '',
-      website: profile.website || '',
-      bio: profile.bio || '',
-    }));
-  }
 
-  private formatDate(value: unknown): string {
-    if (!value && value !== 0) {
-      return '';
-    }
-
-    if (typeof value === 'string') {
-      const date = new Date(value);
-      return Number.isNaN(date.getTime()) ? value : date.toISOString();
-    }
-
-    if (
-      typeof value === 'object' &&
-      value !== null &&
-      typeof (value as { toISOString?: unknown }).toISOString === 'function'
-    ) {
-      return (value as { toISOString: () => string }).toISOString();
-    }
-
-    return '';
-  }
 
   private buildResponse(profile: any) {
     return { success: true, message: 'Success', user: profile };

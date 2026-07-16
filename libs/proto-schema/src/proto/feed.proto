@@ -35,24 +35,35 @@ message InvalidateResponse {
   bool success = 1;
 }
 
+message Media {
+  string id       = 1;
+  string url      = 2;
+  string mimeType = 3;
+  string type     = 4;
+}
+
+message User {
+  string id       = 1;
+  string username = 2;
+  string fullName = 3;
+  string avatar   = 4;
+  bool   verified = 5;
+}
+
 message FeedPost {
   string          id            = 1;
-  string          userId        = 2;
-  string          userName      = 3;
-  string          userAvatar    = 4;
-  string          content       = 5;
-  repeated string mediaUrls     = 6;
-  string          feeling       = 7;
-  string          location      = 8;
-  int32           likesCount    = 9;
-  int32           commentsCount = 10;
-  int32           sharesCount   = 11;
-  int32           viewsCount    = 12;
-  bool            isLiked       = 13;
-  bool            isBookmarked  = 14;
-  string          userName2     = 15;
-  string          createdAt     = 16;
-  bool            isOnline      = 17;
+  string          content       = 2;
+  string          feeling       = 3;
+  string          location      = 4;
+  int32           likesCount    = 5;
+  int32           commentsCount = 6;
+  int32           sharesCount   = 7;
+  int32           viewsCount    = 8;
+  bool            isLiked       = 9;
+  bool            isBookmarked  = 10;
+  string          createdAt     = 11;
+  User            author        = 12;
+  repeated Media  media         = 13;
 }
 
 message FeedResponse {

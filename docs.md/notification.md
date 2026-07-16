@@ -1,67 +1,69 @@
 # Notification Service
 
-The notification service is the platform’s email and messaging event consumer. It listens for domain events and sends outbound notifications when something important happens.
+The Notification Service is an email delivery engine, in-app notification tracker, and WebSocket notifier. It listens for Kafka domain events to deliver emails and push live feeds, while exposing a gRPC API to manage notification archives.
 
 ## What this service does
 
-The service is responsible for:
-
-- consuming Kafka events
-- sending registration OTP emails
-- sending password reset OTP emails
-- handling notification workflows asynchronously
+- Consumes Kafka events for registration OTPs, password resets, likes, comments, and follows
+- Generates outbound transactional emails
+- Pushes real-time alerts to clients over WebSockets
+- Persists notification history and settings in MongoDB
+- Exposes gRPC endpoints to retrieve notification histories and adjust subscription preferences
 
 ## Service architecture
 
-The notification service is a NestJS Kafka consumer. It does not expose a heavy REST surface; instead, it reacts to events emitted by other services.
+The notification service is a NestJS application using Kafka and gRPC.
 
 ### Internal connections
 
 - Kafka for event consumption
-- Email transport layer for outbound mail delivery
+- SMTP server connection for email delivery
+- MongoDB database (via Mongoose) to track historical logs and preference configurations
+- Socket.io Server for pushing live notifications to connected clients
+
+---
 
 ## Main responsibilities
 
-### 1. Event-driven notifications
+### 1. In-App Notification Streams & Preferences
 
-The service subscribes to topics emitted by the auth service and other domain services. When an event arrives, it prepares and sends the relevant notification.
+Exposes `NotificationGrpcService` to handle:
+- **`GetNotifications`**: Returns history containing a nested `sender` object (`User` structure containing `id`, `fullName`, `avatar`, `verified`, etc.)
+- **`MarkAsRead`** / **`MarkAllAsRead`** / **`DeleteNotification`**
+- **`GetPreferences`** / **`UpdatePreferences`**
 
-### 2. Email delivery
+### 2. Email Delivery
 
-The current implementation focuses on email notifications for OTP flows such as:
+Dispatches sign-up verification, forgot password requests, and interaction briefs to SMTP ports.
 
-- registration verification
-- password reset requests
+---
 
-## Database design
+## Database design (MongoDB Mongoose)
 
-The notification service does not own a primary business database.
+### `notifications` collection
+- `toUserId`: Target user uuid
+- `fromUserId` / `fromUserName` / `fromUserAvatar`: Sender properties (mapped to nested `sender` object in gRPC responses)
+- `type`: alert trigger category (`like`, `comment`, etc.)
+- `title` / `body`: Alert text
+- `data`: Query parameters map (`postId`, `commentId`, etc.)
+- `isRead`: Boolean read flag
+- `createdAt` / `updatedAt`
 
-It is designed to be stateless and event-driven, meaning it reacts to incoming messages instead of persisting application data itself.
+### `notification_preferences` collection
+- `userId`: Target user uuid
+- `likes` / `comments` / `follows` / `unfollows` / `mentions` / `messages`: Boolean permission flags
 
-## Kafka topics
-
-The notification service consumes topics such as:
-
-- `user.send-registration-otp`
-- `user.forgot-pass-request`
+---
 
 ## Runtime ports
 
+- gRPC: `3007`
 - HTTP: `4010`
 
-## Environment variables
-
-Key variables include:
-
-- `NOTIFICATION_HTTP_PORT`
-- `KAFKA_BROKERS`
+---
 
 ## Key folders
 
 - `apps/notification/src/email` – email delivery logic
-- `apps/notification/src/notification` – Kafka consumer handlers
-
-## Design summary
-
-The notification service stays lightweight and focused on message-driven communication. It keeps the platform decoupled by reacting to business events instead of being tightly coupled to the request flow of the gateway.
+- `apps/notification/src/notification` – Kafka consumer and gRPC controller mappings
+- `apps/notification/src/schemas` – MongoDB database models

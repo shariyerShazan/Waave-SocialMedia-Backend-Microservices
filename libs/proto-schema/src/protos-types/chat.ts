@@ -36,14 +36,25 @@ export interface ConversationResponse {
   conversation: Conversation | undefined;
 }
 
+export interface Media {
+  id: string;
+  url: string;
+  mimeType: string;
+  type: string;
+}
+
+export interface User {
+  id: string;
+  username: string;
+  fullName: string;
+  avatar: string;
+  verified: boolean;
+}
+
 export interface Message {
   id: string;
   conversationId: string;
-  senderId: string;
-  senderName: string;
-  senderAvatar: string;
   text: string;
-  mediaIds: string[];
   /** text | image | video | audio | file | gif */
   type: string;
   readBy: string[];
@@ -52,6 +63,8 @@ export interface Message {
   replyTo: string;
   createdAt: number;
   updatedAt: number;
+  sender: User | undefined;
+  media: Media[];
 }
 
 export interface Message_ReactionsEntry {

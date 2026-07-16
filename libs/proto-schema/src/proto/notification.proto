@@ -22,19 +22,24 @@ service NotificationGrpcService {
       returns (NotificationPreference);
 }
 
-message Notification {
-  string id = 1;
-  string toUserId = 2;
-  string fromUserId = 3;
-  string fromUserName = 4;
-  string fromUserAvatar = 5;
-  string type = 6;
-  string title = 7;
-  string body = 8;
-  string createdAt = 9;
-  bool isRead = 10;
+message User {
+  string id       = 1;
+  string username = 2;
+  string fullName = 3;
+  string avatar   = 4;
+  bool   verified = 5;
+}
 
-  map<string,string> data = 11;
+message Notification {
+  string id               = 1;
+  string toUserId         = 2;
+  User   sender           = 3;
+  string type             = 4;
+  string title            = 5;
+  string body             = 6;
+  string createdAt        = 7;
+  bool   isRead           = 8;
+  map<string,string> data = 9;
 }
 
 message GetNotificationsRequest {

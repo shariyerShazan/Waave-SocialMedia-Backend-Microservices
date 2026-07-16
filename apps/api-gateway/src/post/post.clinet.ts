@@ -25,8 +25,6 @@ import {
   GetPostsByIdsRequest,
 } from '@app/proto-schema/protos-types/post';
 
-import { EnrichmentService } from '../enrichments/enrichment.service';
-
 @Injectable()
 export class PostClient implements OnModuleInit {
   @Client({
@@ -40,8 +38,6 @@ export class PostClient implements OnModuleInit {
   private client: ClientGrpc;
 
   private postService: PostServiceClient;
-
-  constructor(private readonly enrichment: EnrichmentService) {}
 
   onModuleInit() {
     this.postService = this.client.getService<PostServiceClient>('PostService');
@@ -62,19 +58,6 @@ export class PostClient implements OnModuleInit {
   async createPost(data: CreatePostRequest) {
     try {
       const response = await firstValueFrom(this.postService.createPost(data));
-
-      if (response?.post) {
-        const [post] = await this.enrichment.enrichPosts(
-          [response.post],
-          data.userId,
-        );
-
-        return {
-          ...response,
-          post,
-        };
-      }
-
       return response;
     } catch (err) {
       this.handleError(err);
@@ -89,19 +72,6 @@ export class PostClient implements OnModuleInit {
       };
 
       const response = await firstValueFrom(this.postService.getPost(payload));
-
-      if (response?.post) {
-        const [post] = await this.enrichment.enrichPosts(
-          [response.post],
-          requesterId,
-        );
-
-        return {
-          ...response,
-          post,
-        };
-      }
-
       return response;
     } catch (err) {
       this.handleError(err);
@@ -124,18 +94,6 @@ export class PostClient implements OnModuleInit {
       const response = await firstValueFrom(
         this.postService.updatePost(payload),
       );
-
-      if (response?.post) {
-        const [post] = await this.enrichment.enrichPosts(
-          [response.post],
-          userId,
-        );
-        return {
-          ...response,
-          post,
-        };
-      }
-
       return response;
     } catch (err) {
       this.handleError(err);
@@ -172,19 +130,6 @@ export class PostClient implements OnModuleInit {
       const response = await firstValueFrom(
         this.postService.getUserPosts(payload),
       );
-
-      if (response?.posts?.length) {
-        const posts = await this.enrichment.enrichPosts(
-          response.posts,
-          requesterId,
-        );
-
-        return {
-          ...response,
-          posts,
-        };
-      }
-
       return response;
     } catch (err) {
       this.handleError(err);
@@ -201,19 +146,6 @@ export class PostClient implements OnModuleInit {
       const response = await firstValueFrom(
         this.postService.getPostsByIds(payload),
       );
-
-      if (response?.posts?.length) {
-        const posts = await this.enrichment.enrichPosts(
-          response.posts,
-          requesterId,
-        );
-
-        return {
-          ...response,
-          posts,
-        };
-      }
-
       return response;
     } catch (err) {
       this.handleError(err);

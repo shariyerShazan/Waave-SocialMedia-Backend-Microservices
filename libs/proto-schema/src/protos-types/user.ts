@@ -82,14 +82,20 @@ export interface PresenceResponse {
   lastSeen: number;
 }
 
-/** ── Shared Messages ─────────────────────────────── */
+export interface UserMedia {
+  id: string;
+  url: string;
+  mimeType: string;
+  type: string;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
   bio: string;
-  avatarMediaId: string;
-  coverMediaId: string;
+  avatar: UserMedia | undefined;
+  coverImg: UserMedia | undefined;
   location: string;
   website: string;
   birthDate: string;
@@ -99,8 +105,6 @@ export interface UserProfile {
   isFollowing: boolean;
   isOnline: boolean;
   createdAt: string;
-  avatar: string;
-  coverImg: string;
 }
 
 export interface ProfileResponse {

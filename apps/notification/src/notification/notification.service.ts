@@ -189,15 +189,19 @@ export class NotificationService {
     return {
       id: n._id?.toString() || n.id,
       toUserId: n.toUserId,
-      fromUserId: n.fromUserId,
-      fromUserName: n.fromUserName,
-      fromUserAvatar: n.fromUserAvatar,
       type: n.type,
       title: n.title,
       body: n.body,
-      data: n.data,
+      data: n.data instanceof Map ? Object.fromEntries(n.data) : (n.data || {}),
       isRead: n.isRead,
-      createdAt: n.createdAt,
+      createdAt: n.createdAt ? new Date(n.createdAt).toISOString() : '',
+      sender: {
+        id: n.fromUserId,
+        username: n.fromUserName || '',
+        fullName: n.fromUserName || '',
+        avatar: n.fromUserAvatar || '',
+        verified: false,
+      },
     };
   }
 }

@@ -8,6 +8,7 @@ import {
   ConversationDocument,
 } from '../schemas/conversation.schema';
 import { ChatRedisService } from '../redis/redis.service';
+import { ChatEnrichmentService } from './enrichments/enrichment.service';
 
 @Injectable()
 export class ChatService {
@@ -21,6 +22,7 @@ export class ChatService {
     private conversationModel: Model<ConversationDocument>,
 
     private redis: ChatRedisService,
+    private readonly enrichment: ChatEnrichmentService,
   ) {}
 
   // ── Get or Create Conversation ────────────────
@@ -143,7 +145,11 @@ export class ChatService {
 
     this.logger.debug(`Message sent: ${message.id} in ${data.conversationId}`);
 
-    return message;
+    const [enriched] = await this.enrichment.enrichMessages([
+      message.toObject(),
+    ]);
+
+    return enriched;
   }
 
   // ── Get Messages ──────────────────────────────
@@ -191,11 +197,16 @@ export class ChatService {
     }));
 
     // Page 1 cache
-    if (page === 1) {
-      await this.redis.cacheRecentMessages(conversationId, formatted);
-    }
+    const enriched = await this.enrichment.enrichMessages(formatted);
 
-    return { messages: formatted, total, page };
+    if (page === 1) {
+      await this.redis.cacheRecentMessages(conversationId, enriched);
+    }
+    return {
+      messages: enriched,
+      total,
+      page,
+    };
   }
 
   // ── Mark as Read ──────────────────────────────
@@ -329,7 +340,15 @@ export class ChatService {
       }),
     );
 
-    return { conversations: formatted, total, page };
+    const enriched = await this.enrichment.enrichConversations(
+      formatted,
+      userId,
+    );
+    return {
+      conversations: enriched,
+      total,
+      page,
+    };
   }
 
   // ── Add Group Member ──────────────────────────

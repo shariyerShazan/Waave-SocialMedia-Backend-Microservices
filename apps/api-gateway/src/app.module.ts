@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { RateLimiterModule } from './rateLimit/rateLimit.module';
 import { MediaModule } from './media/media.module';
-import { SharedEnrichmentModule } from './enrichments/shared-enrichment.module';
 import { NotificationModule } from './notification/notification.module';
 import { PostModule } from './post/post.module';
 import { FeedModule } from './feed/feed.module';
@@ -24,7 +23,6 @@ import { ChatModule } from './chat/chat.module';
     UserModule,
     RateLimiterModule,
     MediaModule,
-    SharedEnrichmentModule,
     NotificationModule,
     PostModule,
     FeedModule,

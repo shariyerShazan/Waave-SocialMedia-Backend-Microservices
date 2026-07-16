@@ -22,6 +22,12 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@app/clients": [
+        "libs/clients/src"
+      ],
+      "@app/clients/*": [
+        "libs/clients/src/*"
+      ],
       "@app/common": [
         "libs/common/src"
       ],
@@ -40,7 +46,6 @@
       "@app/proto-schema/*": [
         "libs/proto-schema/src/*"
       ]
-      // "@auth-db/client": ["apps/auth-service/prisma/generated/client"]
     }
   }
 }
