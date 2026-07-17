@@ -28,7 +28,17 @@ export class PostGrpcClient implements OnModuleInit {
     );
   }
 
-  //   async getTrending(limit: number) {
-  //     return [];
-  //   }
+  async getRecentPostsByAuthors(
+    authorIds: string[],
+    requesterId: string,
+    limitPerAuthor: number,
+  ) {
+    return firstValueFrom(
+      this.postService.getRecentPostsByAuthors({
+        authorIds,
+        requesterId,
+        limitPerAuthor,
+      }),
+    );
+  }
 }

@@ -371,24 +371,63 @@ Protobuf interfaces (`src/proto/*.proto`) compiled into TypeScript workspace typ
 
 ## 6. Local Environment Setup
 
-### 1. Installation
-Verify node (v18+) and docker are installed locally:
+### 1. Quick Automated Setup
+For a fully automated local development setup (assigns script permissions, checks and updates `/etc/hosts` for MongoDB replica sets, installs NPM dependencies, and compiles proto definitions):
+
 ```bash
-npm install
+npm run setup
+```
+*(If `/etc/hosts` mapping is missing, you will be prompted for your sudo password to apply it once.)*
+
+---
+
+### 2. Manual Prerequisites & Verification (Reference)
+
+#### A. File Permissions
+Ensure the local utility and database initialization scripts mounted to containers have execution permissions:
+```bash
+chmod +x pg-init/primary-init.sh
+chmod +x mongo-init/replica-init.sh
 ```
 
-### 2. Supporting Containers
+#### B. Local DNS Configuration for MongoDB Replica Sets
+When running database containers in Docker but executing NestJS microservices locally on your host machine:
+- MongoDB replica sets register internally using their Docker container hostnames (e.g. `notification_mongo_db_1`).
+- When the local Mongoose client connects to the replica set gateway (e.g. `localhost:27016`), the cluster returns its member topology. The client then attempts to connect directly to those nodes by hostname.
+- Without local DNS mapping, your OS cannot resolve these container names, resulting in a connection crash (`MongooseServerSelectionError: getaddrinfo ENOTFOUND`).
+
+Adding these mappings to your host system's `/etc/hosts` resolves the issue. This is a **one-time setup** that persists on your computer (you do NOT need to run it every time).
+
+**Services using MongoDB replica sets:**
+1. **Notification Service** (`apps/notification`, Replica Set: `notification-rs`)  
+   Members: `notification_mongo_db_1:27016`, `notification_mongo_db_2:27026`, `notification_mongo_db_3:27036`
+2. **Media Service** (`apps/media-service`, Replica Set: `media-rs`)  
+   Members: `media_mongo_db_1:27017`, `media_mongo_db_2:27027`, `media_mongo_db_3:27037`
+3. **Chat Service** (`apps/chat-service`, Replica Set: `chat-rs`)  
+   Members: `chat_mongo_db_1:27015`, `chat_mongo_db_2:27025`, `chat_mongo_db_3:27035`
+
+To map all replica sets to localhost manually, run:
+```bash
+sudo sh -c 'echo "127.0.0.1 notification_mongo_db_1 notification_mongo_db_2 notification_mongo_db_3 media_mongo_db_1 media_mongo_db_2 media_mongo_db_3 chat_mongo_db_1 chat_mongo_db_2 chat_mongo_db_3" >> /etc/hosts'
+```
+
+#### C. Installation & Compilation
+```bash
+npm install
+npm run proto:generate
+```
+
+---
+
+### 3. Launching Infrastructure & Microservices
+
+#### 1. Supporting Containers
 Launch Postgres, MongoDB, Redis, and Kafka:
 ```bash
 docker compose up -d
 ```
 
-### 3. Compile Proto Files
-```bash
-npm run proto:generate
-```
-
-### 4. Run database migrations
+#### 2. Run Database Migrations
 ```bash
 npm run auth:prisma:migrate
 npm run user:prisma:migrate

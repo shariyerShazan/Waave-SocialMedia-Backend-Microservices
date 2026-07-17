@@ -71,6 +71,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
       POSTGRES_DB: user_db
+    command: >
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+      -c hot_standby=on
     volumes:
       - user-postgres-primary_data:/var/lib/postgresql/data
       - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
@@ -126,6 +132,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
       POSTGRES_DB: post_db
+    command: >
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+      -c hot_standby=on
     volumes:
       - post-postgres-primary_data:/var/lib/postgresql/data
       - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
@@ -206,9 +218,9 @@ services:
     image: mongo:7
     container_name: waave_mongo_db_2_media
     command:
-      [ 'mongod',  '--replSet', 'media-rs', '--bind_ip_all','--keyFile','/data/keyfile/mongo-keyfile',]
+      [ 'mongod', '--port', '27027', '--replSet', 'media-rs', '--bind_ip_all','--keyFile','/data/keyfile/mongo-keyfile',]
     ports:
-      - '27027:27017'
+      - '27027:27027'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
@@ -217,7 +229,7 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        ['CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval',"db.adminCommand('ping')", ]
+        ['CMD', 'mongosh', '--port', '27027', '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval',"db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -229,9 +241,9 @@ services:
     image: mongo:7
     container_name: waave_mongo_db_3_media
     command:
-      ['mongod', '--replSet', 'media-rs', '--bind_ip_all',  '--keyFile',  '/data/keyfile/mongo-keyfile',]
+      ['mongod', '--port', '27037', '--replSet', 'media-rs', '--bind_ip_all',  '--keyFile',  '/data/keyfile/mongo-keyfile',]
     ports:
-      - '27037:27017'
+      - '27037:27037'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
@@ -240,7 +252,7 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [  'CMD',  'mongosh', '-u',  'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
+        [  'CMD',  'mongosh', '--port', '27037', '-u',  'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -266,8 +278,8 @@ services:
       PRIMARY_HOST: media_mongo_db_1:27017
       REPLICA_SET_NAME: media-rs
       MEMBER_1: media_mongo_db_1:27017
-      MEMBER_2: media_mongo_db_2:27017
-      MEMBER_3: media_mongo_db_3:27017
+      MEMBER_2: media_mongo_db_2:27027
+      MEMBER_3: media_mongo_db_3:27037
     entrypoint: ['/bin/bash', '/replica-init.sh']
     restart: "no"
     networks:
@@ -278,9 +290,18 @@ services:
     image: mongo:7
     container_name: waave_mongo_db_1_notification
     command:
-      ['mongod', '--replSet', 'notification-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+      [
+        'mongod',
+        '--port',
+        '27016',
+        '--replSet',
+        'notification-rs',
+        '--bind_ip_all',
+        '--keyFile',
+        '/data/keyfile/mongo-keyfile',
+      ]
     ports:
-      - '27016:27017'
+      - '27016:27016'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
@@ -289,7 +310,7 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [ 'CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase',  'admin', '--eval', "db.adminCommand('ping')", ]
+        [ 'CMD', 'mongosh', '--port', '27016', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase',  'admin', '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -301,9 +322,9 @@ services:
     image: mongo:7
     container_name: waave_mongo_db_2_notification
     command:
-      [ 'mongod',  '--replSet', 'notification-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+      [ 'mongod', '--port', '27026', '--replSet', 'notification-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
     ports:
-      - '27026:27017'
+      - '27026:27026'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
@@ -312,7 +333,7 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [ 'CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase', 'admin',  '--eval',  "db.adminCommand('ping')", ]
+        [ 'CMD', 'mongosh', '--port', '27026', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase', 'admin',  '--eval',  "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -324,9 +345,9 @@ services:
     image: mongo:7
     container_name: waave_mongo_db_3_notification
     command:
-      [  'mongod', '--replSet',  'notification-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+      [  'mongod', '--port', '27036', '--replSet',  'notification-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
     ports:
-      - '27036:27017'
+      - '27036:27036'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
@@ -335,7 +356,7 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [ 'CMD', 'mongosh',  '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
+        [ 'CMD', 'mongosh', '--port', '27036', '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -358,11 +379,11 @@ services:
     environment:
       MONGO_USERNAME: mongo
       MONGO_PASSWORD: mongo123
-      PRIMARY_HOST: notification_mongo_db_1:27017
+      PRIMARY_HOST: notification_mongo_db_1:27016
       REPLICA_SET_NAME: notification-rs
-      MEMBER_1: notification_mongo_db_1:27017
-      MEMBER_2: notification_mongo_db_2:27017
-      MEMBER_3: notification_mongo_db_3:27017
+      MEMBER_1: notification_mongo_db_1:27016
+      MEMBER_2: notification_mongo_db_2:27026
+      MEMBER_3: notification_mongo_db_3:27036
     entrypoint: ['/bin/bash', '/replica-init.sh']
     restart: 'no'
     networks:
@@ -374,9 +395,18 @@ services:
     image: mongo:7
     container_name: waave_mongo_db_1_chat
     command:
-      ['mongod', '--replSet', 'chat-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+      [
+        'mongod',
+        '--port',
+        '27015',
+        '--replSet',
+        'chat-rs',
+        '--bind_ip_all',
+        '--keyFile',
+        '/data/keyfile/mongo-keyfile',
+      ]
     ports:
-      - '27015:27017'
+      - '27015:27015'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
@@ -385,7 +415,7 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [ 'CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase',  'admin', '--eval', "db.adminCommand('ping')", ]
+        [ 'CMD', 'mongosh', '--port', '27015', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase',  'admin', '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -397,9 +427,9 @@ services:
     image: mongo:7
     container_name: waave_mongo_db_2_chat
     command:
-      [ 'mongod',  '--replSet', 'chat-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+      [ 'mongod', '--port', '27025', '--replSet', 'chat-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
     ports:
-      - '27025:27017'
+      - '27025:27025'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
@@ -408,7 +438,7 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [ 'CMD', 'mongosh', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase', 'admin',  '--eval',  "db.adminCommand('ping')", ]
+        [ 'CMD', 'mongosh', '--port', '27025', '-u', 'mongo', '-p', 'mongo123',  '--authenticationDatabase', 'admin',  '--eval',  "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -420,9 +450,9 @@ services:
     image: mongo:7
     container_name: waave_mongo_db_3_chat
     command:
-      [  'mongod', '--replSet',  'chat-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
+      [  'mongod', '--port', '27035', '--replSet',  'chat-rs', '--bind_ip_all', '--keyFile', '/data/keyfile/mongo-keyfile', ]
     ports:
-      - '27035:27017'
+      - '27035:27035'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
@@ -431,7 +461,7 @@ services:
       - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
-        [ 'CMD', 'mongosh',  '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
+        [ 'CMD', 'mongosh', '--port', '27035', '-u', 'mongo', '-p', 'mongo123', '--authenticationDatabase', 'admin', '--eval', "db.adminCommand('ping')", ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -454,11 +484,11 @@ services:
     environment:
       MONGO_USERNAME: mongo
       MONGO_PASSWORD: mongo123
-      PRIMARY_HOST: chat_mongo_db_1:27017
+      PRIMARY_HOST: chat_mongo_db_1:27015
       REPLICA_SET_NAME: chat-rs
-      MEMBER_1: chat_mongo_db_1:27017
-      MEMBER_2: chat_mongo_db_2:27017
-      MEMBER_3: chat_mongo_db_3:27017
+      MEMBER_1: chat_mongo_db_1:27015
+      MEMBER_2: chat_mongo_db_2:27025
+      MEMBER_3: chat_mongo_db_3:27035
     entrypoint: ['/bin/bash', '/replica-init.sh']
     restart: 'no'
     networks:

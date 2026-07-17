@@ -8,4 +8,4 @@ import { UserGrpcClient } from './clients/user-grpc.client';
   providers: [ClientsService, MediaGrpcClient, PostGrpcClient, UserGrpcClient],
   exports: [ClientsService, MediaGrpcClient, PostGrpcClient, UserGrpcClient],
 })
-export class ClientsModule {}
+export class ClientsModule { }

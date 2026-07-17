@@ -28,6 +28,20 @@ service PostService {
   // Internal
   rpc GetPostsByIds (GetPostsByIdsRequest)returns (PostsListResponse);
   rpc IncrViewCount (ViewCountRequest)   returns (ViewCountResponse);
+  rpc GetRecentPostsByAuthors(GetRecentPostsByAuthorsRequest)  returns (GetRecentPostsByAuthorsResponse);
+  
+}
+message GetRecentPostsByAuthorsResponse {
+  bool success = 1;
+  repeated Post posts = 2;
+  int32 total = 3;
+  int32 page = 4;
+}
+
+message GetRecentPostsByAuthorsRequest {
+  repeated string authorIds = 1;
+  string requesterId = 2;
+  int32 limitPerAuthor = 3;
 }
 
 // ── Post Messages ─────────────────────────────────
@@ -183,7 +197,8 @@ message Post {
   string          createdAt     = 14;
   string          updatedAt     = 15;
   repeated PostMedia media      = 16;
-  PostAuthor        author     = 17;
+  PostAuthor        author      = 17;
+  repeated string   mediaIds    = 18;
 }
 
 message PostResponse {

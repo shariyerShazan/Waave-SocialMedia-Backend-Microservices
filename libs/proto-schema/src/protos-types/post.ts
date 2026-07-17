@@ -28,6 +28,19 @@ export enum ReactionType {
   UNRECOGNIZED = -1,
 }
 
+export interface GetRecentPostsByAuthorsResponse {
+  success: boolean;
+  posts: Post[];
+  total: number;
+  page: number;
+}
+
+export interface GetRecentPostsByAuthorsRequest {
+  authorIds: string[];
+  requesterId: string;
+  limitPerAuthor: number;
+}
+
 /** ── Post Messages ───────────────────────────────── */
 export interface CreatePostRequest {
   userId: string;
@@ -256,6 +269,8 @@ export interface PostServiceClient {
   getPostsByIds(request: GetPostsByIdsRequest): Observable<PostsListResponse>;
 
   incrViewCount(request: ViewCountRequest): Observable<ViewCountResponse>;
+
+  getRecentPostsByAuthors(request: GetRecentPostsByAuthorsRequest): Observable<GetRecentPostsByAuthorsResponse>;
 }
 
 export interface PostServiceController {
@@ -308,6 +323,13 @@ export interface PostServiceController {
   incrViewCount(
     request: ViewCountRequest,
   ): Promise<ViewCountResponse> | Observable<ViewCountResponse> | ViewCountResponse;
+
+  getRecentPostsByAuthors(
+    request: GetRecentPostsByAuthorsRequest,
+  ):
+    | Promise<GetRecentPostsByAuthorsResponse>
+    | Observable<GetRecentPostsByAuthorsResponse>
+    | GetRecentPostsByAuthorsResponse;
 }
 
 export function PostServiceControllerMethods() {
@@ -329,6 +351,7 @@ export function PostServiceControllerMethods() {
       "bookmarkPost",
       "getPostsByIds",
       "incrViewCount",
+      "getRecentPostsByAuthors",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

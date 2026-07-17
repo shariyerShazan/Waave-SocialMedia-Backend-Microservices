@@ -4,7 +4,6 @@ import {
   IsIn,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
 } from 'class-validator';
 
@@ -20,7 +19,6 @@ export class CreatePostDto {
   })
   @IsOptional()
   @IsArray()
-  @IsUUID('4', { each: true })
   mediaIds?: string[];
 
   @ApiPropertyOptional()

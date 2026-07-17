@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // feed/feed.service.ts
@@ -9,6 +10,7 @@ import { FeedRedisService } from '../redis/redis.service';
 import { FeedEnrichmentService } from './enrichments/enrichment.service';
 import { PostGrpcClient } from '@app/clients/clients/post-grpc.client';
 import { UserGrpcClient } from '@app/clients/clients/user-grpc.client';
+import type { GetRecentPostsByAuthorsResponse } from '@app/proto-schema/protos-types/post';
 
 @Injectable()
 export class FeedService {
@@ -123,11 +125,11 @@ export class FeedService {
       targetIds = [];
     }
 
-    await this.redis.batchPushToFeeds(targetIds, postId);
+    await this.redis.batchPushToFeeds(targetIds, [postId]);
 
     await this.redis.pushToFeed(authorId, postId);
 
-    await this.invalidateFeedCaches(targetIds);
+    await this.invalidateFeedCaches([...targetIds, authorId]);
 
     this.logger.log(`Fanned out post ${postId} to ${targetIds.length} feeds`);
   }
@@ -147,27 +149,27 @@ export class FeedService {
 
     const followingIds = await this.userClient.getFollowingIds(userId);
 
-    if (!followingIds.length) return;
-
-    // const recentPostIds: string[] = [];
-    const chunkSize = 10;
-    for (let i = 0; i < followingIds.length; i += chunkSize) {
-      const chunk = followingIds.slice(i, i + chunkSize);
-
-      await Promise.all(
-        chunk.map(async (followId) => {
-          try {
-            const result = await this.postClient.getPostsByIds([], userId);
-          } catch (err: any) {
-            console.log(err);
-          }
-        }),
-      );
+    if (followingIds.length) {
+      try {
+        const result: GetRecentPostsByAuthorsResponse =
+          await this.postClient.getRecentPostsByAuthors(
+            followingIds,
+            userId,
+            10,
+          );
+        if (result?.posts?.length) {
+          const postIds = result.posts.map((p: any) => p.id);
+          await this.redis.batchPushToFeeds([userId], postIds);
+        }
+      } catch (err) {
+        this.logger.error('Failed to build feed', err);
+      }
     }
 
-    const trending = await this.redis.getTrendingPostIds(50);
+    const trending = await this.redis.getTrendingPostIds(20);
+
     if (trending.length) {
-      await this.redis.batchPushToFeeds([userId], trending[0]);
+      await this.redis.batchPushToFeeds([userId], trending);
     }
   }
 
@@ -272,6 +274,14 @@ export class FeedService {
       if (!seen.has(postId)) {
         seen.add(postId);
         merged.push(postId);
+      }
+    }
+
+    while (merged.length < limit && ci < celebPosts.length) {
+      const celebPost = celebPosts[ci++];
+      if (!seen.has(celebPost)) {
+        seen.add(celebPost);
+        merged.push(celebPost);
       }
     }
 

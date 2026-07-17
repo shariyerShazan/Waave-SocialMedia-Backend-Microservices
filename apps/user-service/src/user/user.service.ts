@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // user/user.service.ts
@@ -87,7 +84,9 @@ export class UserService {
       isFollowing: false,
     });
 
-    const [hydratedProfile] = await this.enrichment.enrichProfilesWithMedia([profile]);
+    const [hydratedProfile] = await this.enrichment.enrichProfilesWithMedia([
+      profile,
+    ]);
     return this.buildResponse(hydratedProfile);
   }
 
@@ -137,6 +136,39 @@ export class UserService {
       });
     }
 
+    // Check both profiles exist
+    const [followerProfile, targetProfile] = await Promise.all([
+      this.prisma.readDb.profile.findUnique({
+        where: { id: followerId },
+        select: {
+          id: true,
+          name: true,
+        },
+      }),
+      this.prisma.readDb.profile.findUnique({
+        where: { id: targetId },
+        select: {
+          id: true,
+          followersCount: true,
+        },
+      }),
+    ]);
+
+    if (!followerProfile) {
+      throw new RpcException({
+        code: 5,
+        message: 'Follower profile not found',
+      });
+    }
+
+    if (!targetProfile) {
+      throw new RpcException({
+        code: 5,
+        message: 'Target profile not found',
+      });
+    }
+
+    // Already following?
     const existing = await this.prisma.readDb.follow.findUnique({
       where: {
         followerId_followingId: {
@@ -153,40 +185,52 @@ export class UserService {
       });
     }
 
-    const [, target] = await this.prisma.writeDb.$transaction([
+    // Transaction
+    const [, updatedTarget] = await this.prisma.writeDb.$transaction([
       this.prisma.writeDb.follow.create({
-        data: { followerId, followingId: targetId },
+        data: {
+          followerId,
+          followingId: targetId,
+        },
       }),
+
       this.prisma.writeDb.profile.update({
-        where: { id: targetId },
-        data: { followersCount: { increment: 1 } },
+        where: {
+          id: targetId,
+        },
+        data: {
+          followersCount: {
+            increment: 1,
+          },
+        },
       }),
+
       this.prisma.writeDb.profile.update({
-        where: { id: followerId },
-        data: { followingCount: { increment: 1 } },
+        where: {
+          id: followerId,
+        },
+        data: {
+          followingCount: {
+            increment: 1,
+          },
+        },
       }),
     ]);
 
-    await this.redis.addFollower(targetId, followerId);
-    await this.redis.invalidateProfile(targetId);
-    await this.redis.invalidateProfile(followerId);
+    // Redis
+    await Promise.all([
+      this.redis.addFollower(targetId, followerId),
+      this.redis.invalidateProfile(targetId),
+      this.redis.invalidateProfile(followerId),
+    ]);
 
-    const follower = await this.prisma.readDb.profile.findUnique({
-      where: { id: followerId },
-      select: { name: true },
-    });
-    if (!follower) {
-      throw new RpcException({
-        code: 5,
-        message: 'Follower not found',
-      });
-    }
-
+    // Kafka Event
     const followEvent: UserFollowEvent = {
       followerId,
       targetId,
-      followerName: follower?.name,
+      followerName: followerProfile.name,
     };
+
     await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_FOLLOWED, followEvent);
 
     this.logger.log(`✅ ${followerId} followed ${targetId}`);
@@ -194,13 +238,43 @@ export class UserService {
     return {
       success: true,
       message: 'Followed successfully',
-      followersCount: target.followersCount,
+      followersCount: updatedTarget.followersCount,
       isFollowing: true,
     };
   }
 
   // ── Unfollow ──────────────────────────────────
   async unfollowUser(followerId: string, targetId: string) {
+    const [followerProfile, targetProfile] = await Promise.all([
+      this.prisma.readDb.profile.findUnique({
+        where: { id: followerId },
+        select: {
+          id: true,
+          name: true,
+        },
+      }),
+      this.prisma.readDb.profile.findUnique({
+        where: { id: targetId },
+        select: {
+          id: true,
+        },
+      }),
+    ]);
+
+    if (!followerProfile) {
+      throw new RpcException({
+        code: 5,
+        message: 'Follower profile not found',
+      });
+    }
+
+    if (!targetProfile) {
+      throw new RpcException({
+        code: 5,
+        message: 'Target profile not found',
+      });
+    }
+
     const existing = await this.prisma.readDb.follow.findUnique({
       where: {
         followerId_followingId: {
@@ -217,7 +291,7 @@ export class UserService {
       });
     }
 
-    const [, target] = await this.prisma.writeDb.$transaction([
+    const [, updatedTarget] = await this.prisma.writeDb.$transaction([
       this.prisma.writeDb.follow.delete({
         where: {
           followerId_followingId: {
@@ -226,43 +300,46 @@ export class UserService {
           },
         },
       }),
+
       this.prisma.writeDb.profile.update({
         where: { id: targetId },
-        data: { followersCount: { decrement: 1 } },
+        data: {
+          followersCount: {
+            decrement: 1,
+          },
+        },
       }),
+
       this.prisma.writeDb.profile.update({
         where: { id: followerId },
-        data: { followingCount: { decrement: 1 } },
+        data: {
+          followingCount: {
+            decrement: 1,
+          },
+        },
       }),
     ]);
 
-    await this.redis.removeFollower(targetId, followerId);
-    await this.redis.invalidateProfile(targetId);
-    await this.redis.invalidateProfile(followerId);
-
-    const follower = await this.prisma.readDb.profile.findUnique({
-      where: { id: followerId },
-      select: { name: true },
-    });
-    if (!follower) {
-      throw new RpcException({
-        code: 5,
-        message: 'Follower not found',
-      });
-    }
+    await Promise.all([
+      this.redis.removeFollower(targetId, followerId),
+      this.redis.invalidateProfile(targetId),
+      this.redis.invalidateProfile(followerId),
+    ]);
 
     const followEvent: UserUnfollowEvent = {
       followerId,
       targetId,
-      followerName: follower.name,
+      followerName: followerProfile.name,
     };
 
     await this.kafka.emit(KAFKA_TOPICS.USER_PROFILE_UNFOLLOWED, followEvent);
 
+    this.logger.log(`❌ ${followerId} unfollowed ${targetId}`);
+
     return {
       success: true,
       message: 'Unfollowed successfully',
-      followersCount: target.followersCount,
+      followersCount: updatedTarget.followersCount,
       isFollowing: false,
     };
   }
@@ -519,7 +596,8 @@ export class UserService {
       }),
     );
 
-    const hydratedUsers = await this.enrichment.enrichProfilesWithMedia(profiles);
+    const hydratedUsers =
+      await this.enrichment.enrichProfilesWithMedia(profiles);
 
     return {
       success: true,
@@ -551,8 +629,6 @@ export class UserService {
       ...overrides,
     };
   }
-
-
 
   private buildResponse(profile: any) {
     return { success: true, message: 'Success', user: profile };

@@ -9,7 +9,7 @@ export class FeedGrpcController {
   constructor(
     private feedService: FeedService,
     private redis: FeedRedisService,
-  ) {}
+  ) { }
 
   @GrpcMethod('FeedService', 'GetFeed')
   getFeed(data: {

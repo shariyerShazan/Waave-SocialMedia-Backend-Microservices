@@ -660,4 +660,68 @@ export class PostService {
     });
     return counts;
   }
+
+  // ── Get Recent Posts By Authors ─────────────────
+  async getRecentPostsByAuthors(
+    authorIds: string[],
+    requesterId: string,
+    limitPerAuthor: number,
+  ) {
+    if (!authorIds.length) {
+      return {
+        success: true,
+        posts: [],
+        total: 0,
+        page: 1,
+      };
+    }
+
+    const posts = await this.prisma.readDb.post.findMany({
+      where: {
+        userId: {
+          in: authorIds,
+        },
+        isDeleted: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const authorCount = new Map<string, number>();
+    const filtered: typeof posts = [];
+
+    for (const post of posts) {
+      const count = authorCount.get(post.userId) ?? 0;
+
+      if (count >= limitPerAuthor) continue;
+
+      authorCount.set(post.userId, count + 1);
+      filtered.push(post);
+    }
+    filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    const postIds = filtered.map((p) => p.id);
+
+    const likedSet = requesterId
+      ? await this.redis.getUserLikedSet(requesterId, postIds)
+      : new Set<string>();
+
+    const likeCounts = await this.getBatchLikeCounts(postIds);
+
+    const formatted = filtered.map((p) => ({
+      ...this.formatPost(p),
+      isLiked: likedSet.has(p.id),
+      likesCount: likeCounts[p.id] ?? p.likesCount,
+    }));
+
+    const enriched = await this.enrichment.enrichPosts(formatted);
+
+    return {
+      success: true,
+      posts: enriched,
+      total: enriched.length,
+      page: 1,
+    };
+  }
 }

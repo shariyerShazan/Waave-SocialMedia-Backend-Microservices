@@ -36,17 +36,19 @@ export class FeedRedisService implements OnModuleDestroy {
     await pipeline.exec();
   }
 
-  async batchPushToFeeds(userIds: string[], postId: string): Promise<void> {
-    if (!userIds.length) return;
+  async batchPushToFeeds(userIds: string[], postIds: string[]): Promise<void> {
+    if (!userIds.length || !postIds.length) return;
 
     const chunkSize = 500;
+
     for (let i = 0; i < userIds.length; i += chunkSize) {
       const chunk = userIds.slice(i, i + chunkSize);
       const pipeline = this.client.pipeline();
 
       for (const userId of chunk) {
         const key = `feed:${userId}`;
-        pipeline.lpush(key, postId);
+
+        pipeline.lpush(key, ...postIds);
         pipeline.ltrim(key, 0, FEED_MAX_SIZE - 1);
         pipeline.expire(key, FEED_TTL);
       }
@@ -192,13 +194,17 @@ export class FeedRedisService implements OnModuleDestroy {
   }
 
   async invalidateFeedPages(userId: string): Promise<void> {
-    const stream = this.client.scanStream({
-      match: `feed:page:${userId}:*`,
-      count: 100,
-    });
+    return new Promise((resolve, reject) => {
+      const stream = this.client.scanStream({
+        match: `feed:page:${userId}:*`,
+        count: 100,
+      });
 
-    stream.on('data', async (keys: string[]) => {
-      if (keys.length) await this.client.del(...keys);
+      stream.on('data', (keys: string[]) => {
+        if (keys.length) this.client.del(...keys).catch(reject);
+      });
+      stream.on('end', resolve);
+      stream.on('error', reject);
     });
   }
 

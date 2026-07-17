@@ -4,6 +4,7 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { PostService } from './post.service';
+import type { GetRecentPostsByAuthorsRequest } from '@app/proto-schema/protos-types/post';
 
 @Controller()
 export class PostGrpcController {
@@ -77,6 +78,15 @@ export class PostGrpcController {
   @GrpcMethod('PostService', 'GetPostsByIds')
   getPostsByIds(data: { postIds: string[]; requesterId: string }) {
     return this.postService.getPostsByIds(data.postIds, data.requesterId);
+  }
+
+  @GrpcMethod('PostService', 'GetRecentPostsByAuthors')
+  getRecentPostsByAuthors(data: GetRecentPostsByAuthorsRequest) {
+    return this.postService.getRecentPostsByAuthors(
+      data.authorIds,
+      data.requesterId,
+      data.limitPerAuthor,
+    );
   }
 
   @GrpcMethod('PostService', 'IncrViewCount')
