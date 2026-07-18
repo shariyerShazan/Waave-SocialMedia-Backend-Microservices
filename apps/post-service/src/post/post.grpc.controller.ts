@@ -90,7 +90,7 @@ export class PostGrpcController {
   }
 
   @GrpcMethod('PostService', 'IncrViewCount')
-  incrViewCount(data: { postId: string; userId: string }) {
+  async incrViewCount(data: { postId: string; userId: string }) {
     return this.postService['redis']
       .incrementView(data.postId, data.userId)
       .then((count) => ({ viewsCount: count }));

@@ -18,6 +18,9 @@ export * from './dto/user/update-user.dto';
 export * from './dto/media/update-media-status.dto';
 export * from './dto/media/upload-image.dto';
 
+// chat dto's
+export * from './dto/chat/chat.dto';
+
 //guard
 export * from './guard/auth-guard';
 

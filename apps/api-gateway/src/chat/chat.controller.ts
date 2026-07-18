@@ -9,7 +9,18 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import * as Express from 'express';
 
 import { AuthGuard } from '@app/common';
@@ -20,6 +31,14 @@ import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
+import {
+  PaginationDto,
+  StartConversationDto,
+  CreateGroupDto,
+  AddGroupMemberDto,
+  SendMessageDto,
+  ReactMessageDto,
+} from '@app/common';
 
 @ApiTags('Chat')
 @ApiBearerAuth()
@@ -29,43 +48,79 @@ export class ChatController {
   constructor(private readonly chatClient: ChatClient) {}
 
   @Get('conversations')
-  @ApiOperation({ summary: 'Get conversations' })
+  @ApiOperation({
+    summary: 'Get user conversations',
+    description: 'Returns paginated conversations of the authenticated user.',
+  })
+  @ApiOkResponse({
+    description: 'Conversations fetched successfully.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized.',
+  })
   @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
-  getConversations(
-    @Req() req: Express.Request,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  getConversations(@Req() req: Express.Request, @Query() query: PaginationDto) {
     return this.chatClient.getConversations(
       req.user.userId,
-      Number(page || 1),
-      Number(limit || 20),
+      Number(query.page ?? 1),
+      Number(query.limit ?? 20),
     );
   }
 
   @Get('conversations/:conversationId/messages')
-  @ApiOperation({ summary: 'Get messages' })
+  @ApiOperation({
+    summary: 'Get conversation messages',
+  })
+  @ApiParam({
+    name: 'conversationId',
+    example: '68844a7d8a4f7b0cb3ab1234',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    example: 50,
+  })
+  @ApiOkResponse({
+    description: 'Messages fetched successfully.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized.',
+  })
   @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   getMessages(
     @Req() req: Express.Request,
     @Param('conversationId') conversationId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query() query: PaginationDto,
   ) {
     return this.chatClient.getMessages(
       conversationId,
       req.user.userId,
-      Number(page || 1),
-      Number(limit || 50),
+      Number(query.page ?? 1),
+      Number(query.limit ?? 50),
     );
   }
 
   @Post('conversations')
-  @ApiOperation({ summary: 'Get or create direct conversation' })
+  @ApiOperation({
+    summary: 'Start or get direct conversation',
+  })
+  @ApiBody({
+    type: StartConversationDto,
+  })
+  @ApiCreatedResponse({
+    description: 'Conversation returned successfully.',
+  })
+  @ApiBadRequestResponse()
+  @ApiUnauthorizedResponse()
   @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   getOrCreateConversation(
     @Req() req: Express.Request,
-    @Body() dto: { targetUserId: string },
+    @Body() dto: StartConversationDto,
   ) {
     return this.chatClient.getOrCreateConversation(
       req.user.userId,
@@ -74,17 +129,19 @@ export class ChatController {
   }
 
   @Post('groups')
-  @ApiOperation({ summary: 'Create group' })
+  @ApiOperation({
+    summary: 'Create a group conversation',
+  })
+  @ApiBody({
+    type: CreateGroupDto,
+  })
+  @ApiCreatedResponse({
+    description: 'Group created successfully.',
+  })
+  @ApiBadRequestResponse()
+  @ApiUnauthorizedResponse()
   @RateLimit(30, 60, { key: RateLimitKeyType.IP_USER_ID })
-  createGroup(
-    @Req() req: Express.Request,
-    @Body()
-    dto: {
-      name: string;
-      participantIds: string[];
-      avatar?: string;
-    },
-  ) {
+  createGroup(@Req() req: Express.Request, @Body() dto: CreateGroupDto) {
     return this.chatClient.createGroup({
       name: dto.name,
       creatorId: req.user.userId,
@@ -94,12 +151,26 @@ export class ChatController {
   }
 
   @Post('groups/:conversationId/members')
-  @ApiOperation({ summary: 'Add group member' })
+  @ApiOperation({
+    summary: 'Add member to group',
+  })
+  @ApiParam({
+    name: 'conversationId',
+    example: '68844a7d8a4f7b0cb3ab1234',
+  })
+  @ApiBody({
+    type: AddGroupMemberDto,
+  })
+  @ApiOkResponse({
+    description: 'Member added successfully.',
+  })
+  @ApiBadRequestResponse()
+  @ApiUnauthorizedResponse()
   @RateLimit(30, 60, { key: RateLimitKeyType.IP_USER_ID })
   addGroupMember(
     @Req() req: Express.Request,
     @Param('conversationId') conversationId: string,
-    @Body() dto: { userId: string },
+    @Body() dto: AddGroupMemberDto,
   ) {
     return this.chatClient.addGroupMember(
       conversationId,
@@ -109,26 +180,26 @@ export class ChatController {
   }
 
   @Post('messages')
-  @ApiOperation({ summary: 'Send message' })
+  @ApiOperation({
+    summary: 'Send a message',
+  })
+  @ApiBody({
+    type: SendMessageDto,
+  })
+  @ApiCreatedResponse({
+    description: 'Message sent successfully.',
+  })
+  @ApiBadRequestResponse()
+  @ApiUnauthorizedResponse()
   @RateLimit(120, 60, { key: RateLimitKeyType.IP_USER_ID })
-  sendMessage(
-    @Req() req: Express.Request,
-    @Body()
-    dto: {
-      conversationId: string;
-      senderName: string;
-      senderAvatar?: string;
-      text: string;
-      mediaIds?: string[];
-      type?: string;
-      replyTo?: string;
-    },
-  ) {
+  sendMessage(@Req() req: Express.Request, @Body() dto: SendMessageDto) {
     return this.chatClient.sendMessage({
       conversationId: dto.conversationId,
       senderId: req.user.userId,
-      senderName: dto.senderName,
-      senderAvatar: dto.senderAvatar,
+
+      senderName: '',
+      senderAvatar: '',
+
       text: dto.text,
       mediaIds: dto.mediaIds,
       type: dto.type,
@@ -137,12 +208,26 @@ export class ChatController {
   }
 
   @Post('messages/:messageId/react')
-  @ApiOperation({ summary: 'React to message' })
+  @ApiOperation({
+    summary: 'React to a message',
+  })
+  @ApiParam({
+    name: 'messageId',
+    example: '68844a7d8a4f7b0cb3ab5678',
+  })
+  @ApiBody({
+    type: ReactMessageDto,
+  })
+  @ApiOkResponse({
+    description: 'Reaction updated successfully.',
+  })
+  @ApiBadRequestResponse()
+  @ApiUnauthorizedResponse()
   @RateLimit(120, 60, { key: RateLimitKeyType.IP_USER_ID })
   reactToMessage(
     @Req() req: Express.Request,
     @Param('messageId') messageId: string,
-    @Body() dto: { emoji: string },
+    @Body() dto: ReactMessageDto,
   ) {
     return this.chatClient.reactToMessage(
       messageId,
@@ -152,7 +237,17 @@ export class ChatController {
   }
 
   @Post('conversations/:conversationId/read')
-  @ApiOperation({ summary: 'Mark conversation as read' })
+  @ApiOperation({
+    summary: 'Mark conversation as read',
+  })
+  @ApiParam({
+    name: 'conversationId',
+    example: '68844a7d8a4f7b0cb3ab1234',
+  })
+  @ApiOkResponse({
+    description: 'Conversation marked as read.',
+  })
+  @ApiUnauthorizedResponse()
   @RateLimit(120, 60, { key: RateLimitKeyType.IP_USER_ID })
   markAsRead(
     @Req() req: Express.Request,
@@ -162,7 +257,18 @@ export class ChatController {
   }
 
   @Delete('messages/:messageId')
-  @ApiOperation({ summary: 'Delete message' })
+  @ApiOperation({
+    summary: 'Delete a message',
+  })
+  @ApiParam({
+    name: 'messageId',
+    example: '68844a7d8a4f7b0cb3ab5678',
+  })
+  @ApiOkResponse({
+    description: 'Message deleted successfully.',
+  })
+  @ApiBadRequestResponse()
+  @ApiUnauthorizedResponse()
   @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   deleteMessage(
     @Req() req: Express.Request,
