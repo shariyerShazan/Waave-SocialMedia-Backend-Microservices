@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { KafkaModule } from '@app/kafka';
+import { KAFKA_CLIENT_IDS, KafkaModule } from '@app/kafka';
 import { ClientsModule } from '@app/clients';
 import { PostHttpController } from './post.http.controller';
 import { PostService } from './post.service';
@@ -11,7 +11,7 @@ import { PostEnrichmentService } from './enrichments/enrichment.service';
 
 @Module({
   imports: [
-    KafkaModule.register('user-service'),
+    KafkaModule.register(KAFKA_CLIENT_IDS.POST),
     PostRedisModule,
     PostPrismaModule,
     ClientsModule,

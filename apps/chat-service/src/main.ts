@@ -1,10 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import {
-  KAFKA_BROKERS,
-  KAFKA_CLIENT_IDS,
-  KAFKA_CONSUMER_GROUPS,
-} from '@app/kafka';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
 import { ChatAppModule } from './app.module';
@@ -27,19 +22,6 @@ async function bootstrap() {
         enums: String,
         defaults: true,
         oneofs: true,
-      },
-    },
-  });
-
-  app.connectMicroservice({
-    transport: Transport.KAFKA,
-    options: {
-      client: {
-        clientId: KAFKA_CLIENT_IDS.CHAT,
-        brokers: [KAFKA_BROKERS],
-      },
-      consumer: {
-        groupId: KAFKA_CONSUMER_GROUPS.CHAT,
       },
     },
   });
