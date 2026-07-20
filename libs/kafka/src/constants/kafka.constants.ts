@@ -1,6 +1,7 @@
 export const KAFKA_BROKERS = process.env.KAFKA_BROKERS ?? 'localhost:9092';
 
 export const KAFKA_CLIENT_IDS = {
+  MAIN: 'root-kafka',
   AUTH: 'auth-service',
   USER: 'user-service',
   NOTIFICATION: 'notification-service',
@@ -10,6 +11,7 @@ export const KAFKA_CLIENT_IDS = {
 } as const;
 
 export const KAFKA_CONSUMER_GROUPS = {
+  MAIN: 'root-kafka-group',
   AUTH: 'auth-service-group',
   USER: 'user-service-group',
   NOTIFICATION: 'notification-service-group',
