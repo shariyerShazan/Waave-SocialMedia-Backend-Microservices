@@ -17,7 +17,7 @@ services:
       -c max_replication_slots=10
       -c hot_standby=on
     volumes:
-      - auth-postgres-primary_data:/var/lib/postgresql/data
+      - auth_postgres_primary_data:/var/lib/postgresql/data
       - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d auth_db']
@@ -37,7 +37,7 @@ services:
     environment:
       PGPASSWORD: replicator_pass
     volumes:
-      - auth-postgres-replica_data:/var/lib/postgresql/data
+      - auth_postgres_replica_data:/var/lib/postgresql/data
     depends_on:
       auth-postgres-primary:
         condition: service_healthy
@@ -78,7 +78,7 @@ services:
       -c max_replication_slots=10
       -c hot_standby=on
     volumes:
-      - user-postgres-primary_data:/var/lib/postgresql/data
+      - user_postgres_primary_data:/var/lib/postgresql/data
       - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d user_db']
@@ -98,7 +98,7 @@ services:
     environment:
       PGPASSWORD: replicator_pass
     volumes:
-      - user-postgres-replica_data:/var/lib/postgresql/data
+      - user_postgres_replica_data:/var/lib/postgresql/data
     depends_on:
       user-postgres-primary:
         condition: service_healthy
@@ -139,7 +139,7 @@ services:
       -c max_replication_slots=10
       -c hot_standby=on
     volumes:
-      - post-postgres-primary_data:/var/lib/postgresql/data
+      - post_postgres_primary_data:/var/lib/postgresql/data
       - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d post_db']
@@ -159,7 +159,7 @@ services:
     environment:
       PGPASSWORD: replicator_pass
     volumes:
-      - post-postgres-replica_data:/var/lib/postgresql/data
+      - post_postgres_replica_data:/var/lib/postgresql/data
     depends_on:
       post-postgres-primary:
         condition: service_healthy
@@ -182,6 +182,70 @@ services:
     restart: unless-stopped
     networks:
       - waave
+
+
+  # e2ee_chat postgres
+  e2ee-chat-postgres-primary:
+    image: postgres:17
+    container_name: waave_postgres_e2ee-chat_primary
+    ports:
+      - '5435:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: e2ee_chat_db
+    command: >
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=10
+      -c max_replication_slots=10
+      -c hot_standby=on
+    volumes:
+      - e2ee_chat_postgres_primary_data:/var/lib/postgresql/data
+      - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d e2ee_chat_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - waave
+
+  e2ee-chat-postgres-replica:
+    image: postgres:17
+    container_name: waave_postgres_e2ee_chat_replica
+    ports:
+      - '5445:5432'
+    environment:
+      PGPASSWORD: replicator_pass
+    volumes:
+      - e2ee_chat_postgres_replica_data:/var/lib/postgresql/data
+    depends_on:
+      e2ee-chat-postgres-primary:
+        condition: service_healthy
+    entrypoint: >
+      bash -c "
+      set -e;
+      if [ -z \"$$(ls -A /var/lib/postgresql/data 2>/dev/null)\" ]; then
+        echo 'No data found, cloning from primary...';
+        pg_basebackup -h e2ee-chat-postgres-primary -p 5432 -D /var/lib/postgresql/data -U replicator -Fp -Xs -P -R;
+        chmod 0700 /var/lib/postgresql/data;
+      fi;
+      exec docker-entrypoint.sh postgres
+      "
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d e2ee_chat_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - waave
+
+
 
   # mongodb database for media
   media_mongo_db_1:
@@ -767,14 +831,17 @@ services:
   #       condition: service_healthy
 
 volumes:
-  auth-postgres-primary_data:
-  auth-postgres-replica_data:
+  auth_postgres_primary_data:
+  auth_postgres_replica_data:
 
-  user-postgres-primary_data:
-  user-postgres-replica_data:
+  user_postgres_primary_data:
+  user_postgres_replica_data:
 
-  post-postgres-primary_data:
-  post-postgres-replica_data:
+  post_postgres_primary_data:
+  post_postgres_replica_data:
+
+  e2ee_chat_postgres_primary_data:
+  e2ee_chat_postgres_replica_data:
 
   media_mongo_db_1_data:
   media_mongo_db_2_data:

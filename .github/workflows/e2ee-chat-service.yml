@@ -1,0 +1,56 @@
+name: E2EE chat Service CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - '.github/workflows/**'
+      - 'apps/e2ee-chat-service/**'
+      - 'libs/common/**'
+      - 'libs/kafka/**'
+      - 'libs/proto-schema/**'
+      - 'libs/clients/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - '.github/workflows/**'
+      - 'apps/e2ee-chat-service/**'
+      - 'libs/common/**'
+      - 'libs/kafka/**'
+      - 'libs/proto-schema/**'
+      - 'libs/clients/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+
+jobs:
+  e2ee-chat-service:
+    name: E2EE chat Service Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Generate E2EE chat Prisma Client
+        run: npm run e2ee-chat:prisma:generate
+
+      - name: Build E2EE chat Service
+        run: npx nest build e2ee-chat-service

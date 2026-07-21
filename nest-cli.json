@@ -56,6 +56,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "e2ee-chat-service": {
+      "type": "application",
+      "root": "apps/e2ee-chat-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/e2ee-chat-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/e2ee-chat-service/tsconfig.app.json"
+      }
+    },
     "feed-service": {
       "type": "application",
       "root": "apps/feed-service",

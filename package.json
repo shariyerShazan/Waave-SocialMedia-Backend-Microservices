@@ -35,6 +35,9 @@
     "post:prisma:migrate": "npx prisma migrate dev --schema=apps/post-service/prisma/schema.prisma --config apps/post-service/prisma/prisma.config.ts",
     "post:prisma:generate": "npx prisma generate --schema=apps/post-service/prisma/schema.prisma --config apps/post-service/prisma/prisma.config.ts",
     "post:prisma:studio": "dotenv npx prisma studio --url=\"$POST_DB_PRIMARY_URL\"",
+    "e2ee-chat:prisma:migrate": "npx prisma migrate dev --schema=apps/e2ee-chat-service/prisma/schema.prisma --config apps/e2ee-chat-service/prisma/prisma.config.ts",
+    "e2ee-chat:prisma:generate": "npx prisma generate --schema=apps/e2ee-chat-service/prisma/schema.prisma --config apps/e2ee-chat-service/prisma/prisma.config.ts",
+    "e2ee-chat:prisma:studio": "dotenv npx prisma studio --url=\"$E2EE_CHAT_DB_PRIMARY_URL\"",
     "proto:generate": "rm -rf libs/proto-schema/src/protos-types && mkdir -p libs/proto-schema/src/protos-types && grpc_tools_node_protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --proto_path=./libs/proto-schema/src/proto --ts_proto_out=./libs/proto-schema/src/protos-types --ts_proto_opt=nestJs=true ./libs/proto-schema/src/proto/*.proto"
   },
   "dependencies": {
