@@ -10,6 +10,7 @@ export * from './dto/auth/verify-registration-dto';
 export * from './dto/auth/forgot-password-dto';
 export * from './dto/auth/chnage-password-dto';
 export * from './dto/auth/reset-password-dto';
+export * from './dto/user/e2ee-key.dto';
 
 // user dto's
 export * from './dto/user/update-user.dto';

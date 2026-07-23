@@ -42,6 +42,11 @@ export const KAFKA_TOPICS = {
   POST_LIKED: 'post.liked',
   POST_COMMENTED: 'post.commented',
   POST_SHARED: 'post.shared',
+
+  // E2EE Chat Events
+  E2EE_KEY_REGISTERED: 'e2ee.key.registered',
+  E2EE_MESSAGE_SENT: 'e2ee.message.sent',
+  E2EE_CONVERSATION_CREATED: 'e2ee.conversation.created',
 };
 
 export type KafkaTopics = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];
