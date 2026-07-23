@@ -13,3 +13,21 @@ datasource db {
   provider = "postgresql"
 }
 
+
+model Conversation {
+  id        String   @id @default(uuid())
+  type      ChatType @default(DIRECT)
+  name      String?
+  avatar    String?
+  createdBy String
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdBy])
+  @@map("conversations")
+}
+enum ChatType {
+  DIRECT
+  GROUP 
+}

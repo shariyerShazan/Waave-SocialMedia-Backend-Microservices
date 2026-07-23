@@ -3,19 +3,19 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/auth-client';
 
 @Injectable()
-export class AtuhPrismaService implements OnModuleInit, OnModuleDestroy {
+export class E2eeChatPrismaService implements OnModuleInit, OnModuleDestroy {
   readonly writeDb: PrismaClient;
   readonly readDb: PrismaClient;
   constructor() {
     this.writeDb = new PrismaClient({
       adapter: new PrismaPg({
-        connectionString: process.env.AUTH_DB_PRIMARY_URL!,
+        connectionString: process.env.E2EE_CHAT_DB_PRIMARY_URL!,
       }),
     });
 
     this.readDb = new PrismaClient({
       adapter: new PrismaPg({
-        connectionString: process.env.AUTH_DB_REPLICA_URL!,
+        connectionString: process.env.E2EE_CHAT_DB_REPLICA_URL!,
       }),
     });
   }
