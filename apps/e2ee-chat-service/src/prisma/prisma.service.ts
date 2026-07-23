@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/auth-client';
+import { PrismaClient } from '@prisma/e2ee-chat-client';
 
 @Injectable()
 export class E2eeChatPrismaService implements OnModuleInit, OnModuleDestroy {
