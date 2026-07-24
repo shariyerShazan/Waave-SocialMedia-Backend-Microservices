@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-// redis/user-redis.service.ts
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
 
@@ -26,7 +25,7 @@ export class UserRedisService implements OnModuleDestroy {
       `user:profile:${userId}`,
       JSON.stringify(profile),
       'EX',
-      3600, // 1 hour
+      3600,
     );
   }
 
@@ -47,7 +46,7 @@ export class UserRedisService implements OnModuleDestroy {
     }
     await this.client.del(key);
     await this.client.sadd(key, ...ids);
-    await this.client.expire(key, 1800); // 30 min
+    await this.client.expire(key, 1800);
   }
 
   async getFollowerIds(userId: string): Promise<string[]> {
@@ -62,11 +61,11 @@ export class UserRedisService implements OnModuleDestroy {
     await this.client.srem(`user:followers:${userId}`, followerId);
   }
 
-  // ── Mutual Friends Cache ──────────────────────
   async getMutualFriends(userId1: string, userId2: string): Promise<string[]> {
-    const key1 = `user:followers:${userId1}`;
-    const key2 = `user:followers:${userId2}`;
-    return this.client.sinter(key1, key2);
+    return this.client.sinter(
+      `user:followers:${userId1}`,
+      `user:followers:${userId2}`,
+    );
   }
 
   // ── Online Presence ───────────────────────────
@@ -80,12 +79,7 @@ export class UserRedisService implements OnModuleDestroy {
   async setOffline(userId: string) {
     const pipeline = this.client.pipeline();
     pipeline.srem('online:users', userId);
-    pipeline.set(
-      `user:lastseen:${userId}`,
-      Date.now().toString(),
-      'EX',
-      86400, // 24 hours
-    );
+    pipeline.set(`user:lastseen:${userId}`, Date.now().toString(), 'EX', 86400);
     await pipeline.exec();
   }
 
@@ -101,9 +95,7 @@ export class UserRedisService implements OnModuleDestroy {
   async getOnlineUsers(userIds: string[]): Promise<Set<string>> {
     if (!userIds.length) return new Set();
     const pipeline = this.client.pipeline();
-    for (const id of userIds) {
-      pipeline.sismember('online:users', id);
-    }
+    for (const id of userIds) pipeline.sismember('online:users', id);
     const results = await pipeline.exec();
     const online = new Set<string>();
     results?.forEach(([, val], i) => {
@@ -118,12 +110,55 @@ export class UserRedisService implements OnModuleDestroy {
       `search:users:${query.toLowerCase()}`,
       JSON.stringify(results),
       'EX',
-      300, // 5 min
+      300,
     );
   }
 
   async getCachedSearch(query: string): Promise<any[] | null> {
     const data = await this.client.get(`search:users:${query.toLowerCase()}`);
     return data ? JSON.parse(data) : null;
+  }
+
+  // ── General Cache ─────────────────────────────
+  async setCache(key: string, data: any, ttlsec = 3600) {
+    await this.client.set(`cache:${key}`, JSON.stringify(data), 'EX', ttlsec);
+  }
+
+  async getCache<T>(key: string): Promise<T | null> {
+    const data = await this.client.get(`cache:${key}`);
+    if (!data) return null;
+    return JSON.parse(data) as T;
+  }
+
+  async invalidateCache(key: string) {
+    await this.client.del(`cache:${key}`);
+  }
+
+  // ── E2EE Key Bundle Cache ─────────────────────
+  async invalidateKeyBundle(userId: string) {
+    // Invalidate all device variants
+    const stream = this.client.scanStream({
+      match: `cache:keybundle:${userId}:*`,
+      count: 20,
+    });
+    const keys: string[] = [];
+    for await (const batch of stream) {
+      keys.push(...(batch as string[]));
+    }
+    if (keys.length > 0) await this.client.del(...keys);
+  }
+
+  // ── Device Socket Mapping ─────────────────────
+  async setDeviceSocket(userId: string, deviceId: string, socketId: string) {
+    await this.client.hset(`user:sockets:${userId}`, deviceId, socketId);
+    await this.client.expire(`user:sockets:${userId}`, 86400);
+  }
+
+  async removeDeviceSocket(userId: string, deviceId: string) {
+    await this.client.hdel(`user:sockets:${userId}`, deviceId);
+  }
+
+  async getUserSockets(userId: string): Promise<Record<string, string>> {
+    return this.client.hgetall(`user:sockets:${userId}`);
   }
 }
