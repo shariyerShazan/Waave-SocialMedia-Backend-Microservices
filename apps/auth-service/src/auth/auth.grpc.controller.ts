@@ -58,8 +58,8 @@ export class AuthGrpcController {
   }
 
   @GrpcMethod('AuthService', 'RefreshToken')
-  refreshToken(data: { refreshToken: string }) {
-    return this.authService.refreshToken(data.refreshToken);
+  refreshToken(data: { refreshToken: string; deviceId?: string }) {
+    return this.authService.refreshToken(data.refreshToken, data.deviceId);
   }
 
   @GrpcMethod('AuthService', 'GetUserById')

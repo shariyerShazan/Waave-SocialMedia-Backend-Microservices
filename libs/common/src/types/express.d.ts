@@ -9,6 +9,7 @@ declare global {
         userId: string;
         email: string;
         role: string;
+        deviceId?: string;
       };
     }
   }

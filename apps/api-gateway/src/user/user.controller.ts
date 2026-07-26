@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
@@ -19,6 +21,12 @@ import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
+import {
+  RefillOneTimePreKeysDto,
+  RegisterDeviceDto,
+  RotateSignedPreKeyDto,
+  UploadKeysDto,
+} from '@app/common/dto/e2ee/e2ee-keys.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -39,6 +47,112 @@ export class UserController {
   @ApiBearerAuth()
   updateProfile(@Req() req: Express.Request, @Body() dto: UpdateProfileDto) {
     return this.userClient.updateProfile(req?.user?.userId, dto);
+  }
+
+  @Post('e2ee/devices')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(10, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  registerDevice(@Req() req: Express.Request, @Body() dto: RegisterDeviceDto) {
+    return this.userClient.registerDevice({
+      userId: req.user.userId,
+      ...dto,
+    });
+  }
+
+  @Get('e2ee/devices')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(30, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  listDevices(@Req() req: Express.Request) {
+    return this.userClient.listDevices(req.user.userId);
+  }
+
+  @Delete('e2ee/devices/:deviceId')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(10, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  revokeDevice(
+    @Req() req: Express.Request,
+    @Param('deviceId') deviceId: string,
+  ) {
+    return this.userClient.revokeDevice(req.user.userId, deviceId);
+  }
+
+  @Post('e2ee/keys')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(10, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  uploadKeys(@Req() req: Express.Request, @Body() dto: UploadKeysDto) {
+    return this.userClient.uploadKeys({
+      userId: req.user.userId,
+      deviceId: dto.deviceId,
+      identityKey: dto.identityKey,
+      signedPreKey: dto.signedPreKey,
+      oneTimePreKeys: dto.oneTimePreKeys,
+    });
+  }
+
+  @Post('e2ee/keys/rotate-signed')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(10, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  rotateSignedPreKey(
+    @Req() req: Express.Request,
+    @Body() dto: RotateSignedPreKeyDto,
+  ) {
+    return this.userClient.rotateSignedPreKey({
+      userId: req.user.userId,
+      deviceId: dto.deviceId,
+      signedPreKey: dto.signedPreKey,
+    });
+  }
+
+  @Post('e2ee/keys/refill')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(10, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  refillOneTimePreKeys(
+    @Req() req: Express.Request,
+    @Body() dto: RefillOneTimePreKeysDto,
+  ) {
+    return this.userClient.refillOneTimePreKeys({
+      userId: req.user.userId,
+      deviceId: dto.deviceId,
+      oneTimePreKeys: dto.oneTimePreKeys,
+    });
+  }
+
+  @Get('e2ee/keys/bundle/:targetUserId')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(30, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  getKeyBundle(
+    @Req() req: Express.Request,
+    @Param('targetUserId') targetUserId: string,
+    @Query('deviceId') deviceId?: string,
+    @Headers('x-device-id') deviceHeader?: string,
+  ) {
+    return this.userClient.getKeyBundle(
+      targetUserId,
+      req.user.userId,
+      deviceId || deviceHeader,
+    );
+  }
+
+  @Get('e2ee/keys/otk-count')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(30, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  countOneTimePreKeys(
+    @Req() req: Express.Request,
+    @Query('deviceId') deviceId?: string,
+    @Headers('x-device-id') deviceHeader?: string,
+  ) {
+    return this.userClient.countOneTimePreKeys(
+      req.user.userId,
+      deviceId || deviceHeader || req.user.deviceId || '',
+    );
   }
 
   @Post(':targetId/follow')

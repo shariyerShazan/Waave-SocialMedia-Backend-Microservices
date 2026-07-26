@@ -721,11 +721,33 @@ services:
       - '6372:6379'
     command: >
       redis-server
-      --maxmemory 2gb
+      --maxmemory 256mb
       --maxmemory-policy allkeys-lru
       --appendonly yes
     volumes:
       - chat_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - waave
+
+  # ── e2ee chat Redis
+  e2ee_chat_redis:
+    image: redis:7-alpine
+    container_name: waave_redis_e2ee_chat
+    ports:
+      - '6371:6379'
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    volumes:
+      - e2ee_chat_redis_data:/data
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
@@ -863,6 +885,7 @@ volumes:
   post_redis_data:
   feed_redis_data:
   chat_redis_data:
+  e2ee_chat_redis_data:
 
   kafka_data:
 

@@ -58,6 +58,7 @@ message ChangePassRequest {
 message LoginRequest {
   string email    = 1;
   string password = 2;
+  optional string deviceId = 3;
 }
 
 // ── Logout ────────────────────────────────────────
@@ -76,11 +77,13 @@ message VerifyTokenResponse {
   string email     = 3;
   string role      = 4;
   string message   = 5;
+  optional string deviceId = 6;
 }
 
 // ── Refresh Token ─────────────────────────────────
 message RefreshTokenRequest {
   string refreshToken = 1;
+  optional string deviceId = 2;
 }
 
 // ── Shared Response ───────────────────────────────

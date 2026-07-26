@@ -286,6 +286,7 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       role: user.role,
+      ...(dto.deviceId ? { deviceId: dto.deviceId } : {}),
     };
     const accessToken = this.tokens.generateAccessToken(payload);
     const refreshToken = this.tokens.generateRefreshToken(payload);
@@ -348,6 +349,7 @@ export class AuthService {
         email: '',
         role: '',
         message: 'Invalid or expired token',
+        deviceId: '',
       };
     }
     return {
@@ -356,10 +358,11 @@ export class AuthService {
       email: payload.email,
       role: payload.role,
       message: 'Token valid',
+      deviceId: payload.deviceId || '',
     };
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken: string, deviceId?: string) {
     const payload = this.tokens.verifyRefreshToken(refreshToken);
 
     if (!payload) {
@@ -389,6 +392,9 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       role: user.role,
+      ...(deviceId || payload.deviceId
+        ? { deviceId: deviceId || payload.deviceId }
+        : {}),
     };
 
     const newAccessToken = this.tokens.generateAccessToken(newPayload);

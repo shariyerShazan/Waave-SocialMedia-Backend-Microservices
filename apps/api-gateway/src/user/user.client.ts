@@ -181,4 +181,155 @@ export class UserClient implements OnModuleInit {
       this.handleError(err);
     }
   }
+
+  async registerDevice(data: {
+    userId: string;
+    deviceId: string;
+    deviceName: string;
+    platform: string;
+    osVersion?: string;
+    appVersion?: string;
+  }) {
+    try {
+      return await firstValueFrom(
+        this.userService.registerDevice({
+          userId: data.userId,
+          deviceId: data.deviceId,
+          deviceName: data.deviceName,
+          platform: data.platform,
+          osVersion: data.osVersion,
+          appVersion: data.appVersion,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async listDevices(userId: string) {
+    try {
+      return await firstValueFrom(
+        this.userService.listDevices({
+          userId,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async revokeDevice(userId: string, deviceId: string) {
+    try {
+      return await firstValueFrom(
+        this.userService.revokeDevice({
+          userId,
+          deviceId,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async uploadKeys(data: {
+    userId: string;
+    deviceId: string;
+    identityKey: { publicKey: string; registrationId: number };
+    signedPreKey: { keyId: number; publicKey: string; signature: string };
+    oneTimePreKeys: { keyId: number; publicKey: string }[];
+  }) {
+    try {
+      return await firstValueFrom(
+        this.userService.uploadKeys({
+          userId: data.userId,
+          deviceId: data.deviceId,
+          identityKey: data.identityKey,
+          signedPreKey: data.signedPreKey,
+          oneTimePreKeys: data.oneTimePreKeys,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async rotateSignedPreKey(data: {
+    userId: string;
+    deviceId: string;
+    signedPreKey: { keyId: number; publicKey: string; signature: string };
+  }) {
+    try {
+      return await firstValueFrom(
+        this.userService.rotateSignedPreKey({
+          userId: data.userId,
+          deviceId: data.deviceId,
+          signedPreKey: data.signedPreKey,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async refillOneTimePreKeys(data: {
+    userId: string;
+    deviceId: string;
+    oneTimePreKeys: { keyId: number; publicKey: string }[];
+  }) {
+    try {
+      return await firstValueFrom(
+        this.userService.refillOneTimePreKeys({
+          userId: data.userId,
+          deviceId: data.deviceId,
+          oneTimePreKeys: data.oneTimePreKeys,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async getKeyBundle(
+    targetUserId: string,
+    requesterId: string,
+    deviceId?: string,
+  ) {
+    try {
+      return await firstValueFrom(
+        this.userService.getKeyBundle({
+          targetUserId,
+          requesterId,
+          deviceId,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async getKeyBundlesForUsers(userIds: string[], requesterId: string) {
+    try {
+      return await firstValueFrom(
+        this.userService.getKeyBundlesForUsers({
+          userIds,
+          requesterId,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async countOneTimePreKeys(userId: string, deviceId: string) {
+    try {
+      return await firstValueFrom(
+        this.userService.countOneTimePreKeys({
+          userId,
+          deviceId,
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
 }

@@ -11,6 +11,7 @@ export interface JwtPayload {
   userId: string;
   email: string;
   role: string;
+  deviceId?: string;
 }
 
 interface AuthenticatedRequest extends Request {

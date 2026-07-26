@@ -49,6 +49,7 @@ export interface ChangePassRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+  deviceId?: string | undefined;
 }
 
 /** ── Logout ──────────────────────────────────────── */
@@ -67,11 +68,13 @@ export interface VerifyTokenResponse {
   email: string;
   role: string;
   message: string;
+  deviceId?: string | undefined;
 }
 
 /** ── Refresh Token ───────────────────────────────── */
 export interface RefreshTokenRequest {
   refreshToken: string;
+  deviceId?: string | undefined;
 }
 
 export interface GetUserByIdRequest {

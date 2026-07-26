@@ -90,8 +90,11 @@ export class AuthHttpController {
       required: ['refreshToken'],
     },
   })
-  refreshToken(@Body('refreshToken') refreshToken: string) {
-    return this.authService.refreshToken(refreshToken);
+  refreshToken(
+    @Body('refreshToken') refreshToken: string,
+    @Body('deviceId') deviceId: string,
+  ) {
+    return this.authService.refreshToken(refreshToken, deviceId);
   }
 
   @Get('user/:userId')

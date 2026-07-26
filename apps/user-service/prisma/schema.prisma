@@ -37,7 +37,6 @@ model Profile {
   following  Follow[] @relation("Follower")
 
   devices    UserDevice[]
-  identityKey UserIdentityKey?
 
   @@index([email])
   @@index([name])
@@ -61,81 +60,86 @@ model Follow {
 
 
 
-
-
-model UserIdentityKey {
-  id     String @id @default(uuid())
-
-  userId      String   @unique
-  profile Profile  @relation(fields: [userId], references: [id] , onDelete: Cascade)
-
-  publicKey   String
-  fingerprint String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([userId])
-  @@map("user_identity_keys")
-
+enum DevicePlatform {
+  PHONE
+  TABLET
+  LAPTOP
+  DESKTOP
+  WEB
+  OTHER
 }
-
-model UserSignedPreKey {
-  id        String   @id @default(uuid())
-  userId    String
-  deviceId  String
-  device UserDevice @relation(fields: [userId, deviceId], references: [userId, deviceId], onDelete: Cascade)
-
-  keyId     Int
-  publicKey String
-  signature String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, deviceId])
-  @@index([userId])
-  @@map("user_signed_pre_keys")
-}
-
-
-model UserOneTimePreKey {
-  id        String   @id @default(uuid())
-  userId    String
-  deviceId  String
-  device UserDevice @relation(fields: [userId, deviceId], references: [userId, deviceId], onDelete: Cascade)
-
-  keyId     Int
-  publicKey String
-
-  consumed  Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@unique([userId, deviceId, keyId])
-  @@index([userId, deviceId, consumed])
-  @@map("user_one_time_pre_keys")
-}
-
-
 
 model UserDevice {
-  id           String    @id @default(uuid())
-  userId       String
-  deviceId     String 
+  id          String         @id @default(uuid())
+  userId      String
+  deviceId    String
+  deviceName  String
+  platform    DevicePlatform @default(OTHER)
+  osVersion   String?
+  appVersion  String?
+  isActive    Boolean        @default(true)
+  lastSeenAt  DateTime       @default(now())
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
-  deviceName   String    @default("unknown")
-  platform     String    @default("unknown")
-
-  pushToken    String?             
-  lastActiveAt DateTime  @default(now())
-  registeredAt DateTime  @default(now())
-  isActive     Boolean   @default(true)
-
-  profile       Profile            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  signedPreKey  UserSignedPreKey?
+  user           Profile            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  identityKey    UserIdentityKey?
+  signedPreKeys  UserSignedPreKey[]
   oneTimePreKeys UserOneTimePreKey[]
 
   @@unique([userId, deviceId])
-  @@index([userId])
+  @@index([userId, isActive])
   @@index([deviceId])
   @@map("user_devices")
+}
+
+model UserIdentityKey {
+  id             String   @id @default(uuid())
+  userId         String
+  deviceRecordId  String   @unique
+  publicKey      String
+  registrationId Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  device UserDevice @relation(fields: [deviceRecordId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_identity_keys")
+}
+
+model UserSignedPreKey {
+  id            String   @id @default(uuid())
+  userId        String
+  deviceRecordId String
+  keyId         Int
+  publicKey     String
+  signature     String
+  isCurrent     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime?
+
+  device UserDevice @relation(fields: [deviceRecordId], references: [id], onDelete: Cascade)
+
+  @@unique([deviceRecordId, keyId])
+  @@index([userId, deviceRecordId, isCurrent])
+  @@map("user_signed_pre_keys")
+}
+
+model UserOneTimePreKey {
+  id            String    @id @default(uuid())
+  userId        String
+  deviceRecordId String
+  keyId         Int
+  publicKey     String
+  isUsed        Boolean   @default(false)
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  device UserDevice @relation(fields: [deviceRecordId], references: [id], onDelete: Cascade)
+
+  @@unique([deviceRecordId, keyId])
+  @@index([deviceRecordId, isUsed, createdAt])
+  @@index([userId, isUsed])
+  @@map("user_one_time_pre_keys")
 }

@@ -132,6 +132,137 @@ export interface FollowerIdsResponse {
   followerIds: string[];
 }
 
+export interface OperationResponse {
+  success: boolean;
+  message: string;
+}
+
+/** ── E2EE Devices & Keys ─────────────────────────── */
+export interface RegisterDeviceRequest {
+  userId: string;
+  deviceId: string;
+  deviceName: string;
+  platform: string;
+  osVersion?: string | undefined;
+  appVersion?: string | undefined;
+}
+
+export interface DeviceInfo {
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  platform: string;
+  osVersion: string;
+  appVersion: string;
+  isActive: boolean;
+  lastSeenAt: number;
+  createdAt: string;
+}
+
+export interface DeviceResponse {
+  success: boolean;
+  message: string;
+  device: DeviceInfo | undefined;
+}
+
+export interface ListDevicesRequest {
+  userId: string;
+}
+
+export interface ListDevicesResponse {
+  success: boolean;
+  devices: DeviceInfo[];
+}
+
+export interface RevokeDeviceRequest {
+  userId: string;
+  deviceId: string;
+}
+
+export interface IdentityKeyData {
+  publicKey: string;
+  registrationId: number;
+}
+
+export interface SignedPreKeyData {
+  keyId: number;
+  publicKey: string;
+  signature: string;
+}
+
+export interface OneTimePreKeyData {
+  keyId: number;
+  publicKey: string;
+}
+
+export interface UploadKeysRequest {
+  userId: string;
+  deviceId: string;
+  identityKey: IdentityKeyData | undefined;
+  signedPreKey: SignedPreKeyData | undefined;
+  oneTimePreKeys: OneTimePreKeyData[];
+}
+
+export interface RotateSignedPreKeyRequest {
+  userId: string;
+  deviceId: string;
+  signedPreKey: SignedPreKeyData | undefined;
+}
+
+export interface RefillOneTimePreKeysRequest {
+  userId: string;
+  deviceId: string;
+  oneTimePreKeys: OneTimePreKeyData[];
+}
+
+export interface GetKeyBundleRequest {
+  targetUserId: string;
+  deviceId?: string | undefined;
+  requesterId: string;
+}
+
+export interface DeviceKeyBundle {
+  deviceId: string;
+  platform: string;
+  deviceName: string;
+  identityKey: IdentityKeyData | undefined;
+  signedPreKey: SignedPreKeyData | undefined;
+  oneTimePreKey?: OneTimePreKeyData | undefined;
+  registrationId: number;
+}
+
+export interface KeyBundleResponse {
+  success: boolean;
+  message: string;
+  userId: string;
+  devices: DeviceKeyBundle[];
+}
+
+export interface GetKeyBundlesForUsersRequest {
+  userIds: string[];
+  requesterId: string;
+}
+
+export interface UserKeyBundles {
+  userId: string;
+  devices: DeviceKeyBundle[];
+}
+
+export interface KeyBundlesResponse {
+  success: boolean;
+  bundles: UserKeyBundles[];
+}
+
+export interface CountOneTimePreKeysRequest {
+  userId: string;
+  deviceId: string;
+}
+
+export interface CountOneTimePreKeysResponse {
+  success: boolean;
+  count: number;
+}
+
 export const USER_PACKAGE_NAME = "user";
 
 export interface UserServiceClient {
@@ -174,6 +305,26 @@ export interface UserServiceClient {
   getUsersByIds(request: GetUsersByIdsRequest): Observable<UsersListResponse>;
 
   getFollowerIds(request: GetFollowerIdsRequest): Observable<FollowerIdsResponse>;
+
+  /** ── E2EE Device & Key Management ──────────────── */
+
+  registerDevice(request: RegisterDeviceRequest): Observable<DeviceResponse>;
+
+  listDevices(request: ListDevicesRequest): Observable<ListDevicesResponse>;
+
+  revokeDevice(request: RevokeDeviceRequest): Observable<OperationResponse>;
+
+  uploadKeys(request: UploadKeysRequest): Observable<OperationResponse>;
+
+  rotateSignedPreKey(request: RotateSignedPreKeyRequest): Observable<OperationResponse>;
+
+  refillOneTimePreKeys(request: RefillOneTimePreKeysRequest): Observable<OperationResponse>;
+
+  getKeyBundle(request: GetKeyBundleRequest): Observable<KeyBundleResponse>;
+
+  getKeyBundlesForUsers(request: GetKeyBundlesForUsersRequest): Observable<KeyBundlesResponse>;
+
+  countOneTimePreKeys(request: CountOneTimePreKeysRequest): Observable<CountOneTimePreKeysResponse>;
 }
 
 export interface UserServiceController {
@@ -232,6 +383,42 @@ export interface UserServiceController {
   getFollowerIds(
     request: GetFollowerIdsRequest,
   ): Promise<FollowerIdsResponse> | Observable<FollowerIdsResponse> | FollowerIdsResponse;
+
+  /** ── E2EE Device & Key Management ──────────────── */
+
+  registerDevice(request: RegisterDeviceRequest): Promise<DeviceResponse> | Observable<DeviceResponse> | DeviceResponse;
+
+  listDevices(
+    request: ListDevicesRequest,
+  ): Promise<ListDevicesResponse> | Observable<ListDevicesResponse> | ListDevicesResponse;
+
+  revokeDevice(
+    request: RevokeDeviceRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  uploadKeys(
+    request: UploadKeysRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  rotateSignedPreKey(
+    request: RotateSignedPreKeyRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  refillOneTimePreKeys(
+    request: RefillOneTimePreKeysRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  getKeyBundle(
+    request: GetKeyBundleRequest,
+  ): Promise<KeyBundleResponse> | Observable<KeyBundleResponse> | KeyBundleResponse;
+
+  getKeyBundlesForUsers(
+    request: GetKeyBundlesForUsersRequest,
+  ): Promise<KeyBundlesResponse> | Observable<KeyBundlesResponse> | KeyBundlesResponse;
+
+  countOneTimePreKeys(
+    request: CountOneTimePreKeysRequest,
+  ): Promise<CountOneTimePreKeysResponse> | Observable<CountOneTimePreKeysResponse> | CountOneTimePreKeysResponse;
 }
 
 export function UserServiceControllerMethods() {
@@ -252,6 +439,15 @@ export function UserServiceControllerMethods() {
       "getOnlineStatus",
       "getUsersByIds",
       "getFollowerIds",
+      "registerDevice",
+      "listDevices",
+      "revokeDevice",
+      "uploadKeys",
+      "rotateSignedPreKey",
+      "refillOneTimePreKeys",
+      "getKeyBundle",
+      "getKeyBundlesForUsers",
+      "countOneTimePreKeys",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

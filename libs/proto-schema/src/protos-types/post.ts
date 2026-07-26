@@ -195,6 +195,7 @@ export interface Post {
   updatedAt: string;
   media: PostMedia[];
   author: PostAuthor | undefined;
+  mediaIds: string[];
 }
 
 export interface PostResponse {

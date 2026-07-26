@@ -8,6 +8,7 @@ export interface TokenPayload {
   userId: string;
   email: string;
   role: string;
+  deviceId?: string;
 }
 @Injectable()
 export class TokenService {

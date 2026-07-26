@@ -28,6 +28,19 @@ service UserService {
   // Internal — other services call
   rpc GetUsersByIds   (GetUsersByIdsRequest) returns (UsersListResponse);
   rpc GetFollowerIds  (GetFollowerIdsRequest)returns (FollowerIdsResponse);
+
+
+
+  // ── E2EE Device & Key Management ────────────────
+  rpc RegisterDevice          (RegisterDeviceRequest)          returns (DeviceResponse);
+  rpc ListDevices             (ListDevicesRequest)             returns (ListDevicesResponse);
+  rpc RevokeDevice            (RevokeDeviceRequest)            returns (OperationResponse);
+  rpc UploadKeys              (UploadKeysRequest)              returns (OperationResponse);
+  rpc RotateSignedPreKey      (RotateSignedPreKeyRequest)      returns (OperationResponse);
+  rpc RefillOneTimePreKeys    (RefillOneTimePreKeysRequest)    returns (OperationResponse);
+  rpc GetKeyBundle            (GetKeyBundleRequest)            returns (KeyBundleResponse);
+  rpc GetKeyBundlesForUsers   (GetKeyBundlesForUsersRequest)   returns (KeyBundlesResponse);
+  rpc CountOneTimePreKeys     (CountOneTimePreKeysRequest)     returns (CountOneTimePreKeysResponse);
 }
 
 // ── Profile Messages ──────────────────────────────
@@ -150,4 +163,136 @@ message GetFollowerIdsRequest {
 
 message FollowerIdsResponse {
   repeated string followerIds = 1;
+}
+
+
+message OperationResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+// ── E2EE Devices & Keys ───────────────────────────
+message RegisterDeviceRequest {
+  string userId     = 1;
+  string deviceId   = 2;
+  string deviceName = 3;
+  string platform   = 4;
+  optional string osVersion  = 5;
+  optional string appVersion = 6;
+}
+
+message DeviceInfo {
+  string id         = 1;
+  string deviceId   = 2;
+  string deviceName = 3;
+  string platform   = 4;
+  string osVersion  = 5;
+  string appVersion = 6;
+  bool   isActive   = 7;
+  int64  lastSeenAt = 8;
+  string createdAt  = 9;
+}
+
+message DeviceResponse {
+  bool       success = 1;
+  string     message = 2;
+  DeviceInfo device  = 3;
+}
+
+message ListDevicesRequest {
+  string userId = 1;
+}
+
+message ListDevicesResponse {
+  bool success = 1;
+  repeated DeviceInfo devices = 2;
+}
+
+message RevokeDeviceRequest {
+  string userId   = 1;
+  string deviceId = 2;
+}
+
+message IdentityKeyData {
+  string publicKey      = 1;
+  int32  registrationId = 2;
+}
+
+message SignedPreKeyData {
+  int32  keyId     = 1;
+  string publicKey = 2;
+  string signature = 3;
+}
+
+message OneTimePreKeyData {
+  int32  keyId     = 1;
+  string publicKey = 2;
+}
+
+message UploadKeysRequest {
+  string userId   = 1;
+  string deviceId = 2;
+  IdentityKeyData identityKey = 3;
+  SignedPreKeyData signedPreKey = 4;
+  repeated OneTimePreKeyData oneTimePreKeys = 5;
+}
+
+message RotateSignedPreKeyRequest {
+  string userId   = 1;
+  string deviceId = 2;
+  SignedPreKeyData signedPreKey = 3;
+}
+
+message RefillOneTimePreKeysRequest {
+  string userId   = 1;
+  string deviceId = 2;
+  repeated OneTimePreKeyData oneTimePreKeys = 3;
+}
+
+message GetKeyBundleRequest {
+  string targetUserId = 1;
+  optional string deviceId = 2;
+  string requesterId = 3;
+}
+
+message DeviceKeyBundle {
+  string deviceId = 1;
+  string platform = 2;
+  string deviceName = 3;
+  IdentityKeyData identityKey = 4;
+  SignedPreKeyData signedPreKey = 5;
+  optional OneTimePreKeyData oneTimePreKey = 6;
+  int32 registrationId = 7;
+}
+
+message KeyBundleResponse {
+  bool success = 1;
+  string message = 2;
+  string userId = 3;
+  repeated DeviceKeyBundle devices = 4;
+}
+
+message GetKeyBundlesForUsersRequest {
+  repeated string userIds = 1;
+  string requesterId = 2;
+}
+
+message UserKeyBundles {
+  string userId = 1;
+  repeated DeviceKeyBundle devices = 2;
+}
+
+message KeyBundlesResponse {
+  bool success = 1;
+  repeated UserKeyBundles bundles = 2;
+}
+
+message CountOneTimePreKeysRequest {
+  string userId   = 1;
+  string deviceId = 2;
+}
+
+message CountOneTimePreKeysResponse {
+  bool  success = 1;
+  int32 count   = 2;
 }
