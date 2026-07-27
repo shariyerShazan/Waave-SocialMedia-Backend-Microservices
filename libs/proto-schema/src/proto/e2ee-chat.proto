@@ -1,0 +1,366 @@
+syntax = "proto3";
+
+package e2ee_chat;
+
+service E2eeChatService {
+  // Conversations
+  rpc GetOrCreateDirectConversation(GetOrCreateDirectRequest) returns (ConversationResponse);
+  rpc CreateGroup(CreateGroupRequest) returns (ConversationResponse);
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse);
+  rpc GetConversation(GetConversationRequest) returns (ConversationResponse);
+
+  // Members
+  rpc AddGroupMember(AddGroupMemberRequest) returns (OperationResponse);
+  rpc RemoveGroupMember(RemoveGroupMemberRequest) returns (OperationResponse);
+  rpc LeaveGroup(LeaveGroupRequest) returns (OperationResponse);
+  rpc UpdateMemberRole(UpdateMemberRoleRequest) returns (OperationResponse);
+  rpc MuteConversation(MuteConversationRequest) returns (OperationResponse);
+  rpc ArchiveConversation(ArchiveConversationRequest) returns (OperationResponse);
+  rpc PinConversation(PinConversationRequest) returns (OperationResponse);
+
+  // Messages (ciphertext only)
+  rpc SendEncryptedMessage(SendEncryptedMessageRequest) returns (EncryptedMessageResponse);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc GetPendingEnvelopes(GetPendingEnvelopesRequest) returns (GetPendingEnvelopesResponse);
+  rpc EditEncryptedMessage(EditEncryptedMessageRequest) returns (EncryptedMessageResponse);
+  rpc DeleteMessage(DeleteMessageRequest) returns (OperationResponse);
+  rpc ForwardMessage(ForwardMessageRequest) returns (EncryptedMessageResponse);
+
+  // Receipts
+  rpc MarkReceipt(MarkReceiptRequest) returns (OperationResponse);
+  rpc MarkConversationRead(MarkConversationReadRequest) returns (OperationResponse);
+
+  // Reactions / Pins
+  rpc ReactToMessage(ReactToMessageRequest) returns (OperationResponse);
+  rpc PinMessage(PinMessageRequest) returns (OperationResponse);
+
+  // Group sender keys
+  rpc UploadSenderKeyDistributions(UploadSenderKeyRequest) returns (OperationResponse);
+  rpc GetSenderKeyDistributions(GetSenderKeyRequest) returns (GetSenderKeyResponse);
+
+  // Presence helpers (conversation-scoped)
+  rpc GetUnreadCounts(GetUnreadCountsRequest) returns (GetUnreadCountsResponse);
+}
+
+message OperationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message CipherPayload {
+  string ciphertext = 1;
+  string iv = 2;
+  string authTag = 3;
+  optional string ratchetHeader = 4;
+  optional string ephemeralKey = 5;
+  optional int32 oneTimePreKeyId = 6;
+  optional int32 signedPreKeyId = 7;
+}
+
+message MessageEnvelope {
+  string recipientUserId = 1;
+  string recipientDeviceId = 2;
+  CipherPayload payload = 3;
+}
+
+message EncryptedAttachment {
+  string mediaId = 1;
+  string encryptedKey = 2;
+  optional string mimeType = 3;
+  optional int64 sizeBytes = 4;
+  optional string fileName = 5;
+}
+
+message ConversationMember {
+  string userId = 1;
+  string role = 2;
+  bool muted = 3;
+  optional string mutedUntil = 4;
+  bool archived = 5;
+  bool pinned = 6;
+  int32 unreadCount = 7;
+  optional string leftAt = 8;
+  string joinedAt = 9;
+}
+
+message Conversation {
+  string id = 1;
+  string type = 2;
+  optional string name = 3;
+  optional string avatar = 4;
+  string createdBy = 5;
+  bool isDeleted = 6;
+  optional string lastMessageId = 7;
+  optional int64 lastMessageAt = 8;
+  string lastSenderId = 9;
+  repeated ConversationMember members = 10;
+  string createdAt = 11;
+  string updatedAt = 12;
+}
+
+message ConversationResponse {
+  bool success = 1;
+  string message = 2;
+  Conversation conversation = 3;
+}
+
+message ConversationItem {
+  string id = 1;
+  string type = 2;
+  optional string name = 3;
+  optional string avatar = 4;
+  repeated string participantIds = 5;
+  optional string lastMessageId = 6;
+  optional int64 lastMessageAt = 7;
+  string lastSenderId = 8;
+  int32 unreadCount = 9;
+  bool muted = 10;
+  bool archived = 11;
+  bool pinned = 12;
+  bool isOnline = 13;
+}
+
+message GetOrCreateDirectRequest {
+  string userId = 1;
+  string targetUserId = 2;
+}
+
+message CreateGroupRequest {
+  string name = 1;
+  string creatorId = 2;
+  repeated string participantIds = 3;
+  optional string avatar = 4;
+}
+
+message GetConversationsRequest {
+  string userId = 1;
+  int32 page = 2;
+  int32 limit = 3;
+  optional bool archived = 4;
+}
+
+message GetConversationsResponse {
+  bool success = 1;
+  repeated ConversationItem conversations = 2;
+  int32 total = 3;
+  int32 page = 4;
+}
+
+message GetConversationRequest {
+  string conversationId = 1;
+  string userId = 2;
+}
+
+message AddGroupMemberRequest {
+  string conversationId = 1;
+  string adminId = 2;
+  string userId = 3;
+  optional string role = 4;
+}
+
+message RemoveGroupMemberRequest {
+  string conversationId = 1;
+  string adminId = 2;
+  string userId = 3;
+}
+
+message LeaveGroupRequest {
+  string conversationId = 1;
+  string userId = 2;
+}
+
+message UpdateMemberRoleRequest {
+  string conversationId = 1;
+  string adminId = 2;
+  string userId = 3;
+  string role = 4;
+}
+
+message MuteConversationRequest {
+  string conversationId = 1;
+  string userId = 2;
+  bool muted = 3;
+  optional string mutedUntil = 4;
+}
+
+message ArchiveConversationRequest {
+  string conversationId = 1;
+  string userId = 2;
+  bool archived = 3;
+}
+
+message PinConversationRequest {
+  string conversationId = 1;
+  string userId = 2;
+  bool pinned = 3;
+}
+
+message SendEncryptedMessageRequest {
+  string conversationId = 1;
+  string senderId = 2;
+  string senderDeviceId = 3;
+  string type = 4;
+  repeated MessageEnvelope envelopes = 5;
+  repeated EncryptedAttachment attachments = 6;
+  optional string replyToMessageId = 7;
+  optional string forwardedFromMessageId = 8;
+  optional string clientMessageId = 9;
+}
+
+message EnvelopeRecord {
+  string id = 1;
+  string messageId = 2;
+  string recipientUserId = 3;
+  string recipientDeviceId = 4;
+  CipherPayload payload = 5;
+  bool delivered = 6;
+  optional int64 deliveredAt = 7;
+  string createdAt = 8;
+}
+
+message EncryptedMessage {
+  string id = 1;
+  string conversationId = 2;
+  string senderId = 3;
+  string senderDeviceId = 4;
+  string type = 5;
+  optional string replyToMessageId = 6;
+  optional string forwardedFromMessageId = 7;
+  optional string clientMessageId = 8;
+  bool isDeleted = 9;
+  bool isEdited = 10;
+  optional int64 editedAt = 11;
+  repeated EncryptedAttachment attachments = 12;
+  repeated EnvelopeRecord envelopes = 13;
+  string createdAt = 14;
+  string updatedAt = 15;
+}
+
+message EncryptedMessageResponse {
+  bool success = 1;
+  string message = 2;
+  EncryptedMessage encryptedMessage = 3;
+}
+
+message GetMessagesRequest {
+  string conversationId = 1;
+  string userId = 2;
+  string deviceId = 3;
+  int32 page = 4;
+  int32 limit = 5;
+  optional string beforeMessageId = 6;
+  optional string afterMessageId = 7;
+}
+
+message GetMessagesResponse {
+  bool success = 1;
+  repeated EncryptedMessage messages = 2;
+  int32 total = 3;
+  int32 page = 4;
+  bool hasMore = 5;
+}
+
+message GetPendingEnvelopesRequest {
+  string userId = 1;
+  string deviceId = 2;
+  int32 limit = 3;
+}
+
+message GetPendingEnvelopesResponse {
+  bool success = 1;
+  repeated EnvelopeRecord envelopes = 2;
+}
+
+message EditEncryptedMessageRequest {
+  string messageId = 1;
+  string senderId = 2;
+  string senderDeviceId = 3;
+  repeated MessageEnvelope envelopes = 4;
+}
+
+message DeleteMessageRequest {
+  string messageId = 1;
+  string userId = 2;
+  bool forEveryone = 3;
+}
+
+message ForwardMessageRequest {
+  string sourceMessageId = 1;
+  string targetConversationId = 2;
+  string senderId = 3;
+  string senderDeviceId = 4;
+  repeated MessageEnvelope envelopes = 5;
+  repeated EncryptedAttachment attachments = 6;
+}
+
+message MarkReceiptRequest {
+  string messageId = 1;
+  string userId = 2;
+  string deviceId = 3;
+  string status = 4;
+}
+
+message MarkConversationReadRequest {
+  string conversationId = 1;
+  string userId = 2;
+  string deviceId = 3;
+  optional string upToMessageId = 4;
+}
+
+message ReactToMessageRequest {
+  string messageId = 1;
+  string userId = 2;
+  string deviceId = 3;
+  string emoji = 4;
+}
+
+message PinMessageRequest {
+  string conversationId = 1;
+  string messageId = 2;
+  string userId = 3;
+  bool pinned = 4;
+}
+
+message UploadSenderKeyRequest {
+  string conversationId = 1;
+  string senderId = 2;
+  string senderDeviceId = 3;
+  repeated MessageEnvelope distributions = 4;
+}
+
+message SenderKeyDistribution {
+  string id = 1;
+  string conversationId = 2;
+  string senderUserId = 3;
+  string senderDeviceId = 4;
+  string recipientUserId = 5;
+  string recipientDeviceId = 6;
+  CipherPayload payload = 7;
+  string createdAt = 8;
+}
+
+message GetSenderKeyRequest {
+  string conversationId = 1;
+  string userId = 2;
+  string deviceId = 3;
+}
+
+message GetSenderKeyResponse {
+  bool success = 1;
+  repeated SenderKeyDistribution distributions = 2;
+}
+
+message GetUnreadCountsRequest {
+  string userId = 1;
+}
+
+message UnreadCountItem {
+  string conversationId = 1;
+  int32 count = 2;
+}
+
+message GetUnreadCountsResponse {
+  bool success = 1;
+  repeated UnreadCountItem items = 2;
+  int32 totalUnread = 3;
+}

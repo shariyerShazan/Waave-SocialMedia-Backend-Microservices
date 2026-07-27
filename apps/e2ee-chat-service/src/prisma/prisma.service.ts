@@ -23,12 +23,12 @@ export class E2eeChatPrismaService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     await Promise.all([this.writeDb.$connect(), this.readDb.$connect()]);
 
-    console.log('Auth Prisma connected');
+    console.log('E2EE Chat Prisma connected');
   }
 
   async onModuleDestroy() {
     await Promise.all([this.writeDb.$disconnect(), this.readDb.$disconnect()]);
 
-    console.log('Auth Prisma disconnected');
+    console.log('E2EE Chat Prisma disconnected');
   }
 }

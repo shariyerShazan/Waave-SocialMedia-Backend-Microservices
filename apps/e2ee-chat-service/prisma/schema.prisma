@@ -1,33 +1,226 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
   output   = "../../../node_modules/@prisma/e2ee-chat-client"
 }
 
-
 datasource db {
   provider = "postgresql"
 }
 
-
-model Conversation {
-  id        String   @id @default(uuid())
-  type      ChatType @default(DIRECT)
-  name      String?
-  avatar    String?
-  createdBy String
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([createdBy])
-  @@map("conversations")
-}
 enum ChatType {
   DIRECT
-  GROUP 
+  GROUP
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+  GIF
+  LOCATION
+  CONTACT
+  SYSTEM
+  SENDER_KEY_DISTRIBUTION
+}
+
+enum ReceiptStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
+model Conversation {
+  id             String    @id @default(uuid())
+  type           ChatType  @default(DIRECT)
+  name           String?
+  avatar         String?
+  createdBy      String
+  isDeleted      Boolean   @default(false)
+  lastMessageId  String?
+  lastMessageAt  DateTime?
+  lastSenderId   String?
+  directKey      String?   @unique
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  members              ConversationMember[]
+  messages             EncryptedMessage[]
+  pinnedMessages       PinnedMessage[]
+  senderKeyDistributions SenderKeyDistribution[]
+
+  @@index([createdBy])
+  @@index([type, lastMessageAt])
+  @@index([isDeleted, lastMessageAt])
+  @@map("conversations")
+}
+
+model ConversationMember {
+  id             String     @id @default(uuid())
+  conversationId String
+  userId         String
+  role           MemberRole @default(MEMBER)
+  muted          Boolean    @default(false)
+  mutedUntil     DateTime?
+  archived       Boolean    @default(false)
+  pinned         Boolean    @default(false)
+  unreadCount    Int        @default(0)
+  lastReadMessageId String?
+  leftAt         DateTime?
+  joinedAt       DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId, archived, pinned])
+  @@index([userId, leftAt])
+  @@index([conversationId, role])
+  @@map("conversation_members")
+}
+
+model EncryptedMessage {
+  id                     String      @id @default(uuid())
+  conversationId         String
+  senderId               String
+  senderDeviceId         String
+  type                   MessageType @default(TEXT)
+  replyToMessageId       String?
+  forwardedFromMessageId String?
+  clientMessageId        String?
+  isDeleted              Boolean     @default(false)
+  isEdited               Boolean     @default(false)
+  editedAt               DateTime?
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  envelopes    MessageEnvelope[]
+  attachments  EncryptedAttachment[]
+  receipts     MessageReceipt[]
+  reactions    MessageReaction[]
+  pins         PinnedMessage[]
+
+  @@unique([conversationId, clientMessageId])
+  @@index([conversationId, createdAt])
+  @@index([senderId, createdAt])
+  @@index([conversationId, isDeleted, createdAt])
+  @@map("encrypted_messages")
+}
+
+model MessageEnvelope {
+  id                String   @id @default(uuid())
+  messageId         String
+  recipientUserId   String
+  recipientDeviceId String
+  ciphertext        String
+  iv                String
+  authTag           String
+  ratchetHeader     String?
+  ephemeralKey      String?
+  oneTimePreKeyId   Int?
+  signedPreKeyId    Int?
+  delivered         Boolean  @default(false)
+  deliveredAt       DateTime?
+  createdAt         DateTime @default(now())
+
+  message EncryptedMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, recipientUserId, recipientDeviceId])
+  @@index([recipientUserId, recipientDeviceId, delivered, createdAt])
+  @@index([messageId])
+  @@map("message_envelopes")
+}
+
+model EncryptedAttachment {
+  id           String  @id @default(uuid())
+  messageId    String
+  mediaId      String
+  encryptedKey String
+  mimeType     String?
+  sizeBytes    BigInt?
+  fileName     String?
+
+  message EncryptedMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@index([mediaId])
+  @@map("encrypted_attachments")
+}
+
+model MessageReceipt {
+  id        String        @id @default(uuid())
+  messageId String
+  userId    String
+  deviceId  String
+  status    ReceiptStatus @default(SENT)
+  updatedAt DateTime      @updatedAt
+  createdAt DateTime      @default(now())
+
+  message EncryptedMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, deviceId])
+  @@index([messageId, status])
+  @@index([userId, deviceId, status])
+  @@map("message_receipts")
+}
+
+model MessageReaction {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  deviceId  String
+  emoji     String
+  createdAt DateTime @default(now())
+
+  message EncryptedMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+  @@map("message_reactions")
+}
+
+model PinnedMessage {
+  id             String   @id @default(uuid())
+  conversationId String
+  messageId      String
+  pinnedBy       String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  message     EncryptedMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, messageId])
+  @@index([conversationId])
+  @@map("pinned_messages")
+}
+
+model SenderKeyDistribution {
+  id                String   @id @default(uuid())
+  conversationId     String
+  senderUserId      String
+  senderDeviceId    String
+  recipientUserId   String
+  recipientDeviceId String
+  ciphertext        String
+  iv                String
+  authTag           String
+  ratchetHeader     String?
+  createdAt         DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, senderUserId, senderDeviceId, recipientUserId, recipientDeviceId])
+  @@index([conversationId, recipientUserId, recipientDeviceId])
+  @@map("sender_key_distributions")
 }
