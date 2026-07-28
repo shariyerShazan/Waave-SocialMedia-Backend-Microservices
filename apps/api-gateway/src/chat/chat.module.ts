@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ChatController } from './chat.controller';
-import { ChatClient } from './chat.client';
 import { RateLimiterService } from '../rateLimit/rateLimit.service';
+import { ChatGrpcClient } from '@app/clients/clients/chat-grpc.client';
 
 @Module({
   controllers: [ChatController],
-  providers: [ChatClient, RateLimiterService],
+  providers: [ChatGrpcClient, RateLimiterService],
+  imports: [ChatGrpcClient],
 })
 export class ChatModule {}

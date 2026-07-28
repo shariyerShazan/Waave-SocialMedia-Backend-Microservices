@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { FeedClient } from './feed.clinet';
 import { FeedController } from './feed.controller';
 import { RateLimiterService } from '../rateLimit/rateLimit.service';
+import { FeedGrpcClient } from '@app/clients/clients/feed-grpc.client';
 
 @Module({
-  providers: [FeedClient, RateLimiterService],
-  exports: [FeedClient],
+  providers: [FeedGrpcClient, RateLimiterService],
   controllers: [FeedController],
+  imports: [FeedGrpcClient],
 })
 export class FeedModule {}

@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MediaClient } from './media.client';
 import { MediaController } from './media.controller';
 import { RateLimiterService } from '../rateLimit/rateLimit.service';
-
+import { MediaGrpcClient } from '@app/clients';
 @Module({
-  providers: [MediaClient, RateLimiterService],
-  exports: [MediaClient],
+  providers: [MediaGrpcClient, RateLimiterService],
+  imports: [MediaGrpcClient],
   controllers: [MediaController],
 })
 export class MediaModule {}

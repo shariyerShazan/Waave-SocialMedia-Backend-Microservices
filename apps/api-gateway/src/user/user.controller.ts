@@ -13,8 +13,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard, UpdateProfileDto } from '@app/common';
-
-import { UserClient } from './user.client';
 import * as Express from 'express';
 import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
 import {
@@ -27,11 +25,12 @@ import {
   RotateSignedPreKeyDto,
   UploadKeysDto,
 } from '@app/common/dto/e2ee/e2ee-keys.dto';
+import { UserGrpcClient } from '@app/clients';
 
 @ApiTags('Users')
 @Controller('users')
 export class UserController {
-  constructor(private readonly userClient: UserClient) {}
+  constructor(private readonly userClient: UserGrpcClient) {}
 
   @Get('profile/:userId')
   @UseGuards(AuthGuard, RateLimitGuard)

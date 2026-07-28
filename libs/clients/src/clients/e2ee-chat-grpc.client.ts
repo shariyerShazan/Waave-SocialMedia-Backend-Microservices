@@ -39,7 +39,7 @@ import {
 } from '@app/proto-schema/protos-types/e2ee-chat';
 
 @Injectable()
-export class E2eeChatClient implements OnModuleInit {
+export class E2eeChatGrpcClient implements OnModuleInit {
   @Client({
     transport: Transport.GRPC,
     options: {

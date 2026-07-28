@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
+import {
+  CHAT_SERVICE_NAME,
+  ChatServiceClient,
+} from '@app/proto-schema/protos-types/chat';
 import {
   HttpException,
   HttpStatus,
@@ -7,15 +12,11 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Client, type ClientGrpc, Transport } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
 import { join } from 'path';
-import {
-  CHAT_SERVICE_NAME,
-  ChatServiceClient,
-} from '@app/proto-schema/protos-types/chat';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class ChatClient implements OnModuleInit {
+export class ChatGrpcClient implements OnModuleInit {
   @Client({
     transport: Transport.GRPC,
     options: {
@@ -97,7 +98,7 @@ export class ChatClient implements OnModuleInit {
   async sendMessage(data: {
     conversationId: string;
     senderId: string;
-    senderName: string;
+    senderName?: string;
     senderAvatar?: string;
     text: string;
     mediaIds?: string[];
@@ -109,7 +110,7 @@ export class ChatClient implements OnModuleInit {
         this.chatService.sendMessage({
           conversationId: data.conversationId,
           senderId: data.senderId,
-          senderName: data.senderName,
+          senderName: data.senderName ?? '',
           senderAvatar: data.senderAvatar ?? '',
           text: data.text,
           mediaIds: data.mediaIds ?? [],
@@ -125,8 +126,8 @@ export class ChatClient implements OnModuleInit {
   async getMessages(
     conversationId: string,
     userId: string,
-    page: number,
-    limit: number,
+    page = 1,
+    limit = 50,
   ) {
     try {
       return await firstValueFrom(
@@ -182,7 +183,7 @@ export class ChatClient implements OnModuleInit {
     }
   }
 
-  async getConversations(userId: string, page: number, limit: number) {
+  async getConversations(userId: string, page = 1, limit = 20) {
     try {
       return await firstValueFrom(
         this.chatService.getConversations({

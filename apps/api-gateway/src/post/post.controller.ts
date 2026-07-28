@@ -18,13 +18,13 @@ import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
-import { PostClient } from './post.clinet';
 import { CreatePostDto } from '@app/common/dto/post/create-post.dto';
 import { UpdatePostDto } from '@app/common/dto/post/update-post.dto';
 import { SharePostDto } from '@app/common/dto/post/share-post.dto';
 import { AddCommentDto } from '@app/common/dto/post/add-comment.dto';
 import { GetPostsByIdsDto } from '@app/common/dto/post/get-posts-by-ids.dto';
 import { PostPrivacy } from '@app/proto-schema/protos-types/post';
+import { PostGrpcClient } from '@app/clients';
 
 const privacyMap = {
   PUBLIC: PostPrivacy.PUBLIC,
@@ -35,7 +35,7 @@ const privacyMap = {
 @ApiTags('Posts')
 @Controller('posts')
 export class PostController {
-  constructor(private readonly postClient: PostClient) {}
+  constructor(private readonly postClient: PostGrpcClient) {}
 
   @Post()
   @UseGuards(AuthGuard, RateLimitGuard)

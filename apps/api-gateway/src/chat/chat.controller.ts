@@ -22,10 +22,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import * as Express from 'express';
-
 import { AuthGuard } from '@app/common';
-
-import { ChatClient } from './chat.client';
 import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
 import {
   RateLimit,
@@ -39,13 +36,14 @@ import {
   SendMessageDto,
   ReactMessageDto,
 } from '@app/common';
+import { ChatGrpcClient } from '@app/clients/clients/chat-grpc.client';
 
 @ApiTags('Chat')
 @ApiBearerAuth()
 @Controller('chat')
 @UseGuards(AuthGuard, RateLimitGuard)
 export class ChatController {
-  constructor(private readonly chatClient: ChatClient) {}
+  constructor(private readonly chatClient: ChatGrpcClient) {}
 
   @Get('conversations')
   @ApiOperation({

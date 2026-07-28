@@ -16,7 +16,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthClient } from './auth.clinet';
 import {
   AuthGuard,
   ChangePasswordDto,
@@ -33,11 +32,12 @@ import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
+import { AuthGrpcClient } from '@app/clients/clients/auth-grpc.client';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authClient: AuthClient) {}
+  constructor(private readonly authClient: AuthGrpcClient) {}
 
   @Post('register')
   @UseGuards(RateLimitGuard)

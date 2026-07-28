@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 import type { NotificationGrpcServiceClient } from '@app/proto-schema/protos-types/notification';
 
 @Injectable()
-export class NotificationClient implements OnModuleInit {
+export class NotificationGrpcClient implements OnModuleInit {
   @Client({
     transport: Transport.GRPC,
     options: {

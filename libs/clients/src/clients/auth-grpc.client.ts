@@ -13,12 +13,12 @@ import { Client, Transport } from '@nestjs/microservices';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { join } from 'path';
 import { firstValueFrom } from 'rxjs';
-import { UserClient } from '../user/user.client';
 import { AuthServiceClient } from '@app/proto-schema/protos-types/auth';
+import { UserGrpcClient } from './user-grpc.client';
 
 @Injectable()
-export class AuthClient implements OnModuleInit {
-  constructor(private readonly userClient: UserClient) {}
+export class AuthGrpcClient implements OnModuleInit {
+  constructor(private readonly userClient: UserGrpcClient) {}
 
   @Client({
     transport: Transport.GRPC,

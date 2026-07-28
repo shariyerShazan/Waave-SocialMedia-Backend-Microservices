@@ -18,22 +18,19 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-
 import * as Express from 'express';
-
 import { AuthGuard } from '@app/common';
-
-import { NotificationClient } from './notification.client';
 import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
 import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
+import { NotificationGrpcClient } from '@app/clients/clients/notification-grpc.client';
 
 @ApiTags('Notifications')
 @Controller('notifications')
 export class NotificationController {
-  constructor(private readonly notificationClient: NotificationClient) {}
+  constructor(private readonly notificationClient: NotificationGrpcClient) {}
 
   @Get()
   @UseGuards(AuthGuard, RateLimitGuard)

@@ -44,19 +44,19 @@ import {
   UploadSenderKeyDto,
 } from '@app/common';
 
-import { E2eeChatClient } from './e2ee-chat.client';
 import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
 import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
+import { E2eeChatGrpcClient } from '@app/clients/clients/e2ee-chat-grpc.client';
 
 @ApiTags('E2EE Chat')
 @ApiBearerAuth()
 @Controller('e2ee/chat')
 @UseGuards(AuthGuard, RateLimitGuard)
 export class E2eeChatController {
-  constructor(private readonly e2eeChatClient: E2eeChatClient) {}
+  constructor(private readonly e2eeChatClient: E2eeChatGrpcClient) {}
 
   private resolveDeviceId(
     req: Express.Request,

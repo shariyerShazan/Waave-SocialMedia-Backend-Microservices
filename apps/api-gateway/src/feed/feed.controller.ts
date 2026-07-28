@@ -6,19 +6,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import * as Express from 'express';
-
 import { AuthGuard } from '@app/common';
 import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
 import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
-import { FeedClient } from './feed.clinet';
+import { FeedGrpcClient } from '@app/clients/clients/feed-grpc.client';
 
 @ApiTags('Feed')
 @Controller('feed')
 export class FeedController {
-  constructor(private readonly feedClient: FeedClient) {}
+  constructor(private readonly feedClient: FeedGrpcClient) {}
 
   @Get()
   @UseGuards(AuthGuard, RateLimitGuard)

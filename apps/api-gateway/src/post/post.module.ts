@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { MediaModule } from '../media/media.module';
-import { PostClient } from './post.clinet';
 import { PostController } from './post.controller';
 import { RateLimiterService } from '../rateLimit/rateLimit.service';
+import { PostGrpcClient } from '@app/clients';
 
 @Module({
-  imports: [MediaModule],
   controllers: [PostController],
-  providers: [PostClient, RateLimiterService],
-  exports: [PostClient],
+  providers: [PostGrpcClient, RateLimiterService],
+  imports: [PostGrpcClient],
 })
 export class PostModule {}

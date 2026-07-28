@@ -18,17 +18,17 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@app/common';
 import * as Express from 'express';
-import { MediaClient } from './media.client';
 import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
 import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
+import { MediaGrpcClient } from '@app/clients';
 
 @ApiTags('Media')
 @Controller('media')
 export class MediaController {
-  constructor(private readonly mediaClient: MediaClient) {}
+  constructor(private readonly mediaClient: MediaGrpcClient) {}
 
   @Post('upload/image')
   @UseGuards(AuthGuard, RateLimitGuard)
