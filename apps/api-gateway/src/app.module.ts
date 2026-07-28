@@ -9,6 +9,7 @@ import { NotificationModule } from './notification/notification.module';
 import { PostModule } from './post/post.module';
 import { FeedModule } from './feed/feed.module';
 import { ChatModule } from './chat/chat.module';
+import { E2eeChatModule } from './e2ee-chat/e2ee-chat.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ChatModule } from './chat/chat.module';
     PostModule,
     FeedModule,
     ChatModule,
+    E2eeChatModule,
   ],
 })
 export class GatewayAppModule {}
