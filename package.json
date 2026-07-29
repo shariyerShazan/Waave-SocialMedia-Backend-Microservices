@@ -20,6 +20,8 @@
     "start:notification": "node dist/apps/notification/main",
     "start:media": "node dist/apps/media-service/main",
     "start:chat": "node dist/apps/chat-service/main",
+    "start:e2ee-chat": "node dist/apps/e2ee-chat-service/main",
+    "start:mcp": "node dist/apps/mcp-service/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -43,6 +45,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.14.4",
     "@grpc/proto-loader": "^0.8.1",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
@@ -64,6 +67,7 @@
     "kafkajs": "^2.2.4",
     "mongoose": "^9.7.3",
     "nodemailer": "^9.0.0",
+    "openai": "^7.0.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
@@ -127,7 +131,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/clients(|/.*)$": "<rootDir>/libs/clients/src/$1",
+      "^@app/grpc-clients(|/.*)$": "<rootDir>/libs/grpc-clients/src/$1",
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/kafka(|/.*)$": "<rootDir>/libs/kafka/src/$1",
       "^@app/proto-schema(|/.*)$": "<rootDir>/libs/proto-schema/src/$1"

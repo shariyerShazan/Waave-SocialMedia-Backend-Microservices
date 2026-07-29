@@ -23,7 +23,7 @@ import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
-import { MediaGrpcClient } from '@app/clients';
+import { MediaGrpcClient } from 'libs/grpc-clients/src';
 
 @ApiTags('Media')
 @Controller('media')

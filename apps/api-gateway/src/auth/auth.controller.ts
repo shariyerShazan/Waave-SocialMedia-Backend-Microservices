@@ -32,7 +32,7 @@ import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
-import { AuthGrpcClient } from '@app/clients/clients/auth-grpc.client';
+import { AuthGrpcClient } from 'libs/grpc-clients/src';
 
 @ApiTags('Authentication')
 @Controller('auth')

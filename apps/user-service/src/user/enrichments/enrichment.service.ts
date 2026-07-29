@@ -2,16 +2,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { MediaGrpcClient } from '@app/clients';
+import { MediaGrpcClient } from 'libs/grpc-clients/src';
 import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class UserEnrichmentService {
   private readonly logger = new Logger(UserEnrichmentService.name);
 
-  constructor(
-    private readonly mediaClient: MediaGrpcClient,
-  ) {}
+  constructor(private readonly mediaClient: MediaGrpcClient) {}
 
   async enrichProfilesWithMedia<T extends Record<string, any>>(
     profiles: T[],
@@ -36,8 +34,12 @@ export class UserEnrichmentService {
       }
 
       return profiles.map((profile) => {
-        const avatarMedia = profile.avatarMediaId ? mediaMap.get(profile.avatarMediaId) : null;
-        const coverMedia = profile.coverMediaId ? mediaMap.get(profile.coverMediaId) : null;
+        const avatarMedia = profile.avatarMediaId
+          ? mediaMap.get(profile.avatarMediaId)
+          : null;
+        const coverMedia = profile.coverMediaId
+          ? mediaMap.get(profile.coverMediaId)
+          : null;
 
         const avatar = avatarMedia
           ? {

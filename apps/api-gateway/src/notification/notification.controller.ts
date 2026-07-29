@@ -25,7 +25,7 @@ import {
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
 import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
-import { NotificationGrpcClient } from '@app/clients/clients/notification-grpc.client';
+import { NotificationGrpcClient } from 'libs/grpc-clients/src';
 
 @ApiTags('Notifications')
 @Controller('notifications')

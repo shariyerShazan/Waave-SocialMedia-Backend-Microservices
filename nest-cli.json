@@ -38,13 +38,13 @@
         "tsConfigPath": "apps/chat-service/tsconfig.app.json"
       }
     },
-    "clients": {
+    "grpc-clients": {
       "type": "library",
-      "root": "libs/clients",
+      "root": "libs/grpc-clients",
       "entryFile": "index",
-      "sourceRoot": "libs/clients/src",
+      "sourceRoot": "libs/grpc-clients/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/clients/tsconfig.lib.json"
+        "tsConfigPath": "libs/grpc-clients/tsconfig.lib.json"
       }
     },
     "common": {
@@ -81,6 +81,15 @@
       "sourceRoot": "libs/kafka/src",
       "compilerOptions": {
         "tsConfigPath": "libs/kafka/tsconfig.lib.json"
+      }
+    },
+    "mcp-service": {
+      "type": "application",
+      "root": "apps/mcp-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/mcp-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/mcp-service/tsconfig.app.json"
       }
     },
     "media-service": {

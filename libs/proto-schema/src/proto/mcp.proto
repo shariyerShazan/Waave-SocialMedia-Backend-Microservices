@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package mcp;
+
+service AgentService {
+  rpc Ask (AskRequest) returns (AskResponse);
+}
+
+message AskRequest {
+  string userId = 1;
+  string prompt = 2;
+}
+
+message ToolTraceItem {
+  string toolName = 1;
+  string rawArgs  = 2;
+  string result   = 3;
+}
+
+message AskResponse {
+  bool   success = 1;
+  string message = 2;
+  string answer  = 3;
+  repeated ToolTraceItem trace = 4;
+}

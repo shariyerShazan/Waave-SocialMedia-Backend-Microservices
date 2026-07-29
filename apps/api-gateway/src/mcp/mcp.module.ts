@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { NotificationController } from './notification.controller';
+import { McpController } from './mcp.controller';
 import { RateLimiterService } from '../rateLimit/rateLimit.service';
 import { GrpcClientsModule } from '@app/clients';
 
 @Module({
-  controllers: [NotificationController],
-  providers: [RateLimiterService],
   imports: [GrpcClientsModule],
+  controllers: [McpController],
+  providers: [RateLimiterService],
 })
-export class NotificationModule {}
+export class McpGatewayModule {}

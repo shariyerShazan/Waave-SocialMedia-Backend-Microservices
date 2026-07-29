@@ -49,7 +49,7 @@ import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
-import { E2eeChatGrpcClient } from '@app/clients/clients/e2ee-chat-grpc.client';
+import { E2eeChatGrpcClient } from 'libs/grpc-clients/src';
 
 @ApiTags('E2EE Chat')
 @ApiBearerAuth()

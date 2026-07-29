@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { RateLimiterService } from '../rateLimit/rateLimit.service';
 import { RateLimitGuard } from '../rateLimit/guard/rate-limit.guard';
-import { AuthGrpcClient } from '@app/clients/clients/auth-grpc.client';
+import { GrpcClientsModule } from '@app/clients';
 
 @Module({
-  imports: [AuthGrpcClient],
+  imports: [GrpcClientsModule],
   controllers: [AuthController],
-  providers: [AuthGrpcClient, RateLimiterService, RateLimitGuard],
+  providers: [RateLimiterService, RateLimitGuard],
 })
 export class AuthModule {}

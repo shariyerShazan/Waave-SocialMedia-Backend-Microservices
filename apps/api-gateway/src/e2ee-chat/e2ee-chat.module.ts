@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { E2eeChatController } from './e2ee-chat.controller';
 import { RateLimiterService } from '../rateLimit/rateLimit.service';
-import { E2eeChatGrpcClient } from '@app/clients/clients/e2ee-chat-grpc.client';
+import { GrpcClientsModule } from '@app/clients';
 
 @Module({
-  imports: [E2eeChatGrpcClient],
+  imports: [GrpcClientsModule],
   controllers: [E2eeChatController],
-  providers: [E2eeChatGrpcClient, RateLimiterService],
+  providers: [RateLimiterService],
 })
 export class E2eeChatModule {}

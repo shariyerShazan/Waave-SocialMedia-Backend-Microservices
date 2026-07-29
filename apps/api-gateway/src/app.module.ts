@@ -10,10 +10,10 @@ import { PostModule } from './post/post.module';
 import { FeedModule } from './feed/feed.module';
 import { ChatModule } from './chat/chat.module';
 import { E2eeChatModule } from './e2ee-chat/e2ee-chat.module';
+import { McpGatewayModule } from './mcp/mcp.module';
 
 @Module({
   imports: [
-    AuthModule,
     JwtModule.registerAsync({
       global: true,
       useFactory: () => ({
@@ -21,6 +21,7 @@ import { E2eeChatModule } from './e2ee-chat/e2ee-chat.module';
       }),
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
     UserModule,
     RateLimiterModule,
     MediaModule,
@@ -29,6 +30,7 @@ import { E2eeChatModule } from './e2ee-chat/e2ee-chat.module';
     FeedModule,
     ChatModule,
     E2eeChatModule,
+    McpGatewayModule,
   ],
 })
 export class GatewayAppModule {}

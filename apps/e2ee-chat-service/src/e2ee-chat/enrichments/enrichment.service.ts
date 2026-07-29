@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { MediaGrpcClient, UserGrpcClient } from '@app/clients';
+import { MediaGrpcClient, UserGrpcClient } from 'libs/grpc-clients/src';
 import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()

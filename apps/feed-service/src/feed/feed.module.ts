@@ -4,11 +4,11 @@ import { FeedService } from './feed.service';
 import { FeedEnrichmentService } from './enrichments/enrichment.service';
 import { FeedConsumer } from './consumers/feed.consumer';
 import { FeedGrpcController } from './feed.grpc.controller';
-import { ClientsModule } from '@app/clients';
 import { FeedRedisService } from '../redis/redis.service';
+import { GrpcClientsModule } from '@app/clients';
 
 @Module({
-  imports: [ClientsModule],
+  imports: [GrpcClientsModule],
   providers: [FeedService, FeedEnrichmentService, FeedRedisService],
   controllers: [FeedGrpcController, FeedConsumer],
 })

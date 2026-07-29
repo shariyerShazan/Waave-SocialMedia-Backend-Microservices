@@ -22,30 +22,14 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/clients": [
-        "libs/clients/src"
-      ],
-      "@app/clients/*": [
-        "libs/clients/src/*"
-      ],
-      "@app/common": [
-        "libs/common/src"
-      ],
-      "@app/common/*": [
-        "libs/common/src/*"
-      ],
-      "@app/kafka": [
-        "libs/kafka/src"
-      ],
-      "@app/kafka/*": [
-        "libs/kafka/src/*"
-      ],
-      "@app/proto-schema": [
-        "libs/proto-schema/src"
-      ],
-      "@app/proto-schema/*": [
-        "libs/proto-schema/src/*"
-      ]
+      "@app/clients": ["libs/grpc-clients/src"],
+      "@app/clients/*": ["libs/grpc-clients/src/*"],
+      "@app/common": ["libs/common/src"],
+      "@app/common/*": ["libs/common/src/*"],
+      "@app/kafka": ["libs/kafka/src"],
+      "@app/kafka/*": ["libs/kafka/src/*"],
+      "@app/proto-schema": ["libs/proto-schema/src"],
+      "@app/proto-schema/*": ["libs/proto-schema/src/*"]
     }
   }
 }

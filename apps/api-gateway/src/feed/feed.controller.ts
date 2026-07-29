@@ -12,7 +12,7 @@ import {
   RateLimit,
   RateLimitKeyType,
 } from '../rateLimit/decorator/rate-limit.decorator';
-import { FeedGrpcClient } from '@app/clients/clients/feed-grpc.client';
+import { FeedGrpcClient } from 'libs/grpc-clients/src';
 
 @ApiTags('Feed')
 @Controller('feed')

@@ -24,7 +24,7 @@ import { SharePostDto } from '@app/common/dto/post/share-post.dto';
 import { AddCommentDto } from '@app/common/dto/post/add-comment.dto';
 import { GetPostsByIdsDto } from '@app/common/dto/post/get-posts-by-ids.dto';
 import { PostPrivacy } from '@app/proto-schema/protos-types/post';
-import { PostGrpcClient } from '@app/clients';
+import { PostGrpcClient } from 'libs/grpc-clients/src';
 
 const privacyMap = {
   PUBLIC: PostPrivacy.PUBLIC,

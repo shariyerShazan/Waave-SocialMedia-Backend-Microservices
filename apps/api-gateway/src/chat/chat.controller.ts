@@ -36,7 +36,7 @@ import {
   SendMessageDto,
   ReactMessageDto,
 } from '@app/common';
-import { ChatGrpcClient } from '@app/clients/clients/chat-grpc.client';
+import { ChatGrpcClient } from 'libs/grpc-clients/src';
 
 @ApiTags('Chat')
 @ApiBearerAuth()

@@ -25,7 +25,7 @@ import {
   RotateSignedPreKeyDto,
   UploadKeysDto,
 } from '@app/common/dto/e2ee/e2ee-keys.dto';
-import { UserGrpcClient } from '@app/clients';
+import { UserGrpcClient } from 'libs/grpc-clients/src';
 
 @ApiTags('Users')
 @Controller('users')
