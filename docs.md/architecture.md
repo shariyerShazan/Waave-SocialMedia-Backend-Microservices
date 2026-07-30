@@ -12,8 +12,8 @@ This document describes the high-level architecture, communication patterns, inf
 ## High-level components
 
 - API Gateway: public REST surface, validation, auth, and routing.
-- Domain services: `auth-service`, `user-service`, `media-service`, `post-service`, `notification`.
-- Shared libs: `libs/common`, `libs/kafka`, `libs/proto-schema` (proto contracts).
+- Domain services: `auth-service`, `user-service`, `media-service`, `post-service`, `chat-service`, `e2ee-chat-service`, `notification`, `mcp-service`.
+- Shared libs: `libs/common`, `libs/grpc-clients` (mapped to `@app/clients`), `libs/kafka`, `libs/proto-schema` (proto contracts).
 - Infrastructure: PostgreSQL, MongoDB, Redis, Kafka.
 
 ## Communication patterns
@@ -30,9 +30,9 @@ When to use which pattern
 
 ## Data ownership and stores
 
-- Auth & User services: PostgreSQL (structured, relational data and transactions)
-- Media service: MongoDB (schema-flexible media metadata and asset references)
-- Redis: ephemeral state, rate limiting, presence, and caches
+- Auth, User, Post & E2EE Chat services: PostgreSQL (structured, relational data and transactions)
+- Media, Chat & Notification services: MongoDB (schema-flexible media/chat metadata and alert histories)
+- Redis: ephemeral state, rate limiting, online presence, unread alerts, and feed timelines
 
 Each service is the only component that writes to its primary store. Read-only access from other services should be done via gRPC or event-derived read models.
 
@@ -57,9 +57,13 @@ Each service is the only component that writes to its primary store. Read-only a
 | API Gateway          | 4000 |    - |
 | Auth Service         | 4001 | 3001 |
 | User Service         | 4002 | 3002 |
+| Post Service         | 4003 | 3003 |
+| Feed Service         | 4004 | 3004 |
+| Chat Service         | 4005 | 3005 |
+| E2EE Chat Service    | 4006 | 3006 |
 | Media Service        | 4009 | 3009 |
-| Post Service         | 4011 | 3011 |
-| Notification Service | 4010 |    - |
+| Notification Service | 4010 | 3010 |
+| MCP Service          | 4011 | 3011 |
 
 Adjust ports via environment variables per-service in production deployments.
 

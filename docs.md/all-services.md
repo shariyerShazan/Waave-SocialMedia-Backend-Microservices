@@ -12,7 +12,10 @@ Each service has a dedicated markdown guide. New services are added as the codeb
 - [Media Service](./media-service.md)
 - [Post Service](./post-service.md)
 - [Feed Service](./feed-service.md)
+- [Chat Service](./chat-service.md)
+- [E2EE Chat Service](./e2ee-chat-service.md)
 - [Notification Service](./notification.md)
+- [MCP Service](./mcp-service.md)
 
 ## Architecture at a glance
 
@@ -22,16 +25,18 @@ The system consists of several domain services and an orchestrating gateway. Pri
 - Auth Service — identity, token lifecycle, and verification flows
 - User Service — profiles, follow relationships, media enrichment, and presence
 - Media Service — media metadata, processing, and storage
-- Post Service — post creation, publishing, media/author enrichment, and scheduled tasks
+- Post Service — post creation, publishing, media/author enrichment, and comments
 - Feed Service — timeline aggregation, trending scoring, and cache invalidation
 - Chat Service — real-time messages, group chats, and socket management
+- E2EE Chat Service — end-to-end encrypted direct/group chats with Double Ratchet envelopes
 - Notification Service — outbound notifications (email, etc.) and in-app alerts repository
+- MCP Service — Model Context Protocol tool integrations and OpenAI-powered LLM agent
 
 Supporting infrastructure includes:
 
-- PostgreSQL for auth, profile, and post data
+- PostgreSQL for auth, user, post, and e2ee-chat data
 - MongoDB for media metadata, chat messages/conversations, and notifications
-- Redis for session, cache, and rate-limit state
+- Redis for session, cache, presence, and rate-limit state
 - Kafka for asynchronous event-driven workflows
 
 ## Service relationships
@@ -155,6 +160,31 @@ Outbound transactional email courier and in-app alerts repository.
 
 ---
 
+## 9. E2EE Chat Service
+
+End-to-end encrypted messaging service using client-ratcheted ciphertext envelopes.
+
+### Responsibilities
+
+- Creates secure direct and group chats
+- Resolves device-specific envelopes for multi-device delivery
+- Associates client-encrypted keys for file attachments
+- Updates read indicators and reaction schemas
+
+---
+
+## 10. MCP Service
+
+Integrates LLM models with platform endpoints via the Model Context Protocol (MCP) standard.
+
+### Responsibilities
+
+- Sets up SSE session transport endpoints
+- Maps database queries and service controls to standardized MCP tools
+- Orchestrates multi-service routines automatically via an LLM client Agent (`AgentService`)
+
+---
+
 ## Runtime ports
 
 | Service | HTTP | gRPC | Database |
@@ -162,8 +192,10 @@ Outbound transactional email courier and in-app alerts repository.
 | **API Gateway** | 4000 | - | None |
 | **Auth Service** | 4001 | 3001 | PostgreSQL |
 | **User Service** | 4002 | 3002 | PostgreSQL |
-| **Media Service** | 4009 | 3009 | MongoDB |
+| **Post Service** | 4003 | 3003 | PostgreSQL |
 | **Feed Service** | 4004 | 3004 | None (Redis Cache) |
-| **Post Service** | 4011 | 3011 | PostgreSQL |
 | **Chat Service** | 4005 | 3005 | MongoDB |
-| **Notification** | 4010 | 3007 | MongoDB |
+| **E2EE Chat Service** | 4006 | 3006 | PostgreSQL |
+| **Media Service** | 4009 | 3009 | MongoDB |
+| **Notification** | 4010 | 3010 | MongoDB |
+| **MCP Service** | 4011 | 3011 | None |

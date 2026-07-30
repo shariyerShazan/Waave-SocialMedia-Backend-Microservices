@@ -90,6 +90,34 @@ Key folders:
 - `src/prisma` – Prisma schema and database access
 - `src/scheduler` – scheduled job handlers
 
+### `apps/chat-service`
+
+This service manages real-time messaging, group chats, reactions, read status mapping, and Socket.io gateways.
+
+Key folders:
+
+- `src/chat` - WebSocket gateways and controllers
+- `src/schemas` - Mongoose database schemas in MongoDB
+
+### `apps/e2ee-chat-service`
+
+This service facilitates E2EE (End-to-End Encrypted) direct and group messaging, routing Double Ratchet envelopes and client cryptograms.
+
+Key folders:
+
+- `src/e2ee-chat` - Controllers, services, and Socket.io gateways
+- `prisma` - PostgreSQL schematics for message envelopes, receipts, reactions, and attachments
+
+### `apps/mcp-service`
+
+This service runs the Model Context Protocol (MCP) server exposing platform tooling, and drives the OpenAI-powered agent.
+
+Key folders:
+
+- `src/mcp` - SSE server transports and HTTP/gRPC interfaces
+- `src/tools` - Tool schemas mapping platform gRPC functions to Zod parameters
+- `src/mcp/agent` - Autonomous LLM driver invoking local MCP tools
+
 ## Shared libraries
 
 ### `libs/common`
@@ -97,6 +125,10 @@ Key folders:
 Contains reusable NestJS modules, DTOs, guards, filters, and shared types.
 
 This is the shared foundation for validation, exception handling, and cross-service contracts.
+
+### `libs/grpc-clients`
+
+Exposes unified gRPC client drivers (`UserGrpcClient`, `PostGrpcClient`, `MediaGrpcClient`, etc.) mapped to the `@app/clients` import path to prevent code duplication in calling components.
 
 ### `libs/kafka`
 
@@ -136,19 +168,23 @@ This layer is used by the media service to persist generated variants and origin
 
 The root `docker-compose.yaml` provisions the backing infrastructure:
 
-- PostgreSQL for auth and user data
-- MongoDB for media metadata
-- Redis instances for gateway, auth, user, and media services
-- Kafka and Kafka UI
+- PostgreSQL for auth, user, post, and e2ee-chat data
+- MongoDB for media metadata, chat logs, and notifications
+- Redis instances for gateway caching, presence registers, and session mappings
+- Kafka and Kafka UI for asynchronous events
 
 ## Why this structure works
 
 The project is organized so that each service owns its own domain responsibilities:
 
 - auth handles identity
-- user handles social profiles
+- user handles social profiles and follow relations
 - media handles assets
-- notification handles messaging
+- post handles timeline creation
+- feed aggregates posts
+- chat and e2ee-chat handle real-time and end-to-end encrypted messaging
+- mcp hosts AI capabilities
+- notification handles messaging and email delivery
 - the gateway coordinates the experience
 
 This separation makes the system easier to maintain, test, and extend as new features are introduced.
