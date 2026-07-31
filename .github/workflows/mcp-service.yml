@@ -1,0 +1,52 @@
+name: MCP Service CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - '.github/workflows/**'
+      - 'apps/mcp-service/**'
+      - 'libs/common/**'
+      - 'libs/kafka/**'
+      - 'libs/proto-schema/**'
+      - 'libs/clients/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - '.github/workflows/**'
+      - 'apps/mcp-service/**'
+      - 'libs/common/**'
+      - 'libs/kafka/**'
+      - 'libs/proto-schema/**'
+      - 'libs/clients/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+
+jobs:
+  mcp-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build MCP Service
+        run: npx nest build mcp-service
