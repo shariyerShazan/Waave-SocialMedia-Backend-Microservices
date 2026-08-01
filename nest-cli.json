@@ -5,7 +5,13 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+    "tsConfigPath": "apps/api-gateway/tsconfig.app.json",
+    "assets": [
+      {
+        "include": "libs/proto-schema/src/proto/**/*.proto",
+        "outDir": "dist/libs/proto-schema/src/proto"
+      }
+    ]
   },
   "monorepo": true,
   "root": "apps/api-gateway",
@@ -25,7 +31,6 @@
       "entryFile": "main",
       "sourceRoot": "apps/auth-service/src",
       "compilerOptions": {
-        "webpack": false,
         "tsConfigPath": "apps/auth-service/tsconfig.app.json"
       }
     },
