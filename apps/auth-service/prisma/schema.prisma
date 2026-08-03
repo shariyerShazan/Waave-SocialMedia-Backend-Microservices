@@ -1,30 +1,36 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client-js"
-  output   = "../../../node_modules/@prisma/auth-client"
+  provider        = "prisma-client-js"
+  output          = "../../../node_modules/@prisma/auth-client"
+  previewFeatures = ["relationJoins"]
 }
-
 
 datasource db {
   provider = "postgresql"
 }
 
-
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  password     String
-  role         Role     @default(USER)
-  isVerified   Boolean  @default(false)
-  refreshToken String?
-  isEmailVerified Boolean @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String               @id @default(uuid())
+  email           String               @unique
+  role            Role                 @default(USER)
+  status          AccountStatus        @default(ACTIVE)
+  isEmailVerified Boolean              @default(false)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  
+  credential      UserCredential?
+  securityState   SecurityState?
+  sessions        Session[]
+  trustedDevices  TrustedDevice[]
+  tokenFamilies   RefreshTokenFamily[]
+  refreshTokens   RefreshToken[]
+  loginHistories  LoginHistory[]
+  passwordHistory PasswordHistory[]
+  passwordResets  PasswordReset[]
+  emailVerifies   EmailVerification[]
+  twoFactorAuth   TwoFactorAuth?
+  recoveryCodes   RecoveryCode[]
+  oauthAccounts   OAuthAccount[]
+  apiKeys         ApiKey[]
 
   @@index([email])
   @@map("users")
@@ -34,4 +40,262 @@ enum Role {
   USER
   ADMIN
   MODERATOR
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  LOCKED
+  PENDING_VERIFICATION
+}
+
+model UserCredential {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  passwordHash      String
+  credentialVersion Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_credentials")
+}
+
+model SecurityState {
+  id                  String    @id @default(uuid())
+  userId              String    @unique
+  failedLoginAttempts Int       @default(0)
+  lockUntil           DateTime?
+  passwordChangedAt   DateTime?
+  tokenVersion        Int       @default(1)
+  forcedPasswordReset Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("security_states")
+}
+
+model Session {
+  id                String    @id @default(uuid())
+  userId            String
+  deviceId          String
+  deviceFingerprint String
+  ipAddress         String?
+  browser           String?
+  os                String?
+  platform          String?
+  userAgent         String?
+  country           String?
+  region            String?
+  city              String?
+  loginTime         DateTime  @default(now())
+  lastActivity      DateTime  @updatedAt
+  expiresAt         DateTime
+  isRevoked         Boolean   @default(false)
+  sessionVersion    Int       @default(1)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRevoked])
+  @@index([deviceId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model TrustedDevice {
+  id                String   @id @default(uuid())
+  userId            String
+  deviceId          String
+  deviceFingerprint String
+  name              String?
+  isTrusted         Boolean  @default(true)
+  trustedAt         DateTime @default(now())
+  lastUsedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceFingerprint])
+  @@map("trusted_devices")
+}
+
+enum RefreshTokenFamilyStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+model RefreshTokenFamily {
+  id                String                   @id @default(uuid())
+  userId            String
+  deviceFingerprint String
+  status            RefreshTokenFamilyStatus @default(ACTIVE)
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokens RefreshToken[]
+
+  @@index([userId, status])
+  @@map("refresh_token_families")
+}
+
+enum RefreshTokenStatus {
+  ACTIVE
+  USED
+  REVOKED
+}
+
+model RefreshToken {
+  id         String             @id @default(uuid())
+  familyId   String
+  userId     String
+  tokenHash  String             @unique
+  status     RefreshTokenStatus @default(ACTIVE)
+  expiresAt  DateTime
+  createdAt  DateTime           @default(now())
+  usedAt     DateTime?
+  revokedAt  DateTime?
+  ipAddress  String?
+  userAgent  String?
+
+  family RefreshTokenFamily @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+model LoginHistory {
+  id            String    @id @default(uuid())
+  userId        String?
+  email         String
+  loginTime     DateTime  @default(now())
+  logoutTime    DateTime?
+  success       Boolean
+  failureReason String?
+  ipAddress     String?
+  country       String?
+  region        String?
+  city          String?
+  browser       String?
+  os            String?
+  platform      String?
+  userAgent     String?
+  deviceId      String?
+  sessionId     String?
+  mfaUsed       Boolean   @default(false)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, loginTime])
+  @@index([email, loginTime])
+  @@map("login_histories")
+}
+
+model PasswordHistory {
+  id           String   @id @default(uuid())
+  userId       String
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("password_histories")
+}
+
+enum VerificationStatus {
+  PENDING
+  USED
+  EXPIRED
+}
+
+model PasswordReset {
+  id        String             @id @default(uuid())
+  userId    String
+  tokenHash String             @unique
+  expiresAt DateTime
+  status    VerificationStatus @default(PENDING)
+  createdAt DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_resets")
+}
+
+model EmailVerification {
+  id        String             @id @default(uuid())
+  userId    String
+  otpHash   String
+  expiresAt DateTime
+  status    VerificationStatus @default(PENDING)
+  createdAt DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_verifications")
+}
+
+enum MfaType {
+  TOTP
+  SMS
+}
+
+model TwoFactorAuth {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  type      MfaType  @default(TOTP)
+  secret    String
+  isEnabled Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("two_factor_auths")
+}
+
+model RecoveryCode {
+  id        String    @id @default(uuid())
+  userId    String
+  codeHash  String    @unique
+  isUsed    Boolean   @default(false)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("recovery_codes")
+}
+
+model OAuthAccount {
+  id         String   @id @default(uuid())
+  userId     String
+  provider   String
+  providerId String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@map("oauth_accounts")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  userId     String
+  keyHash    String    @unique
+  name       String
+  scopes     String
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
 }
