@@ -2,7 +2,6 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
   ApiBody,
   ApiOperation,
-  ApiParam,
   ApiProperty,
   ApiQuery,
   ApiTags,
@@ -69,8 +68,8 @@ export class AuthHttpController {
 
   @Post('logout')
   @ApiOperation({ summary: 'Logout user' })
-  logout(@Body('userId') userId: string) {
-    return this.authService.logout(userId);
+  logout(@Body('userId') userId: string, @Body('sessionId') sessionId: string) {
+    return this.authService.logout(userId, sessionId);
   }
 
   @Post('verify-token')
@@ -86,6 +85,8 @@ export class AuthHttpController {
       type: 'object',
       properties: {
         refreshToken: { type: 'string' },
+        deviceId: { type: 'string', nullable: true },
+        deviceFingerprint: { type: 'string', nullable: true },
       },
       required: ['refreshToken'],
     },
@@ -93,13 +94,17 @@ export class AuthHttpController {
   refreshToken(
     @Body('refreshToken') refreshToken: string,
     @Body('deviceId') deviceId: string,
+    @Body('deviceFingerprint') deviceFingerprint: string,
   ) {
-    return this.authService.refreshToken(refreshToken, deviceId);
+    return this.authService.refreshToken(
+      refreshToken,
+      deviceId,
+      deviceFingerprint,
+    );
   }
 
   @Get('user/:userId')
   @ApiOperation({ summary: 'Get user by id' })
-  @ApiParam({ name: 'userId' })
   getUserById(@Param('userId') userId: string) {
     return this.authService.getUserById(userId);
   }
@@ -120,5 +125,33 @@ export class AuthHttpController {
       page: Number(page),
       limit: Number(limit),
     });
+  }
+
+  @Post('revoke-session')
+  @ApiOperation({ summary: 'Revoke specific session' })
+  revokeSession(
+    @Body('userId') userId: string,
+    @Body('sessionId') sessionId: string,
+  ) {
+    return this.authService.revokeSession(userId, sessionId);
+  }
+
+  @Post('revoke-all-sessions')
+  @ApiOperation({ summary: 'Revoke all sessions for a user' })
+  revokeAllSessions(@Body('userId') userId: string) {
+    return this.authService.revokeAllSessions(userId);
+  }
+
+  @Get('sessions')
+  @ApiOperation({ summary: 'Get all active sessions for a user' })
+  @ApiQuery({ name: 'userId' })
+  getActiveSessions(@Query('userId') userId: string) {
+    return this.authService.getActiveSessions(userId);
+  }
+
+  @Post('verify-mfa')
+  @ApiOperation({ summary: 'Verify MFA code' })
+  verifyMfa(@Body('userId') userId: string, @Body('code') code: string) {
+    return this.authService.verifyMfa(userId, code);
   }
 }

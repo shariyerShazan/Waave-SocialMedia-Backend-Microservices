@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { GrpcMethod } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { Controller } from '@nestjs/common';
@@ -11,11 +13,15 @@ import {
 import type {
   LogoutRequest,
   ChangePassRequest,
+  RevokeSessionRequest,
+  RevokeAllSessionsRequest,
+  GetActiveSessionsRequest,
+  VerifyMfaRequest,
 } from '@app/proto-schema/protos-types/auth';
 
 @Controller('auth')
 export class AuthGrpcController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @GrpcMethod('AuthService', 'Register')
   register(dto: RegisterDto) {
@@ -49,7 +55,7 @@ export class AuthGrpcController {
 
   @GrpcMethod('AuthService', 'Logout')
   logout(data: LogoutRequest) {
-    return this.authService.logout(data.userId);
+    return this.authService.logout(data.userId, data.sessionId);
   }
 
   @GrpcMethod('AuthService', 'VerifyToken')
@@ -58,8 +64,16 @@ export class AuthGrpcController {
   }
 
   @GrpcMethod('AuthService', 'RefreshToken')
-  refreshToken(data: { refreshToken: string; deviceId?: string }) {
-    return this.authService.refreshToken(data.refreshToken, data.deviceId);
+  refreshToken(data: {
+    refreshToken: string;
+    deviceId?: string;
+    deviceFingerprint?: string;
+  }) {
+    return this.authService.refreshToken(
+      data.refreshToken,
+      data.deviceId,
+      data.deviceFingerprint,
+    );
   }
 
   @GrpcMethod('AuthService', 'GetUserById')
@@ -75,5 +89,25 @@ export class AuthGrpcController {
   @GrpcMethod('AuthService', 'GetAllUsers')
   getAllUsers(data: { page: number; limit: number }) {
     return this.authService.getAllUsers(data);
+  }
+
+  @GrpcMethod('AuthService', 'RevokeSession')
+  revokeSession(data: RevokeSessionRequest) {
+    return this.authService.revokeSession(data.userId, data.sessionId);
+  }
+
+  @GrpcMethod('AuthService', 'RevokeAllSessions')
+  revokeAllSessions(data: RevokeAllSessionsRequest) {
+    return this.authService.revokeAllSessions(data.userId);
+  }
+
+  @GrpcMethod('AuthService', 'GetActiveSessions')
+  getActiveSessions(data: GetActiveSessionsRequest) {
+    return this.authService.getActiveSessions(data.userId);
+  }
+
+  @GrpcMethod('AuthService', 'VerifyMfa')
+  verifyMfa(data: VerifyMfaRequest) {
+    return this.authService.verifyMfa(data.userId, data.code);
   }
 }

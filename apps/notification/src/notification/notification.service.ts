@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -192,7 +193,7 @@ export class NotificationService {
       type: n.type,
       title: n.title,
       body: n.body,
-      data: n.data instanceof Map ? Object.fromEntries(n.data) : (n.data || {}),
+      data: n.data instanceof Map ? Object.fromEntries(n.data) : n.data || {},
       isRead: n.isRead,
       createdAt: n.createdAt ? new Date(n.createdAt).toISOString() : '',
       sender: {

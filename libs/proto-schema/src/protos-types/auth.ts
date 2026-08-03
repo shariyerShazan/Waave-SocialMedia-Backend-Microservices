@@ -10,9 +10,6 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "auth";
 
-/** proto/auth.proto */
-
-/** ── Register ────────────────────────────────────── */
 export interface RegisterRequest {
   name: string;
   email: string;
@@ -45,21 +42,24 @@ export interface ChangePassRequest {
   newPassword: string;
 }
 
-/** ── Login ───────────────────────────────────────── */
 export interface LoginRequest {
   email: string;
   password: string;
   deviceId?: string | undefined;
+  deviceFingerprint?: string | undefined;
+  ipAddress?: string | undefined;
+  userAgent?: string | undefined;
+  twoFactorCode?: string | undefined;
 }
 
-/** ── Logout ──────────────────────────────────────── */
 export interface LogoutRequest {
   userId: string;
+  sessionId?: string | undefined;
 }
 
-/** ── Verify Token ────────────────────────────────── */
 export interface VerifyTokenRequest {
   token: string;
+  deviceFingerprint?: string | undefined;
 }
 
 export interface VerifyTokenResponse {
@@ -69,20 +69,13 @@ export interface VerifyTokenResponse {
   role: string;
   message: string;
   deviceId?: string | undefined;
+  sessionId?: string | undefined;
 }
 
-/** ── Refresh Token ───────────────────────────────── */
 export interface RefreshTokenRequest {
   refreshToken: string;
   deviceId?: string | undefined;
-}
-
-export interface GetUserByIdRequest {
-  userId: string;
-}
-
-export interface GetUserByEmailRequest {
-  email: string;
+  deviceFingerprint?: string | undefined;
 }
 
 export interface AuthResponse {
@@ -91,6 +84,14 @@ export interface AuthResponse {
   refreshToken: string;
   message: string;
   user: UserData | undefined;
+}
+
+export interface GetUserByIdRequest {
+  userId: string;
+}
+
+export interface GetUserByEmailRequest {
+  email: string;
 }
 
 export interface UserResponse {
@@ -118,9 +119,44 @@ export interface UserData {
   createdAt: string;
 }
 
-export const AUTH_PACKAGE_NAME = "auth";
+export interface RevokeSessionRequest {
+  userId: string;
+  sessionId: string;
+}
 
-/** ── Service Definition ──────────────────────────── */
+export interface RevokeAllSessionsRequest {
+  userId: string;
+}
+
+export interface GetActiveSessionsRequest {
+  userId: string;
+}
+
+export interface SessionData {
+  sessionId: string;
+  deviceId: string;
+  ipAddress: string;
+  browser: string;
+  os: string;
+  lastActivity: string;
+}
+
+export interface ActiveSessionsResponse {
+  success: boolean;
+  sessions: SessionData[];
+}
+
+export interface VerifyMfaRequest {
+  userId: string;
+  code: string;
+}
+
+export interface VerifyMfaResponse {
+  success: boolean;
+  mfaToken: string;
+}
+
+export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
   register(request: RegisterRequest): Observable<BasicResponse>;
@@ -146,9 +182,15 @@ export interface AuthServiceClient {
   getUserByEmail(request: GetUserByEmailRequest): Observable<UserResponse>;
 
   getAllUsers(request: GetAllUsersRequest): Observable<AllUsersResponse>;
-}
 
-/** ── Service Definition ──────────────────────────── */
+  revokeSession(request: RevokeSessionRequest): Observable<BasicResponse>;
+
+  revokeAllSessions(request: RevokeAllSessionsRequest): Observable<BasicResponse>;
+
+  getActiveSessions(request: GetActiveSessionsRequest): Observable<ActiveSessionsResponse>;
+
+  verifyMfa(request: VerifyMfaRequest): Observable<VerifyMfaResponse>;
+}
 
 export interface AuthServiceController {
   register(request: RegisterRequest): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
@@ -178,6 +220,18 @@ export interface AuthServiceController {
   getUserByEmail(request: GetUserByEmailRequest): Promise<UserResponse> | Observable<UserResponse> | UserResponse;
 
   getAllUsers(request: GetAllUsersRequest): Promise<AllUsersResponse> | Observable<AllUsersResponse> | AllUsersResponse;
+
+  revokeSession(request: RevokeSessionRequest): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
+
+  revokeAllSessions(
+    request: RevokeAllSessionsRequest,
+  ): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
+
+  getActiveSessions(
+    request: GetActiveSessionsRequest,
+  ): Promise<ActiveSessionsResponse> | Observable<ActiveSessionsResponse> | ActiveSessionsResponse;
+
+  verifyMfa(request: VerifyMfaRequest): Promise<VerifyMfaResponse> | Observable<VerifyMfaResponse> | VerifyMfaResponse;
 }
 
 export function AuthServiceControllerMethods() {
@@ -195,6 +249,10 @@ export function AuthServiceControllerMethods() {
       "getUserById",
       "getUserByEmail",
       "getAllUsers",
+      "revokeSession",
+      "revokeAllSessions",
+      "getActiveSessions",
+      "verifyMfa",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

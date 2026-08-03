@@ -1,28 +1,30 @@
-// proto/auth.proto
 syntax = "proto3";
 
 package auth;
 
-// ── Service Definition ────────────────────────────
 service AuthService {
-  rpc Register    (RegisterRequest)      returns (BasicResponse);
-  rpc VerifyRegistration (VerifyRegistrationRequest)    returns (BasicResponse);
+  rpc Register (RegisterRequest) returns (BasicResponse);
+  rpc VerifyRegistration (VerifyRegistrationRequest) returns (BasicResponse);
   rpc ForgotPasswordRequest (ForgotPassRequest) returns (BasicResponse);
-  rpc ResetPassword (ResetPasswordRequest)    returns (BasicResponse);
-  rpc Login       (LoginRequest)         returns (AuthResponse);
-  rpc Logout      (LogoutRequest)        returns (BasicResponse);
-  rpc VerifyToken (VerifyTokenRequest)   returns (VerifyTokenResponse);
-  rpc RefreshToken (RefreshTokenRequest)  returns (AuthResponse);
-  rpc ChangePassword (ChangePassRequest)  returns (BasicResponse);
-  rpc GetUserById (GetUserByIdRequest)    returns (UserResponse);
+  rpc ResetPassword (ResetPasswordRequest) returns (BasicResponse);
+  rpc Login (LoginRequest) returns (AuthResponse);
+  rpc Logout (LogoutRequest) returns (BasicResponse);
+  rpc VerifyToken (VerifyTokenRequest) returns (VerifyTokenResponse);
+  rpc RefreshToken (RefreshTokenRequest) returns (AuthResponse);
+  rpc ChangePassword (ChangePassRequest) returns (BasicResponse);
+  rpc GetUserById (GetUserByIdRequest) returns (UserResponse);
   rpc GetUserByEmail (GetUserByEmailRequest) returns (UserResponse);
-  rpc GetAllUsers (GetAllUsersRequest)    returns (AllUsersResponse);
+  rpc GetAllUsers (GetAllUsersRequest) returns (AllUsersResponse);
+  
+  rpc RevokeSession (RevokeSessionRequest) returns (BasicResponse);
+  rpc RevokeAllSessions (RevokeAllSessionsRequest) returns (BasicResponse);
+  rpc GetActiveSessions (GetActiveSessionsRequest) returns (ActiveSessionsResponse);
+  rpc VerifyMfa (VerifyMfaRequest) returns (VerifyMfaResponse);
 }
 
-// ── Register ──────────────────────────────────────
 message RegisterRequest {
-  string name     = 1;
-  string email    = 2;
+  string name = 1;
+  string email = 2;
   string password = 3;
 }
 
@@ -37,10 +39,8 @@ message ResetPasswordRequest {
   string newPassword = 3;
 }
 
-
-
 message ForgotPassRequest {
-  string email  =1;
+  string email = 1;
 }
 
 message BasicResponse {
@@ -51,42 +51,52 @@ message BasicResponse {
 message ChangePassRequest {
   string userId = 1;
   string oldPassword = 2;
-  string newPassword  = 3;
+  string newPassword = 3;
 }
 
-// ── Login ─────────────────────────────────────────
 message LoginRequest {
-  string email    = 1;
+  string email = 1;
   string password = 2;
   optional string deviceId = 3;
+  optional string deviceFingerprint = 4;
+  optional string ipAddress = 5;
+  optional string userAgent = 6;
+  optional string twoFactorCode = 7;
 }
 
-// ── Logout ────────────────────────────────────────
 message LogoutRequest {
   string userId = 1;
+  optional string sessionId = 2;
 }
 
-// ── Verify Token ──────────────────────────────────
 message VerifyTokenRequest {
   string token = 1;
+  optional string deviceFingerprint = 2;
 }
 
 message VerifyTokenResponse {
-  bool   valid     = 1;
-  string userId    = 2;
-  string email     = 3;
-  string role      = 4;
-  string message   = 5;
+  bool valid = 1;
+  string userId = 2;
+  string email = 3;
+  string role = 4;
+  string message = 5;
   optional string deviceId = 6;
+  optional string sessionId = 7;
 }
 
-// ── Refresh Token ─────────────────────────────────
 message RefreshTokenRequest {
   string refreshToken = 1;
   optional string deviceId = 2;
+  optional string deviceFingerprint = 3;
 }
 
-// ── Shared Response ───────────────────────────────
+message AuthResponse {
+  bool success = 1;
+  string accessToken = 2;
+  string refreshToken = 3;
+  string message = 4;
+  UserData user = 5;
+}
 
 message GetUserByIdRequest {
   string userId = 1;
@@ -96,36 +106,64 @@ message GetUserByEmailRequest {
   string email = 1;
 }
 
-message AuthResponse {
-  bool   success      = 1;
-  string accessToken  = 2;
-  string refreshToken = 3;
-  string message      = 4;
-  UserData user       = 5;
-}
-
-
 message UserResponse {
   bool success = 1;
   string message = 2;
   UserData user = 3;
 }
 
-
 message AllUsersResponse {
   bool success = 1;
   string message = 2;
-  repeated UserData users = 3; 
+  repeated UserData users = 3;
 }
 
 message GetAllUsersRequest {
-  int32 page  = 1;
+  int32 page = 1;
   int32 limit = 2;
 }
+
 message UserData {
-  string id        = 1;
-  string name      = 2;
-  string email     = 3;
-  string role      = 4;
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
   string createdAt = 5;
+}
+
+message RevokeSessionRequest {
+  string userId = 1;
+  string sessionId = 2;
+}
+
+message RevokeAllSessionsRequest {
+  string userId = 1;
+}
+
+message GetActiveSessionsRequest {
+  string userId = 1;
+}
+
+message SessionData {
+  string sessionId = 1;
+  string deviceId = 2;
+  string ipAddress = 3;
+  string browser = 4;
+  string os = 5;
+  string lastActivity = 6;
+}
+
+message ActiveSessionsResponse {
+  bool success = 1;
+  repeated SessionData sessions = 2;
+}
+
+message VerifyMfaRequest {
+  string userId = 1;
+  string code = 2;
+}
+
+message VerifyMfaResponse {
+  bool success = 1;
+  string mfaToken = 2;
 }
