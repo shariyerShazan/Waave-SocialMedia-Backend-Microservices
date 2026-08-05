@@ -11,7 +11,7 @@ on:
       - 'libs/common/**'
       - 'libs/kafka/**'
       - 'libs/proto-schema/**'
-      - 'libs/clients/**'
+      - 'libs/grpc-clients/**'
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig*.json'
