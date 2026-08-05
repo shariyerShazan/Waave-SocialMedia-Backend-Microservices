@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { GrpcMethod } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { Controller } from '@nestjs/common';

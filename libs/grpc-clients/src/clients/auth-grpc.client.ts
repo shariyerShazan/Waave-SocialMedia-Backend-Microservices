@@ -129,6 +129,56 @@ export class AuthGrpcClient implements OnModuleInit {
     }
   }
 
+  async revokeSession(userId: string, sessionId: string) {
+    try {
+      return await firstValueFrom(
+        this.authService.revokeSession({
+          userId,
+          sessionId,
+        }),
+      );
+    } catch (err: any) {
+      this.handleError(err);
+    }
+  }
+
+  async revokeAllSessions(userId: string) {
+    try {
+      return await firstValueFrom(
+        this.authService.revokeAllSessions({
+          userId,
+        }),
+      );
+    } catch (err: any) {
+      this.handleError(err);
+    }
+  }
+
+  async getActiveSessions(userId: string) {
+    try {
+      return await firstValueFrom(
+        this.authService.getActiveSessions({
+          userId,
+        }),
+      );
+    } catch (err: any) {
+      this.handleError(err);
+    }
+  }
+
+  async verifyMfa(userId: string, code: string) {
+    try {
+      return await firstValueFrom(
+        this.authService.verifyMfa({
+          userId,
+          code,
+        }),
+      );
+    } catch (err: any) {
+      this.handleError(err);
+    }
+  }
+
   async getUserById(userId: any) {
     try {
       return await firstValueFrom(this.authService.getUserById({ userId }));

@@ -104,6 +104,64 @@ export class AuthController {
   }
   //
 
+  @Post('revoke-session')
+  @HttpCode(200)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Revoke a specific session' })
+  @ApiResponse({
+    status: 200,
+    description: 'Session revoked successfully',
+  })
+  revokeSession(
+    @Req() req: Express.Request,
+    @Body('sessionId') sessionId: string,
+  ) {
+    return this.authClient.revokeSession(req.user.userId, sessionId);
+  }
+
+  @Post('revoke-all-sessions')
+  @HttpCode(200)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Revoke all active sessions except current' })
+  @ApiResponse({
+    status: 200,
+    description: 'All sessions revoked successfully',
+  })
+  revokeAllSessions(@Req() req: Express.Request) {
+    return this.authClient.revokeAllSessions(req.user.userId);
+  }
+
+  @Get('active-sessions')
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get active sessions' })
+  @ApiResponse({
+    status: 200,
+    description: 'Active sessions fetched successfully',
+  })
+  getActiveSessions(@Req() req: Express.Request) {
+    return this.authClient.getActiveSessions(req.user.userId);
+  }
+
+  @Post('verify-mfa')
+  @HttpCode(200)
+  @UseGuards(AuthGuard, RateLimitGuard)
+  @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify MFA code' })
+  @ApiResponse({
+    status: 200,
+    description: 'MFA verified successfully',
+  })
+  verifyMfa(@Req() req: Express.Request, @Body('code') code: string) {
+    return this.authClient.verifyMfa(req.user.userId, code);
+  }
+
   @Post('change-password')
   @HttpCode(200)
   @UseGuards(AuthGuard, RateLimitGuard)
