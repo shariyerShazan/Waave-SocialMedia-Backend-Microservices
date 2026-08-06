@@ -29,6 +29,6 @@ export class AtuhPrismaService implements OnModuleInit, OnModuleDestroy {
   async onModuleDestroy() {
     await Promise.all([this.writeDb.$disconnect(), this.readDb.$disconnect()]);
 
-    console.log('Auth Prisma disconnected!');
+    console.log('Auth Prisma disconnected');
   }
 }
