@@ -29,7 +29,7 @@ on:
       - 'libs/grpc-clients/**'
       - 'package.json'
       - 'package-lock.json'
-      - 'tsconfig*.json'
+      - 'tsconfig*.json' 
 
 jobs:
   build-and-test:
