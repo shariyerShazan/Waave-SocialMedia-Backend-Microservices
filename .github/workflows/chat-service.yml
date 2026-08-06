@@ -6,7 +6,7 @@ on:
       - main
       - develop
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/chat-service.yml'
       - 'apps/chat-service/**'
       - 'libs/common/**'
       - 'libs/kafka/**'
@@ -21,12 +21,12 @@ on:
       - main
       - develop
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/chat-service.yml'
       - 'apps/chat-service/**'
       - 'libs/common/**'
       - 'libs/kafka/**'
       - 'libs/proto-schema/**'
-      - 'libs/clients/**'
+      - 'libs/grpc-clients/**'
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig*.json'
