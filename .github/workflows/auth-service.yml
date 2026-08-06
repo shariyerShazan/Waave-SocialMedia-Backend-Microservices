@@ -29,7 +29,9 @@ on:
       - 'libs/grpc-clients/**'
       - 'package.json'
       - 'package-lock.json'
-      - 'tsconfig*.json' 
+      - 'tsconfig*.json'
+
+  workflow_dispatch:
 
 jobs:
   build-and-test:
