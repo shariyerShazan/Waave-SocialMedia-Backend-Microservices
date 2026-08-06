@@ -31,6 +31,8 @@ on:
       - 'package-lock.json'
       - 'tsconfig*.json'
 
+  workflow_dispatch:
+
 jobs:
   build-and-test:
     name: Build and Test
