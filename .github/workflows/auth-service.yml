@@ -124,9 +124,24 @@ jobs:
             chmod +x docker/postgres/init/primary-init.sh || true
             chmod +x docker/mongodb/init/replica-init.sh || true
 
+            # Dynamic Compose Project Name Auto-Detection
+            PROJECT_NAME=""
+            for container in waave_kafka waave_postgres_auth_primary waave_redis_auth; do
+              LABEL=$(docker inspect --format '{{ index .Config.Labels "com.docker.compose.project" }}' "$container" 2>/dev/null || true)
+              if [ -n "$LABEL" ]; then
+                PROJECT_NAME="$LABEL"
+                break
+              fi
+            done
+
+            if [ -z "$PROJECT_NAME" ]; then
+              PROJECT_NAME="waave"
+            fi
+            echo "🎯 Project namespace set to: $PROJECT_NAME"
+
             echo "🚀 Starting infrastructure..."
             docker compose \
-              -p waave \
+              -p "$PROJECT_NAME" \
               -f docker/compose/infrastructure.yml \
               --env-file .env \
               up -d
@@ -136,21 +151,21 @@ jobs:
 
             echo "📦 Pulling auth-service..."
             docker compose \
-              -p waave \
+              -p "$PROJECT_NAME" \
               -f docker/compose/auth.yml \
               --env-file .env \
               pull auth-service
 
             echo "🚀 Starting auth-service..."
             docker compose \
-              -p waave \
+              -p "$PROJECT_NAME" \
               -f docker/compose/auth.yml \
               --env-file .env \
               up -d auth-service
 
             echo "📊 Auth-service status..."
             docker compose \
-              -p waave \
+              -p "$PROJECT_NAME" \
               -f docker/compose/auth.yml \
               --env-file .env \
               ps auth-service
