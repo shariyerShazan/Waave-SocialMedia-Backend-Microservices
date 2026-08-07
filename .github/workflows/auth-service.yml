@@ -120,8 +120,13 @@ jobs:
             DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH }}"
             cd "${DEPLOY_PATH:-$HOME/waave}"
 
+            # Proactively configure execution permissions on infrastructure scripts
+            chmod +x docker/postgres/init/primary-init.sh || true
+            chmod +x docker/mongodb/init/replica-init.sh || true
+
             echo "🚀 Starting infrastructure..."
             docker compose \
+              -p waave \
               -f docker/compose/infrastructure.yml \
               --env-file .env \
               up -d
@@ -131,18 +136,21 @@ jobs:
 
             echo "📦 Pulling auth-service..."
             docker compose \
+              -p waave \
               -f docker/compose/auth.yml \
               --env-file .env \
               pull auth-service
 
             echo "🚀 Starting auth-service..."
             docker compose \
+              -p waave \
               -f docker/compose/auth.yml \
               --env-file .env \
               up -d auth-service
 
             echo "📊 Auth-service status..."
             docker compose \
+              -p waave \
               -f docker/compose/auth.yml \
               --env-file .env \
               ps auth-service
