@@ -1,0 +1,40 @@
+services:
+  post-service:
+    build:
+      context: ../../
+      dockerfile: apps/post-service/Dockerfile
+    image: ${DOCKER_USERNAME}/post-service
+    container_name: waave_post_service
+    command: >
+      sh -c "
+        npx prisma migrate deploy --config apps/post-service/prisma/prisma.config.ts &&
+        node dist/apps/post-service/main.js
+      "
+    env_file:
+      - ../../.env
+    ports:
+      - '${POST_HTTP_PORT:-4003}:4003'
+      - '${POST_GRPC_PORT:-3003}:3003'
+    environment:
+      - POST_DB_PRIMARY_URL=postgresql://postgres:postgres123@post-postgres-primary:5432/post_db?schema=public
+      - POST_DB_REPLICA_URL=postgresql://postgres:postgres123@post-postgres-replica:5432/post_db?schema=public
+      - POST_REDIS_HOST=post_redis
+      - KAFKA_BROKERS=kafka:9092
+      # gRPC peer services
+      - AUTH_SERVICE_GRPC_URL=auth-service:3001
+      - USER_SERVICE_GRPC_URL=user-service:3002
+      - POST_SERVICE_GRPC_URL=post-service:3003
+      - FEED_SERVICE_GRPC_URL=feed-service:3004
+      - CHAT_SERVICE_GRPC_URL=chat-service:3005
+      - E2EE_CHAT_SERVICE_GRPC_URL=e2ee-chat-service:3006
+      - MEDIA_SERVICE_GRPC_URL=media-service:3009
+      - NOTIFICATION_GRPC_URL=notification-service:3010
+      - MCP_SERVICE_GRPC_URL=mcp-service:3011
+    restart: unless-stopped
+    networks:
+      - waave
+
+networks:
+  waave:
+    name: waave
+    external: true

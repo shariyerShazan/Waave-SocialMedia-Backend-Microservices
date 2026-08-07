@@ -15,18 +15,18 @@ echo -e "${BLUE}===================================================${NC}"
 
 # 1. Update file execution permissions
 echo -e "\n${YELLOW}[1/4] Applying execution permissions to initialization scripts...${NC}"
-if [ -f "pg-init/primary-init.sh" ]; then
-  chmod +x pg-init/primary-init.sh
-  echo -e "  ${GREEN}✔${NC} pg-init/primary-init.sh is now executable."
+if [ -f "docker/postgres/init/primary-init.sh" ]; then
+  chmod +x docker/postgres/init/primary-init.sh
+  echo -e "  ${GREEN}✔${NC} docker/postgres/init/primary-init.sh is now executable."
 else
-  echo -e "  ${YELLOW}⚠${NC} pg-init/primary-init.sh not found."
+  echo -e "  ${YELLOW}⚠${NC} docker/postgres/init/primary-init.sh not found."
 fi
 
-if [ -f "mongo-init/replica-init.sh" ]; then
-  chmod +x mongo-init/replica-init.sh
-  echo -e "  ${GREEN}✔${NC} mongo-init/replica-init.sh is now executable."
+if [ -f "docker/mongodb/init/replica-init.sh" ]; then
+  chmod +x docker/mongodb/init/replica-init.sh
+  echo -e "  ${GREEN}✔${NC} docker/mongodb/init/replica-init.sh is now executable."
 else
-  echo -e "  ${YELLOW}⚠${NC} mongo-init/replica-init.sh not found."
+  echo -e "  ${YELLOW}⚠${NC} docker/mongodb/init/replica-init.sh not found."
 fi
 
 # 2. Setup /etc/hosts for MongoDB Replica Sets
@@ -78,7 +78,7 @@ echo -e "\n${GREEN}===================================================${NC}"
 echo -e "${GREEN}✔ Setup completed successfully!${NC}"
 echo -e "${GREEN}===================================================${NC}"
 echo -e "Next steps to run the application:"
-echo -e "  1. Run the support container stack: ${BLUE}docker compose up -d${NC}"
+echo -e "  1. Run the support container stack: ${BLUE}npm run docker:infra:up${NC}"
 echo -e "  2. Perform database migrations:"
 echo -e "     ${BLUE}npm run auth:prisma:migrate${NC}"
 echo -e "     ${BLUE}npm run user:prisma:migrate${NC}"

@@ -18,7 +18,7 @@ services:
       -c hot_standby=on
     volumes:
       - auth_postgres_primary_data:/var/lib/postgresql/data
-      - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ../postgres/init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d auth_db']
       interval: 10s
@@ -79,7 +79,7 @@ services:
       -c hot_standby=on
     volumes:
       - user_postgres_primary_data:/var/lib/postgresql/data
-      - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ../postgres/init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d user_db']
       interval: 10s
@@ -140,7 +140,7 @@ services:
       -c hot_standby=on
     volumes:
       - post_postgres_primary_data:/var/lib/postgresql/data
-      - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ../postgres/init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d post_db']
       interval: 10s
@@ -201,7 +201,7 @@ services:
       -c hot_standby=on
     volumes:
       - e2ee_chat_postgres_primary_data:/var/lib/postgresql/data
-      - ./pg-init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ../postgres/init/primary-init.sh:/docker-entrypoint-initdb.d/init.sh
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d e2ee_chat_db']
       interval: 10s
@@ -264,7 +264,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - media_mongo_db_1_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -307,7 +307,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - media_mongo_db_2_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -352,7 +352,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - media_mongo_db_3_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -387,7 +387,7 @@ services:
         condition: service_healthy
     container_name: waave_media_mongo_db_init
     volumes:
-      - ./mongo-init/replica-init.sh:/replica-init.sh:ro
+      - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
     environment:
       MONGO_USERNAME: mongo
       MONGO_PASSWORD: mongo123
@@ -423,7 +423,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - notification_mongo_db_1_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -468,7 +468,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - notification_mongo_db_2_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -513,7 +513,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - notification_mongo_db_3_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -548,7 +548,7 @@ services:
         condition: service_healthy
     container_name: waave_notification_mongo_db_init
     volumes:
-      - ./mongo-init/replica-init.sh:/replica-init.sh:ro
+      - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
     environment:
       MONGO_USERNAME: mongo
       MONGO_PASSWORD: mongo123
@@ -584,7 +584,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - chat_mongo_db_1_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -629,7 +629,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - chat_mongo_db_2_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -674,7 +674,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
       - chat_mongo_db_3_data:/data/db
-      - ./mongo-init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
     healthcheck:
       test:
         [
@@ -709,7 +709,7 @@ services:
         condition: service_healthy
     container_name: waave_chat_mongo_db_init
     volumes:
-      - ./mongo-init/replica-init.sh:/replica-init.sh:ro
+      - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
     environment:
       MONGO_USERNAME: mongo
       MONGO_PASSWORD: mongo123
@@ -878,7 +878,7 @@ services:
     networks:
       - waave
 
-  # ── feed Redis
+  # ── chat Redis
   chat_redis:
     image: redis:7-alpine
     container_name: waave_redis_chat
@@ -934,7 +934,8 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_HOST://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -972,100 +973,24 @@ services:
     networks:
       - waave
 
-  # ── Services ───────────────────────────────────
-
-  auth-service:
-    build:
-      context: .
-      dockerfile: apps/auth-service/Dockerfile
-    command: >
-      sh -c "
-        npx prisma migrate deploy --config apps/auth-service/prisma/prisma.config.ts &&
-        node dist/apps/auth-service/main.js
-      "
-    image: ${DOCKER_USERNAME}/auth-service
-    container_name: waave_auth_service
-    ports:
-      - '${AUTH_HTTP_PORT:-4001}:4001'
-      - '${AUTH_GRPC_PORT:-3001}:3001'
-    # Common
-    environment:
-      NODE_ENV: production
-      FRONTEND_URL: http://localhost:3000
-      MEDIA_HTTP_BASE_URL: http://media-service:4009
-      DOCKER_USERNAME: waave
-      KAFKA_BROKERS: kafka:9092
-      AUTH_SERVICE_GRPC_URL: auth-service:3001
-      USER_SERVICE_GRPC_URL: user-service:3002
-      POST_SERVICE_GRPC_URL: post-service:3003
-      FEED_SERVICE_GRPC_URL: feed-service:3004
-      CHAT_SERVICE_GRPC_URL: chat-service:3005
-      E2EE_CHAT_SERVICE_GRPC_URL: e2ee-chat-service:3006
-      MEDIA_SERVICE_GRPC_URL: media-service:3009
-      NOTIFICATION_GRPC_URL: notification-service:3010
-      MCP_SERVICE_GRPC_URL: mcp-service:3011
-      AUTH_DB_PRIMARY_URL: postgresql://postgres:postgres123@auth-postgres-primary:5432/auth_db?schema=public
-      AUTH_DB_REPLICA_URL: postgresql://postgres:postgres123@auth-postgres-replica:5432/auth_db?schema=public
-      AUTH_GRPC_PORT: 3001
-      AUTH_HTTP_PORT: 4001
-      JWT_ACCESS_SECRET: access_super_secret_key_2024
-      JWT_ACCESS_EXPIRES: 15m
-      JWT_REFRESH_SECRET: refresh_super_secret_key_2024
-      JWT_REFRESH_EXPIRES: 7d
-      MAX_LOGIN_ATTEMPTS: 5
-      PASSWORD_HASH_SOLT: 12
-      AUTH_REDIS_HOST: auth_redis
-      AUTH_REDIS_PORT: 6379
-    depends_on:
-      auth-postgres-primary:
-        condition: service_healthy
-      auth-postgres-replica:
-        condition: service_healthy
-      auth_redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'wget -qO- http://127.0.0.1:4001/docs > /dev/null || exit 1',
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 45s
-    restart: unless-stopped
-    networks:
-      - waave
-
-
-
 volumes:
   auth_postgres_primary_data:
   auth_postgres_replica_data:
-
   user_postgres_primary_data:
   user_postgres_replica_data:
-
   post_postgres_primary_data:
   post_postgres_replica_data:
-
   e2ee_chat_postgres_primary_data:
   e2ee_chat_postgres_replica_data:
-
   media_mongo_db_1_data:
   media_mongo_db_2_data:
   media_mongo_db_3_data:
-
   notification_mongo_db_1_data:
   notification_mongo_db_2_data:
   notification_mongo_db_3_data:
-
   chat_mongo_db_1_data:
   chat_mongo_db_2_data:
   chat_mongo_db_3_data:
-
   auth_redis_data:
   user_redis_data:
   media_redis_data:
@@ -1075,9 +1000,9 @@ volumes:
   feed_redis_data:
   chat_redis_data:
   e2ee_chat_redis_data:
-
   kafka_data:
 
 networks:
   waave:
+    name: waave
     driver: bridge

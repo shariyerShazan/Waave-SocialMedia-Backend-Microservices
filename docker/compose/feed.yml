@@ -1,0 +1,33 @@
+services:
+  feed-service:
+    build:
+      context: ../../
+      dockerfile: apps/feed-service/Dockerfile
+    image: ${DOCKER_USERNAME}/feed-service
+    container_name: waave_feed_service
+    env_file:
+      - ../../.env
+    ports:
+      - '${FEED_HTTP_PORT:-4004}:4004'
+      - '${FEED_GRPC_PORT:-3004}:3004'
+    environment:
+      - FEED_REDIS_HOST=feed_redis
+      - KAFKA_BROKERS=kafka:9092
+      # gRPC peer services
+      - AUTH_SERVICE_GRPC_URL=auth-service:3001
+      - USER_SERVICE_GRPC_URL=user-service:3002
+      - POST_SERVICE_GRPC_URL=post-service:3003
+      - FEED_SERVICE_GRPC_URL=feed-service:3004
+      - CHAT_SERVICE_GRPC_URL=chat-service:3005
+      - E2EE_CHAT_SERVICE_GRPC_URL=e2ee-chat-service:3006
+      - MEDIA_SERVICE_GRPC_URL=media-service:3009
+      - NOTIFICATION_GRPC_URL=notification-service:3010
+      - MCP_SERVICE_GRPC_URL=mcp-service:3011
+    restart: unless-stopped
+    networks:
+      - waave
+
+networks:
+  waave:
+    name: waave
+    external: true

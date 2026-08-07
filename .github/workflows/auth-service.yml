@@ -60,7 +60,7 @@ jobs:
   docker-build-push:
     name: Build & Push Docker Image
     needs: build-and-test
-    if:  (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
 
     steps:
@@ -115,18 +115,20 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            # Resolve deploy path, default to ~/waave
+            set -e
+
+            # Go to Docker Compose directory
             DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH }}"
             cd "${DEPLOY_PATH:-$HOME/waave}"
-            
-            # Git pull to synchronize any changes in docker-compose.yaml & configurations
-            git pull || true
-            
-            # Pull down the latest auth-service image from Docker Hub
-            docker compose pull auth-service
-            
-            # Run the container (including migrations and app start)
-            docker compose up -d auth-service
-            
-            # Prune obsolete dangling images
+
+            # Pull the latest auth-service image from Docker Hub
+            docker compose -f docker/compose/auth.yml --env-file .env pull auth-service
+
+            # Recreate and start auth-service with the latest image
+            docker compose -f docker/compose/auth.yml --env-file .env up -d auth-service
+
+            # Show auth-service status
+            docker compose -f docker/compose/auth.yml --env-file .env ps auth-service
+
+            # Remove unused Docker images
             docker image prune -f

@@ -1,0 +1,32 @@
+services:
+  mcp-service:
+    build:
+      context: ../../
+      dockerfile: apps/mcp-service/Dockerfile
+    image: ${DOCKER_USERNAME}/mcp-service
+    container_name: waave_mcp_service
+    env_file:
+      - ../../.env
+    ports:
+      - '${MCP_HTTP_PORT:-4011}:4011'
+      - '${MCP_GRPC_PORT:-3011}:3011'
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+      # gRPC peer services
+      - AUTH_SERVICE_GRPC_URL=auth-service:3001
+      - USER_SERVICE_GRPC_URL=user-service:3002
+      - POST_SERVICE_GRPC_URL=post-service:3003
+      - FEED_SERVICE_GRPC_URL=feed-service:3004
+      - CHAT_SERVICE_GRPC_URL=chat-service:3005
+      - E2EE_CHAT_SERVICE_GRPC_URL=e2ee-chat-service:3006
+      - MEDIA_SERVICE_GRPC_URL=media-service:3009
+      - NOTIFICATION_GRPC_URL=notification-service:3010
+      - MCP_SERVICE_GRPC_URL=mcp-service:3011
+    restart: unless-stopped
+    networks:
+      - waave
+
+networks:
+  waave:
+    name: waave
+    external: true
