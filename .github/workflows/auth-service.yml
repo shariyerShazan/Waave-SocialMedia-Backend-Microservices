@@ -121,14 +121,20 @@ jobs:
             DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH }}"
             cd "${DEPLOY_PATH:-$HOME/waave}"
 
-            # Pull the latest auth-service image from Docker Hub
+            echo "Starting infrastructure..."
+            docker compose -f docker/compose/infrastructure.yml --env-file .env up -d
+
+            echo "Waiting for infrastructure..."
+            sleep 10
+
+            echo "Pulling auth-service..."
             docker compose -f docker/compose/auth.yml --env-file .env pull auth-service
 
-            # Recreate and start auth-service with the latest image
+            echo "Starting auth-service..."
             docker compose -f docker/compose/auth.yml --env-file .env up -d auth-service
 
-            # Show auth-service status
+            echo "Auth-service status..."
             docker compose -f docker/compose/auth.yml --env-file .env ps auth-service
 
-            # Remove unused Docker images
+            echo "🧹 Cleaning unused images..."
             docker image prune -f
