@@ -121,6 +121,15 @@ jobs:
             DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH }}"
             cd "${DEPLOY_PATH:-$HOME/waave}"
 
+            # Clean up old monolithic compose setup if it's still running
+            if [ -f "docker-compose.yaml" ]; then
+              echo "Stopping old monolithic docker compose stack..."
+              docker compose down || true
+            fi
+
+            echo "Fetching and pulling latest changes from git..."
+            git pull
+
             echo "Starting infrastructure..."
             docker compose -f docker/compose/infrastructure.yml --env-file .env up -d
 
@@ -136,5 +145,5 @@ jobs:
             echo "Auth-service status..."
             docker compose -f docker/compose/auth.yml --env-file .env ps auth-service
 
-            echo "🧹 Cleaning unused images..."
+            echo "Cleaning unused images..."
             docker image prune -f
