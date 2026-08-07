@@ -379,12 +379,9 @@ services:
   media-mongo-init:
     image: mongo:7
     depends_on:
-      media_mongo_db_1:
-        condition: service_healthy
-      media_mongo_db_2:
-        condition: service_healthy
-      media_mongo_db_3:
-        condition: service_healthy
+      - media_mongo_db_1
+      - media_mongo_db_2
+      - media_mongo_db_3
     container_name: waave_media_mongo_db_init
     volumes:
       - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
@@ -540,12 +537,9 @@ services:
   notification-mongo-init:
     image: mongo:7
     depends_on:
-      notification_mongo_db_1:
-        condition: service_healthy
-      notification_mongo_db_2:
-        condition: service_healthy
-      notification_mongo_db_3:
-        condition: service_healthy
+      - notification_mongo_db_1
+      - notification_mongo_db_2
+      - notification_mongo_db_3
     container_name: waave_notification_mongo_db_init
     volumes:
       - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
@@ -701,12 +695,9 @@ services:
   chat-mongo-init:
     image: mongo:7
     depends_on:
-      chat_mongo_db_1:
-        condition: service_healthy
-      chat_mongo_db_2:
-        condition: service_healthy
-      chat_mongo_db_3:
-        condition: service_healthy
+      - chat_mongo_db_1
+      - chat_mongo_db_2
+      - chat_mongo_db_3
     container_name: waave_chat_mongo_db_init
     volumes:
       - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
@@ -967,8 +958,7 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
     depends_on:
-      kafka:
-        condition: service_healthy
+      - kafka
     restart: unless-stopped
     networks:
       - waave

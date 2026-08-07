@@ -123,6 +123,7 @@ jobs:
             # Proactively configure execution permissions on infrastructure scripts
             chmod +x docker/postgres/init/primary-init.sh || true
             chmod +x docker/mongodb/init/replica-init.sh || true
+            chmod 600 docker/mongodb/init/mongo-keyfile || true
 
             # Dynamic Compose Project Name Auto-Detection
             PROJECT_NAME=""
