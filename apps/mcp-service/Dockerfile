@@ -21,6 +21,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/libs/proto-schema/src/proto ./libs/proto-schema/src/proto
 
 EXPOSE 4011
 EXPOSE 3011

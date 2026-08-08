@@ -24,8 +24,8 @@ async function bootstrap() {
     options: {
       package: 'media',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/media.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/media.proto',
       ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {

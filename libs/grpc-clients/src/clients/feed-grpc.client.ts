@@ -19,8 +19,8 @@ export class FeedGrpcClient implements OnModuleInit {
     options: {
       package: 'feed',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/feed.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/feed.proto',
       ),
       url: process.env.FEED_SERVICE_GRPC_URL || 'localhost:3004',
     },

@@ -20,8 +20,8 @@ async function bootstrap() {
     options: {
       package: 'user',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/user.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/user.proto',
       ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {

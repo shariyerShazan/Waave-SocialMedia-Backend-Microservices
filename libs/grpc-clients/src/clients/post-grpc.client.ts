@@ -31,8 +31,8 @@ export class PostGrpcClient implements OnModuleInit {
     options: {
       package: 'post',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/post.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/post.proto',
       ),
       url: process.env.POST_SERVICE_GRPC_URL || 'localhost:3003',
     },

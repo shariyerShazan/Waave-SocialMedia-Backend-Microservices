@@ -15,8 +15,8 @@ async function bootstrap() {
     options: {
       package: 'chat',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/chat.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/chat.proto',
       ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {

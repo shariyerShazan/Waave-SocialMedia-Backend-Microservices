@@ -25,8 +25,8 @@ export class AuthGrpcClient implements OnModuleInit {
     options: {
       package: 'auth',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/auth.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/auth.proto',
       ),
       url: process.env.AUTH_SERVICE_GRPC_URL || 'localhost:3001',
     },

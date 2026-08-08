@@ -17,8 +17,8 @@ async function bootstrap() {
     options: {
       package: 'e2ee_chat',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/e2ee-chat.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/e2ee-chat.proto',
       ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {

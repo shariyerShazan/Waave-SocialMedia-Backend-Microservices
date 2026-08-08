@@ -19,8 +19,8 @@ async function bootstrap() {
     options: {
       package: 'mcp',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/mcp.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/mcp.proto',
       ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {

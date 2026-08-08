@@ -17,8 +17,8 @@ async function bootstrap() {
     options: {
       package: 'post',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/post.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/post.proto',
       ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {

@@ -28,6 +28,8 @@ ENV NODE_ENV=production
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/apps/user-service/prisma ./apps/user-service/prisma
+COPY --from=builder /app/libs/proto-schema/src/proto ./libs/proto-schema/src/proto
 
 EXPOSE 3001
 EXPOSE 4001

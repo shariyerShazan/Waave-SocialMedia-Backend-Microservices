@@ -116,18 +116,18 @@ jobs:
 
             docker compose \
               -p waave \
-              -f docker/compose/notification-service.yml \
+              -f docker/compose/notification.yml \
               --env-file .env \
               pull notification-service
 
             docker compose \
               -p waave \
-              -f docker/compose/notification-service.yml \
+              -f docker/compose/notification.yml \
               --env-file .env \
               up -d notification-service
 
             docker compose \
               -p waave \
-              -f docker/compose/notification-service.yml \
+              -f docker/compose/notification.yml \
               --env-file .env \
               ps notification-service

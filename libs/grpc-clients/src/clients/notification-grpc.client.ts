@@ -18,8 +18,8 @@ export class NotificationGrpcClient implements OnModuleInit {
     options: {
       package: 'notification',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/notification.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/notification.proto',
       ),
       url: process.env.NOTIFICATION_SERVICE_GRPC_URL || 'localhost:3010',
     },

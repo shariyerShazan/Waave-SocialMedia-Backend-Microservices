@@ -21,8 +21,8 @@ async function bootstrap() {
     options: {
       package: 'feed',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/feed.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/feed.proto',
       ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {

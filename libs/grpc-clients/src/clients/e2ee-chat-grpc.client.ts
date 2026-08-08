@@ -45,8 +45,8 @@ export class E2eeChatGrpcClient implements OnModuleInit {
     options: {
       package: 'e2ee_chat',
       protoPath: join(
-        __dirname,
-        '../../../libs/proto-schema/src/proto/e2ee-chat.proto',
+        process.cwd(),
+        'libs/proto-schema/src/proto/e2ee-chat.proto',
       ),
       url: process.env.E2EE_CHAT_SERVICE_GRPC_URL || 'localhost:3006',
     },
