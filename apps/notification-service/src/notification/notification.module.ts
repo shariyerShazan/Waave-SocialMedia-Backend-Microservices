@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { NotificationHttpController } from './notification.http.controller';
-import { NotificationService } from '../notification/notification.service';
+import { NotificationService } from './notification.service';
 import { EmailModule } from '../email/email.module';
 import { NotificationRedisService } from '../redis/redis.service';
 import { MongooseModule } from '@nestjs/mongoose';

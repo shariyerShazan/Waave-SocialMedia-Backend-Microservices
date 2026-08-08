@@ -17,7 +17,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { NotificationService } from 'apps/notification/src/notification/notification.service';
+import { NotificationService } from 'apps/notification-service/src/notification/notification.service';
 
 class UserIdDto {
   @ApiProperty({

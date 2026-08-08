@@ -30,7 +30,10 @@ export class PostGrpcClient implements OnModuleInit {
     transport: Transport.GRPC,
     options: {
       package: 'post',
-      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/post.proto'),
+      protoPath: join(
+        __dirname,
+        '../../../libs/proto-schema/src/proto/post.proto',
+      ),
       url: process.env.POST_SERVICE_GRPC_URL || 'localhost:3003',
     },
   })

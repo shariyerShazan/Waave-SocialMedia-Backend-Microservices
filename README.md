@@ -5,25 +5,26 @@ Waave is an enterprise-grade, production-minded NestJS microservices platform. I
 ---
 
 ## 📖 Table of Contents
+
 1. [Platform Architecture](#1-platform-architecture)
 2. [Project Structure Layout](#2-project-structure-layout)
 3. [Service Catalog & Ports Matrix](#3-service-catalog--ports-matrix)
 4. [In-Depth Service Specifications](#4-in-depth-service-specifications)
-    - [API Gateway](#api-gateway-appsapi-gateway)
-    - [Auth Service](#auth-service-appsauth-service)
-    - [User Service](#user-service-appsuser-service)
-    - [Post Service](#post-service-appspost-service)
-    - [Feed Service](#feed-service-appsfeed-service)
-    - [Chat Service](#chat-service-appschat-service)
-    - [E2EE Chat Service](#e2ee-chat-service-appse2ee-chat-service)
-    - [Media Service](#media-service-appsmedia-service)
-    - [Notification Service](#notification-service-appsnotification)
-    - [MCP Service](#mcp-service-appsmcp-service)
+   - [API Gateway](#api-gateway-appsapi-gateway)
+   - [Auth Service](#auth-service-appsauth-service)
+   - [User Service](#user-service-appsuser-service)
+   - [Post Service](#post-service-appspost-service)
+   - [Feed Service](#feed-service-appsfeed-service)
+   - [Chat Service](#chat-service-appschat-service)
+   - [E2EE Chat Service](#e2ee-chat-service-appse2ee-chat-service)
+   - [Media Service](#media-service-appsmedia-service)
+   - [Notification Service](#notification-service-appsnotification)
+   - [MCP Service](#mcp-service-appsmcp-service)
 5. [Shared Library Specifications](#5-shared-library-specifications)
-    - [gRPC Clients Library (`libs/grpc-clients`)](#grpc-clients-library-libsgrpc-clients)
-    - [Common Library (`libs/common`)](#common-library-libscommon)
-    - [Kafka Library (`libs/kafka`)](#kafka-library-libskafka)
-    - [Proto-Schema Library (`libs/proto-schema`)](#proto-schema-library-libsproto-schema)
+   - [gRPC Clients Library (`libs/grpc-clients`)](#grpc-clients-library-libsgrpc-clients)
+   - [Common Library (`libs/common`)](#common-library-libscommon)
+   - [Kafka Library (`libs/kafka`)](#kafka-library-libskafka)
+   - [Proto-Schema Library (`libs/proto-schema`)](#proto-schema-library-libsproto-schema)
 6. [Local Environment Setup](#6-local-environment-setup)
 7. [Operational & Security Architecture](#7-operational--security-architecture)
 
@@ -36,7 +37,7 @@ The Waave architecture balances immediate response pathing with eventual consist
 ```mermaid
 graph TD
     Client[Client Browser/App] -->|HTTPS / REST| Gateway[API Gateway - Port 4000]
-    
+
     subgraph gRPC Synchronous Channels
         Gateway -->|Port 3001| Auth[Auth Service]
         Gateway -->|Port 3002| User[User Service]
@@ -47,7 +48,7 @@ graph TD
         Gateway -->|Port 3009| Media[Media Service]
         Gateway -->|Port 3010| Notification[Notification Service]
         Gateway -->|Port 3011| MCP[MCP Service]
-        
+
         User -.->|gRPC| Media
         Post -.->|gRPC| User
         Post -.->|gRPC| Media
@@ -59,7 +60,7 @@ graph TD
         MCP -.->|gRPC| Feed
         MCP -.->|gRPC| Chat
     end
-    
+
     subgraph Kafka Event Bus
         Auth -->|Kafka Event| Kafka(Apache Kafka Broker)
         User -->|Kafka Event| Kafka
@@ -77,7 +78,7 @@ graph TD
         Media --->|Mongoose| MongoDBMedia[(MongoDB - Media Meta)]
         Chat --->|Mongoose| MongoDBChat[(MongoDB - Chat Hist)]
         Notification --->|Mongoose| MongoDBNotif[(MongoDB - Notifications)]
-        
+
         Auth -.->|OTP/Throttle| RedisAuth[(Redis Cache)]
         User -.->|Presence/Cache| RedisUser[(Redis Cache)]
         Media -.->|Metadata Cache| RedisMedia[(Redis Cache)]
@@ -88,6 +89,7 @@ graph TD
 ```
 
 ### Core Communication Architecture
+
 - **gRPC (Sync)**: Used for interactions requiring instant verification or blocking data return. Examples include authorization token verification, profile details lookup, media status reviews, and message metadata hydration.
 - **Kafka (Async)**: Decoupled events stream. Used for operations that can be resolved eventually, reducing response lag on core HTTP endpoints. For example, profile generation on signup, timeline rebuilds on post creation, and transactional email distribution.
 
@@ -132,18 +134,18 @@ Waave/
 
 The platform functions using the following defaults, customizable via workspace environment configurations:
 
-| Service Name | Primary Protocol | Port Config | Backing Database | Caching Strategy | Key Directories |
-| :--- | :---: | :---: | :--- | :--- | :--- |
-| **API Gateway** | HTTP/REST | `4000` | None | Redis (`RedisGW`) | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/api-gateway) |
-| **Auth Service** | gRPC / HTTP | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`) | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/auth-service) |
-| **User Service** | gRPC / HTTP | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`) | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/user-service) |
-| **Post Service** | gRPC / HTTP | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`) | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/post-service) |
-| **Feed Service** | gRPC / HTTP | `3004` / `4004` | None | Redis (`RedisFeed`) | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/feed-service) |
-| **Chat Service** | gRPC / HTTP | `3005` / `4005` | MongoDB (`MongoDBChat`) | Redis | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/chat-service) |
-| **E2EE Chat Service** | gRPC / HTTP | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`) | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/e2ee-chat-service) |
-| **Media Service** | gRPC / HTTP | `3009` / `4009` | MongoDB | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/media-service) |
-| **Notification** | gRPC / HTTP / WS | `3010` / `4010` | MongoDB (`MongoDBNotif`) | Redis | [`apps/notification`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/notification) |
-| **MCP Service** | gRPC / HTTP | `3011` / `4011` | None | None | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/mcp-service) |
+| Service Name          | Primary Protocol |   Port Config   | Backing Database            | Caching Strategy     | Key Directories                                                                                                   |
+| :-------------------- | :--------------: | :-------------: | :-------------------------- | :------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| **API Gateway**       |    HTTP/REST     |     `4000`      | None                        | Redis (`RedisGW`)    | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/api-gateway)             |
+| **Auth Service**      |   gRPC / HTTP    | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/auth-service)           |
+| **User Service**      |   gRPC / HTTP    | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/user-service)           |
+| **Post Service**      |   gRPC / HTTP    | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/post-service)           |
+| **Feed Service**      |   gRPC / HTTP    | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/feed-service)           |
+| **Chat Service**      |   gRPC / HTTP    | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/chat-service)           |
+| **E2EE Chat Service** |   gRPC / HTTP    | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/e2ee-chat-service) |
+| **Media Service**     |   gRPC / HTTP    | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/media-service)         |
+| **Notification**      | gRPC / HTTP / WS | `3010` / `4010` | MongoDB (`MongoDBNotif`)    | Redis                | [`apps/notification`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/notification)           |
+| **MCP Service**       |   gRPC / HTTP    | `3011` / `4011` | None                        | None                 | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/mcp-service)             |
 
 ---
 
@@ -154,12 +156,14 @@ The platform functions using the following defaults, customizable via workspace 
 The ingress point of all client-side REST services. It routes public requests and translates them into appropriate internal communications.
 
 #### Responsibilities & Operations
+
 - **Request Routing**: Exposes REST interfaces and translates them to gRPC downstream.
 - **Form Validation**: Filters payload patterns and ensures data structures align with expectations.
 - **Documentation**: Collects all route controllers and exhibits interactive Swagger documentation.
 - **Throttling**: Leverages Redis rate limits to protect endpoints (like registration and login).
 
 #### Key Environment Configurations
+
 - `API_GATEWAY_HTTP_PORT` (Default: `4000`)
 - `AUTH_SERVICE_GRPC_URL` (Default: `localhost:3001`)
 - `USER_SERVICE_GRPC_URL` (Default: `localhost:3002`)
@@ -167,7 +171,7 @@ The ingress point of all client-side REST services. It routes public requests an
 - `CHAT_SERVICE_GRPC_URL` (Default: `localhost:3005`)
 - `E2EE_CHAT_SERVICE_GRPC_URL` (Default: `localhost:3006`)
 - `MEDIA_SERVICE_GRPC_URL` (Default: `localhost:3009`)
-- `NOTIFICATION_GRPC_URL` (Default: `localhost:3010`)
+- `NOTIFICATION_SERVICE_GRPC_URL` (Default: `localhost:3010`)
 - `MCP_SERVICE_GRPC_URL` (Default: `localhost:3011`)
 
 ---
@@ -177,23 +181,25 @@ The ingress point of all client-side REST services. It routes public requests an
 The Identity Provider for the platform. It manages user logins, passwords, email OTP validations, and token renewals.
 
 #### Registration & Sign In Lifecycle
+
 1. Gateway receives registration REST payloads and calls Auth Service over gRPC.
 2. Checking database existence, it hashes passwords and writes a verified status record to PostgreSQL.
 3. Generates verification OTP records in Redis and emits events to Kafka.
 4. User logs in, credential check processes, JWT tokens generate, and active refresh hashes save to PostgreSQL.
 
 #### Datastore Specification (PostgreSQL - Prisma)
+
 Defines structural account columns under Model `users`:
 
-| Field Name | Data Type | Key Type | Purpose / Description |
-| :--- | :--- | :---: | :--- |
-| `id` | `String` | **Primary Key** | UUID representation string |
-| `name` | `String` | - | User display name |
-| `email` | `String` | **Unique Index**| Email address lookup index |
-| `password` | `String` | - | bcrypt password hash |
-| `role` | `enum` | - | Account access: `USER`, `ADMIN`, `MODERATOR` |
-| `refreshToken` | `String?` | - | Hashed token identifier |
-| `isEmailVerified`| `Boolean` | - | Current verification indicator |
+| Field Name        | Data Type |     Key Type     | Purpose / Description                        |
+| :---------------- | :-------- | :--------------: | :------------------------------------------- |
+| `id`              | `String`  | **Primary Key**  | UUID representation string                   |
+| `name`            | `String`  |        -         | User display name                            |
+| `email`           | `String`  | **Unique Index** | Email address lookup index                   |
+| `password`        | `String`  |        -         | bcrypt password hash                         |
+| `role`            | `enum`    |        -         | Account access: `USER`, `ADMIN`, `MODERATOR` |
+| `refreshToken`    | `String?` |        -         | Hashed token identifier                      |
+| `isEmailVerified` | `Boolean` |        -         | Current verification indicator               |
 
 ---
 
@@ -202,13 +208,16 @@ Defines structural account columns under Model `users`:
 Governs user profile configuration details, social relationship tracking (follows), search listings, and active status presence indicators.
 
 #### Core Capacities
+
 - **Profile operations**: Processes database changes for biographic descriptions, matching avatars, and header files.
 - **Social graph**: Connects profiles via follow links and compiles listing grids.
 - **Presence checks**: Tracks active user status using temporary Redis storage keys.
 - **Self-Enrichment**: Resolves `avatarMediaId` and `coverMediaId` references inside the service using `MediaGrpcClient` to return nested `UserMedia` objects instead of raw strings.
 
 #### Datastore Specification (PostgreSQL - Prisma)
+
 The service operates two main structures:
+
 - **`profiles` Model**: Stores profile parameters, including `avatarMediaId`, `coverMediaId`, and count caches (followers, following, posts).
 - **`follows` Model**: Connects profiles using `followerId` and `followingId` UUID pairs with a composite unique constraint.
 
@@ -219,10 +228,12 @@ The service operates two main structures:
 Manages post creation, comment threads, reactions (likes), scheduled publish routines, and post revisions.
 
 #### Core Capacities
+
 - **Post Lifecycle**: Handles draft preservation, content editing, scheduled visibility publishing, and soft deletions.
 - **Service-Level Enrichment**: Automatically resolves `author` profile details and associated content `media` references using the `UserGrpcClient` and `MediaGrpcClient` before returning, ensuring callers receive nested JSON.
 
 #### Datastore Specification (PostgreSQL - Prisma)
+
 Operates under the `posts` model tracking `id`, `authorId`, `content`, `mediaRefs` (string array), `visibility` status (PUBLIC, FOLLOWERS, PRIVATE), and `status` details.
 
 ---
@@ -232,7 +243,9 @@ Operates under the `posts` model tracking `id`, `authorId`, `content`, `mediaRef
 Timeline compilation and trending calculator services built entirely stateless over Redis databases.
 
 #### Performance Architecture
+
 The Feed Service does not have a permanent DB, using Redis structures instead:
+
 - **User Timelines (`feed:{userId}`)**: A Redis list storing active post IDs for followed users.
 - **Trending Index (`trending:posts:global`)**: A Redis Sorted Set sorting global post IDs by engagement scores.
 - **Data Hydration**: Fetches the pre-resolved `author` and `media` entities returned by the Post Service to construct feeds without extra gRPC hops.
@@ -245,6 +258,7 @@ The Feed Service does not have a permanent DB, using Redis structures instead:
 Powering real-time messaging, group chat rooms, reactions, and websocket states using MongoDB.
 
 #### Main Responsibilities
+
 - **Socket Influx**: Handles Socket.io websocket connections at `localhost:4005/chat`.
 - **Archive Persistency**: Stores conversations, messages, reactions, read status indices, and group metadata inside schema-flexible MongoDB databases.
 
@@ -255,11 +269,13 @@ Powering real-time messaging, group chat rooms, reactions, and websocket states 
 High-security messaging service driving end-to-end encrypted chats utilizing Double Ratchet cryptograms, ephemeral pre-keys, and client envelope routing.
 
 #### Core Capacities
+
 - **Direct & Group Creation**: Manages conversations by building sorted peers compounds (`directKey`).
 - **Encrypted Envelopes**: Instead of plaintext, it persists device-specific envelopes containing the client-encrypted `ciphertext`, `iv`, `authTag`, and ratchet header attributes.
 - **Reactions & Statuses**: Connects message reader tables and reaction triggers.
 
 #### Datastore Specification (PostgreSQL - Prisma)
+
 Tracks models under `conversations`, `conversation_members`, `encrypted_messages`, `message_envelopes` (ciphertext registry), `encrypted_attachments`, and `sender_key_distributions`.
 
 ---
@@ -269,6 +285,7 @@ Tracks models under `conversations`, `conversation_members`, `encrypted_messages
 Manages media storage processes, variant conversions (like resizing images for thumbnail and medium sizes), and media search indexes.
 
 #### Processing Steps
+
 1. Client pushes asset bytes via the API Gateway.
 2. Gateway writes bytes to `storage/temp/` and calls the Media Service over gRPC.
 3. Media Service moves files into storage buckets (`storage/images/`, etc.).
@@ -282,6 +299,7 @@ Manages media storage processes, variant conversions (like resizing images for t
 Listens to Kafka events to dispatch SMTP emails and pushes in-app notifications directly to active users over WebSockets.
 
 #### In-App Alerts specifications
+
 - **Alert Persistence**: Archive logs and subscription states are stored in MongoDB.
 - **Outbound WebSockets**: Emits pushes over the `notification` channel on port `4010`.
 - **Payload alignment**: Responses return a nested `sender` (User) object instead of flat metadata fields.
@@ -293,6 +311,7 @@ Listens to Kafka events to dispatch SMTP emails and pushes in-app notifications 
 Integrates LLM models with platform endpoints via the Model Context Protocol (MCP) standard, offering an autonomous execution agent for user prompts.
 
 #### Main Responsibilities
+
 - **Tool Servers**: Registers Zod parameter functions mapping platform services (User, Post, Feed, Chat) to LLM capabilities.
 - **OpenAI Agent client**: Connects via SSE transports, executing completions (`gpt-4o-mini`) via a tool loop (max 8 iterations) and logs execution traces.
 
@@ -301,15 +320,19 @@ Integrates LLM models with platform endpoints via the Model Context Protocol (MC
 ## 5. Shared Library Specifications
 
 ### gRPC Clients Library (`libs/grpc-clients`)
+
 Unifies and exports public gRPC client controllers (`UserGrpcClient`, `PostGrpcClient`, `MediaGrpcClient`, etc.), providing a singular internal entry point `@app/clients` to prevent duplicate connection channels.
 
 ### Common Library (`libs/common`)
+
 Contains global filters, auth guards, exception interceptors, and system constants.
 
 ### Kafka Library (`libs/kafka`)
+
 Wraps the central Kafka module details, event publishers, and subscription decoders.
 
 ### Proto-Schema Library (`libs/proto-schema`)
+
 Protobuf interfaces (`src/proto/*.proto`) compiled into TypeScript workspace typings.
 
 ---
@@ -317,26 +340,32 @@ Protobuf interfaces (`src/proto/*.proto`) compiled into TypeScript workspace typ
 ## 6. Local Environment Setup
 
 ### 1. Quick Automated Setup
+
 For a fully automated local development setup (assigns script permissions, checks and updates `/etc/hosts` for MongoDB replica sets, installs NPM dependencies, and compiles proto definitions):
 
 ```bash
 npm run setup
 ```
-*(If `/etc/hosts` mapping is missing, you will be prompted for your sudo password to apply it once.)*
+
+_(If `/etc/hosts` mapping is missing, you will be prompted for your sudo password to apply it once.)_
 
 ---
 
 ### 2. Manual Prerequisites & Verification (Reference)
 
 #### A. File Permissions
+
 Ensure the local utility and database initialization scripts mounted to containers have execution permissions:
+
 ```bash
 chmod +x pg-init/primary-init.sh
 chmod +x mongo-init/replica-init.sh
 ```
 
 #### B. Local DNS Configuration for MongoDB Replica Sets
+
 When running database containers in Docker but executing NestJS microservices locally on your host machine:
+
 - MongoDB replica sets register internally using their Docker container hostnames (e.g. `notification_mongo_db_1`).
 - When the local Mongoose client connects to the replica set gateway (e.g. `localhost:27016`), the cluster returns its member topology. The client then attempts to connect directly to those nodes by hostname.
 - Without local DNS mapping, your OS cannot resolve these container names, resulting in a connection crash (`MongooseServerSelectionError: getaddrinfo ENOTFOUND`).
@@ -344,6 +373,7 @@ When running database containers in Docker but executing NestJS microservices lo
 Adding these mappings to your host system's `/etc/hosts` resolves the issue. This is a **one-time setup** that persists on your computer.
 
 **Services using MongoDB replica sets:**
+
 1. **Notification Service** (`apps/notification`, Replica Set: `notification-rs`)  
    Members: `notification_mongo_db_1:27016`, `notification_mongo_db_2:27026`, `notification_mongo_db_3:27036`
 2. **Media Service** (`apps/media-service`, Replica Set: `media-rs`)  
@@ -352,11 +382,13 @@ Adding these mappings to your host system's `/etc/hosts` resolves the issue. Thi
    Members: `chat_mongo_db_1:27015`, `chat_mongo_db_2:27025`, `chat_mongo_db_3:27035`
 
 To map all replica sets to localhost manually, run:
+
 ```bash
 sudo sh -c 'echo "127.0.0.1 notification_mongo_db_1 notification_mongo_db_2 notification_mongo_db_3 media_mongo_db_1 media_mongo_db_2 media_mongo_db_3 chat_mongo_db_1 chat_mongo_db_2 chat_mongo_db_3" >> /etc/hosts'
 ```
 
 #### C. Installation & Compilation
+
 ```bash
 npm install
 npm run proto:generate
@@ -367,12 +399,15 @@ npm run proto:generate
 ### 3. Launching Infrastructure & Microservices
 
 #### 1. Supporting Containers
+
 Launch Postgres, MongoDB, Redis, and Kafka:
+
 ```bash
 docker compose up -d
 ```
 
 #### 2. Run Database Migrations
+
 ```bash
 npm run auth:prisma:migrate
 npm run user:prisma:migrate
@@ -381,6 +416,7 @@ npm run e2ee-chat:prisma:migrate
 ```
 
 #### 3. Launch microservices
+
 ```bash
 npx nest start api-gateway --watch
 npx nest start auth-service --watch
@@ -399,10 +435,13 @@ npx nest start mcp-service --watch
 ## 7. Operational & Security Architecture
 
 ### Data Isolation
+
 Services own their respective datastores. Relational tables are private to their owning service. Direct cross-service database queries are prohibited.
 
 ### Secrets Management
+
 Vault environments must be used for production clusters, configuring tokens securely over TLS.
 
 ### Message Processing Policies
+
 Kafka handlers implement idempotency validators checking message IDs to prevent redundant persistence from duplicate events.

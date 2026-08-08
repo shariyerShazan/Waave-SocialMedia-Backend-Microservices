@@ -114,6 +114,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
+          timeout: 60s
+          command_timeout: 20m
           script: |
             set -e
             cd "${{ secrets.VPS_DEPLOY_PATH }}"

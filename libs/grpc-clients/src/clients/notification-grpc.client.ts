@@ -18,10 +18,10 @@ export class NotificationGrpcClient implements OnModuleInit {
     options: {
       package: 'notification',
       protoPath: join(
-        process.cwd(),
-        'libs/proto-schema/src/proto/notification.proto',
+        __dirname,
+        '../../../libs/proto-schema/src/proto/notification.proto',
       ),
-      url: process.env.NOTIFICATION_GRPC_URL || 'localhost:3010',
+      url: process.env.NOTIFICATION_SERVICE_GRPC_URL || 'localhost:3010',
     },
   })
   private client: ClientGrpc;

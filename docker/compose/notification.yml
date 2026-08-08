@@ -22,7 +22,7 @@ services:
       - CHAT_SERVICE_GRPC_URL=chat-service:3005
       - E2EE_CHAT_SERVICE_GRPC_URL=e2ee-chat-service:3006
       - MEDIA_SERVICE_GRPC_URL=media-service:3009
-      - NOTIFICATION_GRPC_URL=notification-service:3010
+      - NOTIFICATION_SERVICE_GRPC_URL=notification-service:3010
       - MCP_SERVICE_GRPC_URL=mcp-service:3011
     restart: unless-stopped
     networks:

@@ -23,7 +23,10 @@ export class MediaGrpcClient implements OnModuleInit {
     transport: Transport.GRPC,
     options: {
       package: 'media',
-      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/media.proto'),
+      protoPath: join(
+        __dirname,
+        '../../../libs/proto-schema/src/proto/media.proto',
+      ),
       url: process.env.MEDIA_SERVICE_GRPC_URL || 'localhost:3009',
     },
   })

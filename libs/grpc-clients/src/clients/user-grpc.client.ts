@@ -19,7 +19,10 @@ export class UserGrpcClient implements OnModuleInit {
     transport: Transport.GRPC,
     options: {
       package: 'user',
-      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/user.proto'),
+      protoPath: join(
+        __dirname,
+        '../../../libs/proto-schema/src/proto/user.proto',
+      ),
       url: process.env.USER_SERVICE_GRPC_URL || 'localhost:3002',
     },
   })

@@ -6,8 +6,8 @@ on:
       - main
       - develop
     paths:
-      - '.github/workflows/notification.yml'
-      - 'apps/notification/**'
+      - '.github/workflows/notification-service.yml'
+      - 'apps/notification-service/**'
       - 'libs/common/**'
       - 'libs/kafka/**'
       - 'libs/proto-schema/**'
@@ -21,8 +21,8 @@ on:
       - main
       - develop
     paths:
-      - '.github/workflows/notification.yml'
-      - 'apps/notification/**'
+      - '.github/workflows/notification-service.yml'
+      - 'apps/notification-service/**'
       - 'libs/common/**'
       - 'libs/kafka/**'
       - 'libs/proto-schema/**'
@@ -32,7 +32,7 @@ on:
       - 'tsconfig*.json'
 
 jobs:
-  notification-build-and-test:
+  notification-service-build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -49,11 +49,11 @@ jobs:
         run: npm install
 
       - name: Build Notification Service
-        run: npx nest build notification
+        run: npx nest build notification-service
 
   docker-build-push:
     name: Build & Push Docker Image
-    needs: notification-build-and-test
+    needs: notification-service-build-and-test
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
 
@@ -77,7 +77,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/notification
+          images: ${{ secrets.DOCKER_USERNAME }}/notification-service
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=ref,event=branch
@@ -87,7 +87,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: apps/notification/Dockerfile
+          file: apps/notification-service/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -108,24 +108,26 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
+          timeout: 60s
+          command_timeout: 20m
           script: |
             set -e
             cd "${{ secrets.VPS_DEPLOY_PATH }}"
 
             docker compose \
               -p waave \
-              -f docker/compose/notification.yml \
+              -f docker/compose/notification-service.yml \
               --env-file .env \
-              pull notification
+              pull notification-service
 
             docker compose \
               -p waave \
-              -f docker/compose/notification.yml \
+              -f docker/compose/notification-service.yml \
               --env-file .env \
-              up -d notification
+              up -d notification-service
 
             docker compose \
               -p waave \
-              -f docker/compose/notification.yml \
+              -f docker/compose/notification-service.yml \
               --env-file .env \
-              ps notification
+              ps notification-service

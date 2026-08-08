@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
 import { GrpcExceptionFilter } from '@app/common';
 import { ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
@@ -14,11 +14,14 @@ async function bootstrap() {
     bodyParser: false,
   });
 
-  app.connectMicroservice<MicroserviceOptions>({
+  app.connectMicroservice({
     transport: Transport.GRPC,
     options: {
       package: 'mcp',
-      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/mcp.proto'),
+      protoPath: join(
+        __dirname,
+        '../../../libs/proto-schema/src/proto/mcp.proto',
+      ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {
         keepCase: true,

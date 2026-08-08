@@ -21,7 +21,10 @@ export class ChatGrpcClient implements OnModuleInit {
     transport: Transport.GRPC,
     options: {
       package: 'chat',
-      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/chat.proto'),
+      protoPath: join(
+        __dirname,
+        '../../../libs/proto-schema/src/proto/chat.proto',
+      ),
       url: process.env.CHAT_SERVICE_GRPC_URL || 'localhost:3005',
     },
   })

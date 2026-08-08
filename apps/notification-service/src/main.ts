@@ -20,8 +20,8 @@ async function bootstrap() {
     options: {
       package: 'notification',
       protoPath: join(
-        process.cwd(),
-        'libs/proto-schema/src/proto/notification.proto',
+        __dirname,
+        '../../../libs/proto-schema/src/proto/notification.proto',
       ),
       url: `0.0.0.0:${grpcPort}`,
       loader: {
