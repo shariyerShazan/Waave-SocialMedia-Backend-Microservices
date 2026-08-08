@@ -116,71 +116,22 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
+            cd "${{ secrets.VPS_DEPLOY_PATH }}"
 
-            DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH }}"
-            cd "${DEPLOY_PATH:-$HOME/waave}"
-
-            # Proactively configure execution permissions on infrastructure scripts
-            chmod +x docker/postgres/init/primary-init.sh || true
-            chmod +x docker/mongodb/init/replica-init.sh || true
-            chmod 600 docker/mongodb/init/mongo-keyfile || true
-
-            # Dynamic Compose Project Name Auto-Detection
-            PROJECT_NAME=""
-            for container in waave_kafka waave_postgres_auth_primary waave_redis_auth; do
-              LABEL=$(docker inspect --format '{{ index .Config.Labels "com.docker.compose.project" }}' "$container" 2>/dev/null || true)
-              if [ -n "$LABEL" ]; then
-                PROJECT_NAME="$LABEL"
-                break
-              fi
-            done
-
-            if [ -z "$PROJECT_NAME" ]; then
-              PROJECT_NAME="waave"
-            fi
-            echo "🎯 Project namespace set to: $PROJECT_NAME"
-
-            # Self-healing: stop and remove any legacy containers belonging to a different project
-            # to solve port/name conflicts (e.g. from transition from mono to modular projects)
-            for service_container in waave_postgres_auth_primary waave_postgres_auth_replica waave_postgres_user_primary waave_postgres_user_replica waave_postgres_post_primary waave_postgres_post_replica waave_postgres_e2ee-chat_primary waave_postgres_e2ee_chat_replica waave_kafka waave_kafka_ui waave_redis_auth waave_redis_user waave_redis_api_gateway waave_redis_media waave_redis_notification waave_redis_post waave_redis_feed waave_redis_chat waave_redis_e2ee_chat waave_mongo_1_media waave_mongo_db_2_media waave_mongo_db_3_media waave_mongo_db_1_notification waave_mongo_db_2_notification waave_mongo_db_3_notification waave_mongo_db_1_chat waave_mongo_db_2_chat waave_mongo_db_3_chat; do
-              EXISTING_PROJECT=$(docker inspect --format '{{ index .Config.Labels "com.docker.compose.project" }}' "$service_container" 2>/dev/null || true)
-              if [ -n "$EXISTING_PROJECT" ] && [ "$EXISTING_PROJECT" != "$PROJECT_NAME" ]; then
-                echo "Removing container $service_container from legacy project $EXISTING_PROJECT to free ports..."
-                docker stop "$service_container" || true
-                docker rm -f "$service_container" || true
-              fi
-            done
-
-            echo "🚀 Starting infrastructure..."
             docker compose \
-              -p "$PROJECT_NAME" \
-              -f docker/compose/infrastructure.yml \
-              --env-file .env \
-              up -d
-
-            echo "⏳ Waiting for infrastructure..."
-            sleep 10
-
-            echo "📦 Pulling auth-service..."
-            docker compose \
-              -p "$PROJECT_NAME" \
+              -p waave \
               -f docker/compose/auth.yml \
               --env-file .env \
               pull auth-service
 
-            echo "🚀 Starting auth-service..."
             docker compose \
-              -p "$PROJECT_NAME" \
+              -p waave \
               -f docker/compose/auth.yml \
               --env-file .env \
               up -d auth-service
 
-            echo "📊 Auth-service status..."
             docker compose \
-              -p "$PROJECT_NAME" \
+              -p waave \
               -f docker/compose/auth.yml \
               --env-file .env \
               ps auth-service
-
-            echo "🧹 Cleaning unused images..."
-            docker image prune -f
