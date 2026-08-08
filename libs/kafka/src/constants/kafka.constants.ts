@@ -7,6 +7,7 @@ export const KAFKA_CLIENT_IDS = {
   NOTIFICATION: 'notification-service',
   FEED: 'feed-service',
   CHAT: 'chat-service',
+  E2EE_CHAT: 'e2ee-chat-service',
   POST: 'post-service',
 } as const;
 
@@ -17,6 +18,7 @@ export const KAFKA_CONSUMER_GROUPS = {
   NOTIFICATION: 'notification-service-group',
   FEED: 'feed-service-group',
   CHAT: 'chat-service-group',
+  E2EE_CHAT: 'e2ee-chat-service-group',
   POST: 'post-service-group',
 } as const;
 
