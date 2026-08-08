@@ -20,7 +20,7 @@ on:
     branches:
       - main
       - develop
-    paths:       
+    paths:
       - '.github/workflows/api-gateway.yml'
       - 'apps/api-gateway/**'
       - 'libs/common/**'
@@ -32,7 +32,7 @@ on:
       - 'tsconfig*.json'
 
 jobs:
-  api-gateway:
+  api-gateway-build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -53,7 +53,7 @@ jobs:
 
   docker-build-push:
     name: Build & Push Docker Image
-    needs: build-and-test
+    needs: api-gateway-build-and-test
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
 

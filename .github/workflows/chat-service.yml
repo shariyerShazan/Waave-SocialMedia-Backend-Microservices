@@ -32,7 +32,7 @@ on:
       - 'tsconfig*.json'
 
 jobs:
-  chat-service:
+  chat-service-build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -53,7 +53,7 @@ jobs:
 
   docker-build-push:
     name: Build & Push Docker Image
-    needs: build-and-test
+    needs: chat-service-build-and-test
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
 

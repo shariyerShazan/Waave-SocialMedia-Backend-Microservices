@@ -32,7 +32,7 @@ on:
       - 'tsconfig*.json'
 
 jobs:
-  media-service:
+  media-service-build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -49,11 +49,11 @@ jobs:
         run: npm install
 
       - name: Build User Service
-        run: npx nest build media-serviceservice
+        run: npx nest build media-service
 
   docker-build-push:
     name: Build & Push Docker Image
-    needs: build-and-test
+    needs: media-service-build-and-test
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
 

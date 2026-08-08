@@ -32,7 +32,7 @@ on:
       - 'tsconfig*.json'
 
 jobs:
-  feed-service:
+  feed-service-build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -49,11 +49,11 @@ jobs:
         run: npm install
 
       - name: Build Feed Service
-        run: npx nest build feed-serviceservice
+        run: npx nest build feed-service
 
   docker-build-push:
     name: Build & Push Docker Image
-    needs: build-and-test
+    needs: feed-service-build-and-test
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
 

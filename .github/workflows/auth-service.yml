@@ -34,7 +34,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-test:
+  auth-service-build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
 
@@ -59,7 +59,7 @@ jobs:
 
   docker-build-push:
     name: Build & Push Docker Image
-    needs: build-and-test
+    needs: auth-service-build-and-test
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
 

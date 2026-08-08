@@ -32,7 +32,7 @@ on:
       - 'tsconfig*.json'
 
 jobs:
-  mcp-service:
+  mcp-service-build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -49,11 +49,11 @@ jobs:
         run: npm install
 
       - name: Build MCP Service
-        run: npx nest build mcp-serviceservice
+        run: npx nest build mcp-service
 
   docker-build-push:
     name: Build & Push Docker Image
-    needs: build-and-test
+    needs: mcp-service-build-and-test
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
 
