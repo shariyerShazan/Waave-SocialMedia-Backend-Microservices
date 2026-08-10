@@ -64,6 +64,6 @@ Dispatches sign-up verification, forgot password requests, and interaction brief
 
 ## Key folders
 
-- `apps/notification/src/email` – email delivery logic
-- `apps/notification/src/notification` – Kafka consumer and gRPC controller mappings
-- `apps/notification/src/schemas` – MongoDB database models
+- `apps/notification-service/src/email` – email delivery logic
+- `apps/notification-service/src/notification` – Kafka consumer and gRPC controller mappings
+- `apps/notification-service/src/schemas` – MongoDB database models

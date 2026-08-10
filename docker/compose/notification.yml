@@ -2,8 +2,8 @@ services:
   notification-service:
     build:
       context: ../../
-      dockerfile: apps/notification/Dockerfile
-    image: ${DOCKER_USERNAME}/notification
+      dockerfile: apps/notification-service/Dockerfile
+    image: ${DOCKER_USERNAME}/notification-service
     container_name: waave_notification_service
     env_file:
       - ../../.env

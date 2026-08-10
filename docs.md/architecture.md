@@ -12,7 +12,7 @@ This document describes the high-level architecture, communication patterns, inf
 ## High-level components
 
 - API Gateway: public REST surface, validation, auth, and routing.
-- Domain services: `auth-service`, `user-service`, `media-service`, `post-service`, `chat-service`, `e2ee-chat-service`, `notification`, `mcp-service`.
+- Domain services: `auth-service`, `user-service`, `media-service`, `post-service`, `chat-service`, `e2ee-chat-service`, `notification-service`, `mcp-service`.
 - Shared libs: `libs/common`, `libs/grpc-clients` (mapped to `@app/clients`), `libs/kafka`, `libs/proto-schema` (proto contracts).
 - Infrastructure: PostgreSQL, MongoDB, Redis, Kafka.
 

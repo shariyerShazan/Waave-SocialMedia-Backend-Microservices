@@ -18,7 +18,7 @@ Waave is an enterprise-grade, production-minded NestJS microservices platform. I
    - [Chat Service](#chat-service-appschat-service)
    - [E2EE Chat Service](#e2ee-chat-service-appse2ee-chat-service)
    - [Media Service](#media-service-appsmedia-service)
-   - [Notification Service](#notification-service-appsnotification)
+   - [Notification Service](#notification-service-appsnotification-service)
    - [MCP Service](#mcp-service-appsmcp-service)
 5. [Shared Library Specifications](#5-shared-library-specifications)
    - [gRPC Clients Library (`libs/grpc-clients`)](#grpc-clients-library-libsgrpc-clients)
@@ -110,7 +110,7 @@ Waave/
 │   ├── chat-service/           # Real-time workspace chat messages & group server (MongoDB)
 │   ├── e2ee-chat-service/      # End-to-End Encrypted chat service utilizing Double Ratchet envelopes
 │   ├── media-service/          # Media asset metadata and variant conversion
-│   ├── notification/           # Message-driven outbound mail/delivery & in-app alerts
+│   ├── notification-service/   # Message-driven outbound mail/delivery & in-app alerts
 │   └── mcp-service/            # Model Context Protocol tools and Agent service
 ├── libs/
 │   ├── grpc-clients/           # Unifies and exposes gRPC clients (User, Post, Media, etc. to @app/clients)
@@ -136,16 +136,16 @@ The platform functions using the following defaults, customizable via workspace 
 
 | Service Name          | Primary Protocol |   Port Config   | Backing Database            | Caching Strategy     | Key Directories                                                                                                   |
 | :-------------------- | :--------------: | :-------------: | :-------------------------- | :------------------- | :---------------------------------------------------------------------------------------------------------------- |
-| **API Gateway**       |    HTTP/REST     |     `4000`      | None                        | Redis (`RedisGW`)    | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/api-gateway)             |
-| **Auth Service**      |   gRPC / HTTP    | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/auth-service)           |
-| **User Service**      |   gRPC / HTTP    | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/user-service)           |
-| **Post Service**      |   gRPC / HTTP    | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/post-service)           |
-| **Feed Service**      |   gRPC / HTTP    | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/feed-service)           |
-| **Chat Service**      |   gRPC / HTTP    | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/chat-service)           |
-| **E2EE Chat Service** |   gRPC / HTTP    | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/e2ee-chat-service) |
-| **Media Service**     |   gRPC / HTTP    | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/media-service)         |
-| **Notification**      | gRPC / HTTP / WS | `3010` / `4010` | MongoDB (`MongoDBNotif`)    | Redis                | [`apps/notification`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/notification)           |
-| **MCP Service**       |   gRPC / HTTP    | `3011` / `4011` | None                        | None                 | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/my-product/apps/mcp-service)             |
+| **API Gateway**       |    HTTP/REST     |     `4000`      | None                        | Redis (`RedisGW`)    | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/api-gateway)             |
+| **Auth Service**      |   gRPC / HTTP    | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/auth-service)           |
+| **User Service**      |   gRPC / HTTP    | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/user-service)           |
+| **Post Service**      |   gRPC / HTTP    | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/post-service)           |
+| **Feed Service**      |   gRPC / HTTP    | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/feed-service)           |
+| **Chat Service**      |   gRPC / HTTP    | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/chat-service)           |
+| **E2EE Chat Service** |   gRPC / HTTP    | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/e2ee-chat-service) |
+| **Media Service**     |   gRPC / HTTP    | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/media-service)         |
+| **Notification**      | gRPC / HTTP / WS | `3010` / `4010` | MongoDB (`MongoDBNotif`)    | Redis                | [`apps/notification-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/notification-service) |
+| **MCP Service**       |   gRPC / HTTP    | `3011` / `4011` | None                        | None                 | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/mcp-service)             |
 
 ---
 
@@ -294,7 +294,7 @@ Manages media storage processes, variant conversions (like resizing images for t
 
 ---
 
-### Notification Service (`apps/notification`)
+### Notification Service (`apps/notification-service`)
 
 Listens to Kafka events to dispatch SMTP emails and pushes in-app notifications directly to active users over WebSockets.
 
@@ -374,7 +374,7 @@ Adding these mappings to your host system's `/etc/hosts` resolves the issue. Thi
 
 **Services using MongoDB replica sets:**
 
-1. **Notification Service** (`apps/notification`, Replica Set: `notification-rs`)  
+1. **Notification Service** (`apps/notification-service`, Replica Set: `notification-rs`)  
    Members: `notification_mongo_db_1:27016`, `notification_mongo_db_2:27026`, `notification_mongo_db_3:27036`
 2. **Media Service** (`apps/media-service`, Replica Set: `media-rs`)  
    Members: `media_mongo_db_1:27017`, `media_mongo_db_2:27027`, `media_mongo_db_3:27037`
@@ -426,7 +426,7 @@ npx nest start feed-service --watch
 npx nest start chat-service --watch
 npx nest start e2ee-chat-service --watch
 npx nest start media-service --watch
-npx nest start notification --watch
+npx nest start notification-service --watch
 npx nest start mcp-service --watch
 ```
 

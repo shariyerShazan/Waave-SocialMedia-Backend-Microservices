@@ -14,7 +14,7 @@ Each service has a dedicated markdown guide. New services are added as the codeb
 - [Feed Service](./feed-service.md)
 - [Chat Service](./chat-service.md)
 - [E2EE Chat Service](./e2ee-chat-service.md)
-- [Notification Service](./notification.md)
+- [Notification Service](./notification-service.md)
 - [MCP Service](./mcp-service.md)
 
 ## Architecture at a glance

@@ -17,7 +17,7 @@
     "start:user": "node dist/apps/user-service/main",
     "start:post": "node dist/apps/post-service/main",
     "start:feed": "node dist/apps/feed-service/main",
-    "start:notification": "node dist/apps/notification/main",
+    "start:notification": "node dist/apps/notification-service/main",
     "start:media": "node dist/apps/media-service/main",
     "start:chat": "node dist/apps/chat-service/main",
     "start:e2ee-chat": "node dist/apps/e2ee-chat-service/main",

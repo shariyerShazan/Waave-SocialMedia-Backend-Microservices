@@ -12,7 +12,7 @@ COPY . .
 # Generate proto types
 RUN npm run proto:generate
 
-RUN npm run build notification
+RUN npm run build notification-service
 
 RUN npm prune --production
 
@@ -30,4 +30,4 @@ COPY --from=builder /app/libs/proto-schema/src/proto ./libs/proto-schema/src/pro
 EXPOSE 3010
 EXPOSE 3010
 
-CMD ["node", "dist/apps/notification/main.js"]
+CMD ["node", "dist/apps/notification-service/main.js"]

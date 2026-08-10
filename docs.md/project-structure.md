@@ -71,7 +71,7 @@ Key folders:
 - `src/schemas` – Mongoose schema definitions
 - `src/redis` – media cache
 
-### `apps/notification`
+### `apps/notification-service`
 
 This service is responsible for outbound notifications.
 
