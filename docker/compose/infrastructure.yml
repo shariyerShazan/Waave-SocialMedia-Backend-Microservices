@@ -27,7 +27,9 @@ services:
       start_period: 10s
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - auth-postgres-primary
 
   auth-postgres-replica:
     image: postgres:17
@@ -59,7 +61,9 @@ services:
       start_period: 15s
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - auth-postgres-replica
 
   # user postgres
   user-postgres-primary:
@@ -88,7 +92,9 @@ services:
       start_period: 10s
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - user-postgres-primary
 
   user-postgres-replica:
     image: postgres:17
@@ -120,7 +126,9 @@ services:
       start_period: 15s
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - user-postgres-replica
 
   # post postgres
   post-postgres-primary:
@@ -149,7 +157,9 @@ services:
       start_period: 10s
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - post-postgres-primary
 
   post-postgres-replica:
     image: postgres:17
@@ -181,7 +191,9 @@ services:
       start_period: 15s
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - post-postgres-replica
 
   # e2ee_chat postgres
   e2ee-chat-postgres-primary:
@@ -210,7 +222,9 @@ services:
       start_period: 10s
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - e2ee-chat-postgres-primary
 
   e2ee-chat-postgres-replica:
     image: postgres:17
@@ -242,7 +256,9 @@ services:
       start_period: 15s
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - e2ee-chat-postgres-replica
 
   # mongodb database for media
   media_mongo_db_1:
@@ -284,7 +300,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - media_mongo_db_1
 
   media_mongo_db_2:
     image: mongo:7
@@ -329,7 +347,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - media_mongo_db_2
 
   media_mongo_db_3:
     image: mongo:7
@@ -374,7 +394,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - media_mongo_db_3
 
   media-mongo-init:
     image: mongo:7
@@ -442,7 +464,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - notification_mongo_db_1
 
   notification_mongo_db_2:
     image: mongo:7
@@ -487,7 +511,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - notification_mongo_db_2
 
   notification_mongo_db_3:
     image: mongo:7
@@ -532,7 +558,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - notification_mongo_db_3
 
   notification-mongo-init:
     image: mongo:7
@@ -600,7 +628,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - chat_mongo_db_1
 
   chat_mongo_db_2:
     image: mongo:7
@@ -645,7 +675,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - chat_mongo_db_2
 
   chat_mongo_db_3:
     image: mongo:7
@@ -690,7 +722,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - chat_mongo_db_3
 
   chat-mongo-init:
     image: mongo:7
@@ -735,7 +769,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - auth_redis
 
   # ── User Redis
   user_redis:
@@ -757,7 +793,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - user_redis
 
   # ── Gateway Redis
   api_gateway_redis:
@@ -779,7 +817,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - api_gateway_redis
 
   # ── Media Redis
   media_redis:
@@ -801,7 +841,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - media_redis
 
   # ── Notification Redis
   notification_redis:
@@ -823,7 +865,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - notification_redis
 
   # ── Post Redis
   post_redis:
@@ -845,7 +889,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - post_redis
 
   # ── feed Redis
   feed_redis:
@@ -867,7 +913,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - feed_redis
 
   # ── chat Redis
   chat_redis:
@@ -889,7 +937,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - chat_redis
 
   # ── e2ee chat Redis
   e2ee_chat_redis:
@@ -911,7 +961,9 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - e2ee_chat_redis
 
   # ── Kafka ──────────────────────────────────────
   kafka:
@@ -951,7 +1003,9 @@ services:
       - kafka_data:/var/lib/kafka/data
     restart: unless-stopped
     networks:
-      - waave
+      waave:
+        aliases:
+          - kafka
 
   # ── Kafka UI ───────────────────────────────────
   kafka-ui:
