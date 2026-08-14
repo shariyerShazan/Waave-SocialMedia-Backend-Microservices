@@ -261,26 +261,16 @@ services:
           - e2ee-chat-postgres-replica
 
   # mongodb database for media
-  media_mongo_db_1:
+  media_mongo:
     image: mongo:7
-    container_name: waave_mongo_1_media
-    command:
-      [
-        'mongod',
-        '--replSet',
-        'media-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
+    container_name: waave_mongo_media
     ports:
       - '27017:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
-      - media_mongo_db_1_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - media_mongo_data:/data/db
     healthcheck:
       test:
         [
@@ -298,158 +288,29 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     restart: unless-stopped
     networks:
       waave:
         aliases:
-          - media_mongo_db_1
-
-  media_mongo_db_2:
-    image: mongo:7
-    container_name: waave_mongo_db_2_media
-    command:
-      [
-        'mongod',
-        '--port',
-        '27027',
-        '--replSet',
-        'media-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
-    ports:
-      - '27027:27027'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: mongo123
-    volumes:
-      - media_mongo_db_2_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'mongosh',
-          '--port',
-          '27027',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      waave:
-        aliases:
-          - media_mongo_db_2
-
-  media_mongo_db_3:
-    image: mongo:7
-    container_name: waave_mongo_db_3_media
-    command:
-      [
-        'mongod',
-        '--port',
-        '27037',
-        '--replSet',
-        'media-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
-    ports:
-      - '27037:27037'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: mongo123
-    volumes:
-      - media_mongo_db_3_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'mongosh',
-          '--port',
-          '27037',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      waave:
-        aliases:
-          - media_mongo_db_3
-
-  media-mongo-init:
-    image: mongo:7
-    depends_on:
-      - media_mongo_db_1
-      - media_mongo_db_2
-      - media_mongo_db_3
-    container_name: waave_media_mongo_db_init
-    volumes:
-      - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
-    environment:
-      MONGO_USERNAME: mongo
-      MONGO_PASSWORD: mongo123
-      PRIMARY_HOST: media_mongo_db_1:27017
-      REPLICA_SET_NAME: media-rs
-      MEMBER_1: media_mongo_db_1:27017
-      MEMBER_2: media_mongo_db_2:27027
-      MEMBER_3: media_mongo_db_3:27037
-    entrypoint: ['/bin/bash', '/replica-init.sh']
-    restart: 'no'
-    networks:
-      - waave
+          - media-mongo
 
   # mongodb database for notification
-  notification_mongo_db_1:
+  notification_mongo:
     image: mongo:7
-    container_name: waave_mongo_db_1_notification
-    command:
-      [
-        'mongod',
-        '--port',
-        '27016',
-        '--replSet',
-        'notification-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
+    container_name: waave_mongo_notification
     ports:
-      - '27016:27016'
+      - '27016:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
-      - notification_mongo_db_1_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - notification_mongo_data:/data/db
     healthcheck:
       test:
         [
           'CMD',
           'mongosh',
-          '--port',
-          '27016',
           '-u',
           'mongo',
           '-p',
@@ -462,158 +323,29 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     restart: unless-stopped
     networks:
       waave:
         aliases:
-          - notification_mongo_db_1
-
-  notification_mongo_db_2:
-    image: mongo:7
-    container_name: waave_mongo_db_2_notification
-    command:
-      [
-        'mongod',
-        '--port',
-        '27026',
-        '--replSet',
-        'notification-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
-    ports:
-      - '27026:27026'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: mongo123
-    volumes:
-      - notification_mongo_db_2_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'mongosh',
-          '--port',
-          '27026',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      waave:
-        aliases:
-          - notification_mongo_db_2
-
-  notification_mongo_db_3:
-    image: mongo:7
-    container_name: waave_mongo_db_3_notification
-    command:
-      [
-        'mongod',
-        '--port',
-        '27036',
-        '--replSet',
-        'notification-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
-    ports:
-      - '27036:27036'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: mongo123
-    volumes:
-      - notification_mongo_db_3_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'mongosh',
-          '--port',
-          '27036',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      waave:
-        aliases:
-          - notification_mongo_db_3
-
-  notification-mongo-init:
-    image: mongo:7
-    depends_on:
-      - notification_mongo_db_1
-      - notification_mongo_db_2
-      - notification_mongo_db_3
-    container_name: waave_notification_mongo_db_init
-    volumes:
-      - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
-    environment:
-      MONGO_USERNAME: mongo
-      MONGO_PASSWORD: mongo123
-      PRIMARY_HOST: notification_mongo_db_1:27016
-      REPLICA_SET_NAME: notification-rs
-      MEMBER_1: notification_mongo_db_1:27016
-      MEMBER_2: notification_mongo_db_2:27026
-      MEMBER_3: notification_mongo_db_3:27036
-    entrypoint: ['/bin/bash', '/replica-init.sh']
-    restart: 'no'
-    networks:
-      - waave
+          - notification-mongo
 
   # mongodb database for chat
-  chat_mongo_db_1:
+  chat_mongo:
     image: mongo:7
-    container_name: waave_mongo_db_1_chat
-    command:
-      [
-        'mongod',
-        '--port',
-        '27015',
-        '--replSet',
-        'chat-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
+    container_name: waave_mongo_chat
     ports:
-      - '27015:27015'
+      - '27015:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo123
     volumes:
-      - chat_mongo_db_1_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
+      - chat_mongo_data:/data/db
     healthcheck:
       test:
         [
           'CMD',
           'mongosh',
-          '--port',
-          '27015',
           '-u',
           'mongo',
           '-p',
@@ -626,128 +358,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     restart: unless-stopped
     networks:
       waave:
         aliases:
-          - chat_mongo_db_1
-
-  chat_mongo_db_2:
-    image: mongo:7
-    container_name: waave_mongo_db_2_chat
-    command:
-      [
-        'mongod',
-        '--port',
-        '27025',
-        '--replSet',
-        'chat-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
-    ports:
-      - '27025:27025'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: mongo123
-    volumes:
-      - chat_mongo_db_2_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'mongosh',
-          '--port',
-          '27025',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      waave:
-        aliases:
-          - chat_mongo_db_2
-
-  chat_mongo_db_3:
-    image: mongo:7
-    container_name: waave_mongo_db_3_chat
-    command:
-      [
-        'mongod',
-        '--port',
-        '27035',
-        '--replSet',
-        'chat-rs',
-        '--bind_ip_all',
-        '--keyFile',
-        '/data/keyfile/mongo-keyfile',
-      ]
-    ports:
-      - '27035:27035'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: mongo123
-    volumes:
-      - chat_mongo_db_3_data:/data/db
-      - ../mongodb/init/mongo-keyfile:/data/keyfile/mongo-keyfile:ro
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'mongosh',
-          '--port',
-          '27035',
-          '-u',
-          'mongo',
-          '-p',
-          'mongo123',
-          '--authenticationDatabase',
-          'admin',
-          '--eval',
-          "db.adminCommand('ping')",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      waave:
-        aliases:
-          - chat_mongo_db_3
-
-  chat-mongo-init:
-    image: mongo:7
-    depends_on:
-      - chat_mongo_db_1
-      - chat_mongo_db_2
-      - chat_mongo_db_3
-    container_name: waave_chat_mongo_db_init
-    volumes:
-      - ../mongodb/init/replica-init.sh:/replica-init.sh:ro
-    environment:
-      MONGO_USERNAME: mongo
-      MONGO_PASSWORD: mongo123
-      PRIMARY_HOST: chat_mongo_db_1:27015
-      REPLICA_SET_NAME: chat-rs
-      MEMBER_1: chat_mongo_db_1:27015
-      MEMBER_2: chat_mongo_db_2:27025
-      MEMBER_3: chat_mongo_db_3:27035
-    entrypoint: ['/bin/bash', '/replica-init.sh']
-    restart: 'no'
-    networks:
-      - waave
-
+          - chat-mongo
+ 
   # ── Redis ──────────────────────────────────────
   # ── Auth Redis
   auth_redis:
@@ -1031,15 +648,11 @@ volumes:
   post_postgres_replica_data:
   e2ee_chat_postgres_primary_data:
   e2ee_chat_postgres_replica_data:
-  media_mongo_db_1_data:
-  media_mongo_db_2_data:
-  media_mongo_db_3_data:
-  notification_mongo_db_1_data:
-  notification_mongo_db_2_data:
-  notification_mongo_db_3_data:
-  chat_mongo_db_1_data:
-  chat_mongo_db_2_data:
-  chat_mongo_db_3_data:
+
+  media_mongo_data:
+  notification_mongo_data:
+  chat_mongo_data:
+
   auth_redis_data:
   user_redis_data:
   media_redis_data:

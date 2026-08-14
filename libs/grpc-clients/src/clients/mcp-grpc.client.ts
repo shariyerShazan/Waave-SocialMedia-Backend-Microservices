@@ -20,10 +20,7 @@ export class McpGrpcClient implements OnModuleInit {
     transport: Transport.GRPC,
     options: {
       package: 'mcp',
-      protoPath: join(
-        process.cwd(),
-        'libs/proto-schema/src/proto/mcp.proto',
-      ),
+      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/mcp.proto'),
       url: process.env.MCP_SERVICE_GRPC_URL || 'localhost:3011',
     },
   })

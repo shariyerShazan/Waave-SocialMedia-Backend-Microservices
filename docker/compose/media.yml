@@ -11,7 +11,7 @@ services:
       - '${MEDIA_HTTP_PORT:-4009}:4009'
       - '${MEDIA_GRPC_PORT:-3009}:3009'
     environment:
-      - MEDIA_MONGO_DB_URL=mongodb://mongo:mongo123@media_mongo_db_1:27017,media_mongo_db_2:27027,media_mongo_db_3:27037/media_db?replicaSet=media-rs&authSource=admin
+      - MEDIA_MONGO_DB_URL=mongodb://mongo:mongo123@media_mongo:27017/media_db?authSource=admin
       - MEDIA_REDIS_HOST=media_redis
       - KAFKA_BROKERS=kafka:9092
       # gRPC peer services
