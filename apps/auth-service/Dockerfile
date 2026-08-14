@@ -1,19 +1,20 @@
 # --- STAGE 1: Build Stage ---
-FROM node:20 AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
 
 RUN npm install
 
-COPY . . 
+COPY . .
 
 # Generate prisma client
 RUN npm run auth:prisma:generate
 
 RUN npm run build auth-service
 
-FROM node:20 AS runner
+# --- STAGE 2: Runner Stage ---
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

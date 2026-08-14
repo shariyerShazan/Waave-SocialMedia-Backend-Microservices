@@ -8,14 +8,9 @@ RUN npm install
 
 COPY . .
 
-# Generate proto types
-RUN npm run proto:generate
-
 RUN npm run build media-service
 
-RUN npm prune --production
-
-
+# --- STAGE 2: Runner Stage ---
 FROM node:20-alpine AS runner
 WORKDIR /app
 

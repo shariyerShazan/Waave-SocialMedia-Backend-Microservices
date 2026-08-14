@@ -8,12 +8,9 @@ RUN npm install
 
 COPY . .
 
-
 RUN npm run build api-gateway
 
-RUN npm prune --production
-
-
+# --- STAGE 2: Runner Stage ---
 FROM node:20-alpine AS runner
 WORKDIR /app
 

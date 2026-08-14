@@ -8,17 +8,12 @@ RUN npm install
 
 COPY . .
 
-
-# Generate proto types
-RUN npm run proto:generate
 # Generate prisma client
 RUN npm run post:prisma:generate
 
 RUN npm run build post-service
 
-RUN npm prune --production
-
-
+# --- STAGE 2: Runner Stage ---
 FROM node:20-alpine AS runner
 WORKDIR /app
 

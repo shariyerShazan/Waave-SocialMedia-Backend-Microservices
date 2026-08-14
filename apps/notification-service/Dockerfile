@@ -8,15 +8,9 @@ RUN npm install
 
 COPY . .
 
-
-# Generate proto types
-RUN npm run proto:generate
-
 RUN npm run build notification-service
 
-RUN npm prune --production
-
-
+# --- STAGE 2: Runner Stage ---
 FROM node:20-alpine AS runner
 WORKDIR /app
 
@@ -28,6 +22,6 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/libs/proto-schema/src/proto ./libs/proto-schema/src/proto
 
 EXPOSE 3010
-EXPOSE 3010
+EXPOSE 4010
 
 CMD ["node", "dist/apps/notification-service/main.js"]
