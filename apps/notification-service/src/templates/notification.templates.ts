@@ -55,6 +55,20 @@ export function getTemplate(
       title: (data.title as string) || 'Notification',
       body: (data.body as string) || 'You have a new notification',
     },
+    group_member_added: {
+      title: 'Group Member Added',
+      body: `${fromUser} added someone to ${data.groupName}`,
+    },
+
+    group_member_removed: {
+      title: 'Group Member Removed',
+      body: `A member was removed from ${data.groupName}`,
+    },
+
+    group_member_left: {
+      title: 'Member Left',
+      body: `${fromUser} left ${data.groupName}`,
+    },
   };
 
   return templates[type] || templates.system;

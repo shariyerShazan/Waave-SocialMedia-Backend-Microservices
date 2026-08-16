@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { KAFKA_TOPICS } from '@app/kafka';
 
 import type {
+  GroupCreatedEvent,
+  GroupMemberAddedEvent,
+  GroupMemberLeftEvent,
+  GroupMemberRemovedEvent,
   PostCommentEvent,
   PostLikedEvent,
   PostSharedEvent,
@@ -14,12 +20,14 @@ import type {
 } from '@app/kafka/constants/events.type';
 import { EmailService } from '../../email/email.service';
 import { NotificationService } from '../notification.service';
+import { E2eeChatGrpcClient } from '@app/clients';
 
 @Controller()
 export class NotificationConsumer {
   constructor(
     private readonly emailService: EmailService,
     private readonly notificationService: NotificationService,
+    private readonly e2eeChatClient: E2eeChatGrpcClient,
   ) {}
 
   @EventPattern(KAFKA_TOPICS.SEND_REGISTRATION_OTP)
@@ -137,5 +145,93 @@ export class NotificationConsumer {
         shareId: data.shareId,
       },
     });
+  }
+
+  @EventPattern(KAFKA_TOPICS.GROUP_CREATED)
+  async handleGroupCreated(@Payload() data: GroupCreatedEvent) {
+    for (const userId of data.participantIds) {
+      await this.notificationService.create({
+        type: 'group_invite',
+        toUserId: userId,
+        fromUserId: data.creatorId,
+        fromUserName: 'Someone',
+        fromUserAvatar: data.avatar || '',
+        data: {
+          conversationId: data.conversationId,
+          groupName: data.groupName,
+        },
+      });
+    }
+  }
+  @EventPattern(KAFKA_TOPICS.GROUP_MEMBER_ADDED)
+  async handleGroupMemberAdded(@Payload() data: GroupMemberAddedEvent) {
+    const members = await this.e2eeChatClient.getGroupMembersForNotif({
+      conversationId: data.conversationId,
+    });
+
+    for (const member of members.members) {
+      if (member.muted) continue;
+
+      await this.notificationService.create({
+        type: 'group_member_added',
+        toUserId: member.userId,
+        fromUserId: data.addedBy,
+        fromUserName: 'Someone',
+        fromUserAvatar: '',
+        data: {
+          conversationId: data.conversationId,
+          groupName: data.groupName,
+          addedUserId: data.userId,
+        },
+      });
+    }
+  }
+
+  @EventPattern(KAFKA_TOPICS.GROUP_MEMBER_REMOVED)
+  async handleGroupMemberRemoved(@Payload() data: GroupMemberRemovedEvent) {
+    const members = await this.e2eeChatClient.getGroupMembersForNotif({
+      conversationId: data.conversationId,
+    });
+
+    for (const member of members.members) {
+      if (member.muted) continue;
+
+      await this.notificationService.create({
+        type: 'group_member_removed',
+        toUserId: member.userId,
+        fromUserId: data.removedBy,
+        fromUserName: 'Someone',
+        fromUserAvatar: '',
+        data: {
+          conversationId: data.conversationId,
+          groupName: data.groupName,
+          removedUserId: data.userId,
+        },
+      });
+    }
+  }
+
+  @EventPattern(KAFKA_TOPICS.GROUP_MEMBER_LEFT)
+  async handleGroupMemberLeft(@Payload() data: GroupMemberLeftEvent) {
+    const members = await this.e2eeChatClient.getGroupMembersForNotif({
+      conversationId: data.conversationId,
+    });
+
+    for (const member of members.members) {
+      if (member.muted) continue;
+
+      await this.notificationService.create({
+        type: 'group_member_left',
+        toUserId: member.userId,
+        fromUserId: data.userId,
+        fromUserName: 'Someone',
+        fromUserAvatar: '',
+        data: {
+          conversationId: data.conversationId,
+          groupName: data.groupName,
+          leftUserId: data.userId,
+        },
+      });
+    }
   }
 }

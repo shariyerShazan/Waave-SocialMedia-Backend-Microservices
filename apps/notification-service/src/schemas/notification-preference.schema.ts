@@ -14,6 +14,8 @@ export class NotificationPreference {
   @Prop({ default: true }) unfollows: boolean;
   @Prop({ default: true }) messages: boolean;
   @Prop({ default: true }) mentions: boolean;
+  @Prop({ default: true })
+  groupNotifications: boolean;
 
   createdAt: Date;
   updatedAt: Date;

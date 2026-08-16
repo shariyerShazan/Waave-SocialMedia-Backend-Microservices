@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { E2eeChatService } from './e2ee-chat.service';
@@ -12,6 +14,8 @@ import type {
   ForwardMessageRequest,
   GetConversationRequest,
   GetConversationsRequest,
+  GetGroupMembersForNotifRequest,
+  GetGroupMembersForNotifResponse,
   // GetConversationsResponse,
   GetMessagesRequest,
   GetOrCreateDirectRequest,
@@ -310,6 +314,13 @@ export class E2eeChatGrpcController {
     request: GetUnreadCountsRequest,
   ): Promise<GetUnreadCountsResponse> {
     return this.e2eeChatService.getUnreadCounts(request.userId);
+  }
+
+  @GrpcMethod('E2eeChatService', 'GetGroupMembersForNotif')
+  getGroupMembersForNotif(
+    request: GetGroupMembersForNotifRequest,
+  ): Promise<GetGroupMembersForNotifResponse> {
+    return this.e2eeChatService.getGroupMembersForNotif(request.conversationId);
   }
 
   private toEnvelopeInput(envelope: {

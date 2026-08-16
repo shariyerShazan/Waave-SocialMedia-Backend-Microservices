@@ -45,10 +45,12 @@ export const KAFKA_TOPICS = {
   POST_COMMENTED: 'post.commented',
   POST_SHARED: 'post.shared',
 
-  // E2EE Chat Events
-  E2EE_KEY_REGISTERED: 'e2ee.key.registered',
-  E2EE_MESSAGE_SENT: 'e2ee.message.sent',
-  E2EE_CONVERSATION_CREATED: 'e2ee.conversation.created',
+  //Chat Events
+  GROUP_CREATED: 'chat.group.created',
+  GROUP_MEMBER_ADDED: 'chat.group.member.added',
+  GROUP_MEMBER_REMOVED: 'chat.group.member.removed',
+  GROUP_MEMBER_LEFT: 'chat.group.member.left',
+  ENCRYPTED_MESSAGE_SENT: 'chat.encrypt.message.sent',
 };
 
 export type KafkaTopics = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];

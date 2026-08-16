@@ -403,4 +403,13 @@ export class E2eeChatHttpController {
   getUnreadCounts(@Req() req: AuthRequest) {
     return this.e2eeChatService.getUnreadCounts(req.user.userId);
   }
+
+  @Get('groups/:conversationId/members/notification')
+  @ApiOperation({
+    summary: 'Get group members for notifications',
+  })
+  @ApiParam({ name: 'conversationId' })
+  getGroupMembersForNotif(@Param('conversationId') conversationId: string) {
+    return this.e2eeChatService.getGroupMembersForNotif(conversationId);
+  }
 }

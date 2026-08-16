@@ -10,6 +10,23 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "e2ee_chat";
 
+export interface GetGroupMembersForNotifRequest {
+  conversationId: string;
+}
+
+export interface GroupNotificationMember {
+  userId: string;
+  muted: boolean;
+}
+
+export interface GetGroupMembersForNotifResponse {
+  success: boolean;
+  conversationId: string;
+  groupName: string;
+  avatar: string;
+  members: GroupNotificationMember[];
+}
+
 export interface OperationResponse {
   success: boolean;
   message: string;
@@ -397,6 +414,8 @@ export interface E2eeChatServiceClient {
   /** Presence helpers (conversation-scoped) */
 
   getUnreadCounts(request: GetUnreadCountsRequest): Observable<GetUnreadCountsResponse>;
+
+  getGroupMembersForNotif(request: GetGroupMembersForNotifRequest): Observable<GetGroupMembersForNotifResponse>;
 }
 
 export interface E2eeChatServiceController {
@@ -509,6 +528,13 @@ export interface E2eeChatServiceController {
   getUnreadCounts(
     request: GetUnreadCountsRequest,
   ): Promise<GetUnreadCountsResponse> | Observable<GetUnreadCountsResponse> | GetUnreadCountsResponse;
+
+  getGroupMembersForNotif(
+    request: GetGroupMembersForNotifRequest,
+  ):
+    | Promise<GetGroupMembersForNotifResponse>
+    | Observable<GetGroupMembersForNotifResponse>
+    | GetGroupMembersForNotifResponse;
 }
 
 export function E2eeChatServiceControllerMethods() {
@@ -538,6 +564,7 @@ export function E2eeChatServiceControllerMethods() {
       "uploadSenderKeyDistributions",
       "getSenderKeyDistributions",
       "getUnreadCounts",
+      "getGroupMembersForNotif",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

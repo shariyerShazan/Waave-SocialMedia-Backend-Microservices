@@ -1,3 +1,5 @@
+import { E2eeMemberRole } from '@app/common';
+
 export interface UserRegisteredEvent {
   userId: string;
   email: string;
@@ -61,4 +63,41 @@ export interface PostSharedEvent {
   userId: string;
   authorId: string;
   shareId: string;
+}
+
+export interface GroupCreatedEvent {
+  conversationId: string;
+  groupName: string;
+  creatorId: string;
+  participantIds: string[];
+  avatar?: string;
+}
+
+export interface GroupMemberAddedEvent {
+  conversationId: string;
+  groupName: string;
+  userId: string;
+  addedBy: string;
+  role: E2eeMemberRole;
+}
+
+export interface GroupMemberRemovedEvent {
+  conversationId: string;
+  groupName: string;
+  userId: string;
+  removedBy: string;
+}
+
+export interface GroupMemberLeftEvent {
+  conversationId: string;
+  groupName: string;
+  userId: string;
+}
+
+export interface EncryptedMessageSentEvent {
+  conversationId: string;
+  messageId: string;
+  senderId: string;
+  senderDeviceId: string;
+  messageType: string;
 }

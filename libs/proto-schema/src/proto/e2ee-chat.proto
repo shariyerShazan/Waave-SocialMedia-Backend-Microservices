@@ -40,6 +40,26 @@ service E2eeChatService {
 
   // Presence helpers (conversation-scoped)
   rpc GetUnreadCounts(GetUnreadCountsRequest) returns (GetUnreadCountsResponse);
+
+  rpc GetGroupMembersForNotif(GetGroupMembersForNotifRequest) returns (GetGroupMembersForNotifResponse);
+}
+
+
+message GetGroupMembersForNotifRequest {
+  string conversation_id = 1;
+}
+
+message GroupNotificationMember {
+  string user_id = 1;
+  bool muted = 2;
+}
+
+message GetGroupMembersForNotifResponse {
+  bool success = 1;
+  string conversation_id = 2;
+  string group_name = 3;
+  string avatar = 4;
+  repeated GroupNotificationMember members = 5;
 }
 
 message OperationResponse {

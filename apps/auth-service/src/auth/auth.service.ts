@@ -21,7 +21,7 @@ import type {
   UserRegisteredEvent,
 } from '@app/kafka/constants/events.type';
 import { SessionService } from './services/session.service';
-import { DeviceService } from './services/device.service';
+// import { DeviceService } from './services/device.service';
 import { MfaService } from './services/mfa.service';
 
 export interface UserLoginEvent {
@@ -68,7 +68,7 @@ export class AuthService {
     private readonly redis: AuthRedisService,
     private readonly kafka: KafkaService,
     private readonly sessionService: SessionService,
-    private readonly deviceService: DeviceService,
+    // private readonly deviceService: DeviceService,
     private readonly mfaService: MfaService,
   ) {}
 

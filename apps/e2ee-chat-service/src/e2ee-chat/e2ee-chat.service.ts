@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
@@ -11,6 +13,16 @@ import {
 import { E2eeChatPrismaService } from '../prisma/prisma.service';
 import { E2eeChatRedisService } from '../redis/redis.service';
 import { E2eeChatEnrichmentService } from './enrichments/enrichment.service';
+import { KAFKA_TOPICS, KafkaService } from '@app/kafka';
+import {
+  EncryptedMessageSentEvent,
+  GroupCreatedEvent,
+  GroupMemberAddedEvent,
+  GroupMemberLeftEvent,
+  GroupMemberRemovedEvent,
+} from '@app/kafka/constants/events.type';
+import { E2eeMemberRole } from '@app/common';
+// import { E2eeMemberRole } from '@app/common';
 
 const NOT_FOUND = 5;
 const PERMISSION_DENIED = 7;
@@ -61,6 +73,7 @@ export class E2eeChatService {
     private readonly prisma: E2eeChatPrismaService,
     private readonly redis: E2eeChatRedisService,
     private readonly enrichment: E2eeChatEnrichmentService,
+    private readonly kafka: KafkaService,
   ) {}
 
   buildDirectKey(userId: string, targetUserId: string): string {
@@ -308,6 +321,16 @@ export class E2eeChatService {
       include: { members: true },
     });
 
+    const groupCreateData: GroupCreatedEvent = {
+      conversationId: conversation.id,
+      groupName: conversation.name ?? 'N/A',
+      creatorId: data.creatorId,
+      participantIds: participants,
+      avatar: conversation.avatar ?? 'N/A',
+    };
+
+    await this.kafka.emit(KAFKA_TOPICS.GROUP_CREATED, groupCreateData);
+
     this.logger.log(`Group created: ${conversation.id} by ${data.creatorId}`);
 
     return {
@@ -469,6 +492,14 @@ export class E2eeChatService {
         role: memberRole,
       },
     });
+    const addMemberData: GroupMemberAddedEvent = {
+      conversationId,
+      groupName: conversation.name ?? 'N/A',
+      userId,
+      addedBy: adminId,
+      role: memberRole,
+    };
+    await this.kafka.emit(KAFKA_TOPICS.GROUP_MEMBER_ADDED, addMemberData);
 
     return { success: true, message: 'Member added' };
   }
@@ -499,6 +530,23 @@ export class E2eeChatService {
       where: { conversationId_userId: { conversationId, userId } },
       data: { leftAt: new Date() },
     });
+
+    const conversation = await this.prisma.readDb.conversation.findFirst({
+      where: {
+        id: conversationId,
+        type: ChatType.GROUP,
+        isDeleted: false,
+      },
+    });
+
+    const removeMemberData: GroupMemberRemovedEvent = {
+      conversationId,
+      groupName: conversation?.name ?? 'N/A',
+      userId,
+      removedBy: adminId,
+    };
+
+    await this.kafka.emit(KAFKA_TOPICS.GROUP_MEMBER_REMOVED, removeMemberData);
 
     return { success: true, message: 'Member removed' };
   }
@@ -551,6 +599,14 @@ export class E2eeChatService {
       where: { conversationId_userId: { conversationId, userId } },
       data: { leftAt: new Date() },
     });
+
+    const leaveGroupData: GroupMemberLeftEvent = {
+      conversationId,
+      groupName: conversation.name ?? 'N/A',
+      userId,
+    };
+
+    await this.kafka.emit(KAFKA_TOPICS.GROUP_MEMBER_LEFT, leaveGroupData);
 
     return { success: true, message: 'Left group' };
   }
@@ -790,6 +846,16 @@ export class E2eeChatService {
     this.logger.debug(
       `Encrypted message sent: ${message.id} in ${data.conversationId}`,
     );
+
+    const sendMessageData: EncryptedMessageSentEvent = {
+      conversationId: data.conversationId,
+      messageId: message.id,
+      senderId: data.senderId,
+      senderDeviceId: data.senderDeviceId,
+      messageType: message.type,
+    };
+
+    await this.kafka.emit(KAFKA_TOPICS.ENCRYPTED_MESSAGE_SENT, sendMessageData);
 
     return {
       success: true,
@@ -1335,11 +1401,11 @@ export class E2eeChatService {
     return { success: true, items, totalUnread };
   }
 
-  private parseMemberRole(role?: string): MemberRole {
-    if (!role) return MemberRole.MEMBER;
+  private parseMemberRole(role?: string): E2eeMemberRole {
+    if (!role) return E2eeMemberRole.MEMBER;
     const upper = role.toUpperCase();
-    if (upper in MemberRole) {
-      return MemberRole[upper as keyof typeof MemberRole];
+    if (upper in E2eeMemberRole) {
+      return E2eeMemberRole[upper as keyof typeof E2eeMemberRole];
     }
     throw new RpcException({ code: INVALID_ARGUMENT, message: 'Invalid role' });
   }
@@ -1364,5 +1430,60 @@ export class E2eeChatService {
       code: INVALID_ARGUMENT,
       message: 'Invalid receipt status',
     });
+  }
+
+  async getGroupMembersForNotif(conversationId: string) {
+    const cached = await this.redis.getGroupNotifMembers(conversationId);
+
+    if (cached) {
+      return cached;
+    }
+
+    const conversation = await this.prisma.readDb.conversation.findFirst({
+      where: {
+        id: conversationId,
+        type: ChatType.GROUP,
+        isDeleted: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        members: {
+          where: {
+            leftAt: null,
+          },
+          select: {
+            userId: true,
+            muted: true,
+            mutedUntil: true,
+          },
+        },
+      },
+    });
+
+    if (!conversation) {
+      throw new RpcException({
+        code: NOT_FOUND,
+        message: 'Group not found',
+      });
+    }
+
+    const now = new Date();
+
+    const result = {
+      success: true,
+      conversationId: conversation.id,
+      groupName: conversation.name ?? 'N/A',
+      avatar: conversation.avatar ?? '',
+      members: conversation.members.map((member) => ({
+        userId: member.userId,
+        muted: member.muted && (!member.mutedUntil || member.mutedUntil > now),
+      })),
+    };
+
+    await this.redis.setGroupNotifMembers(conversationId, result, 60);
+
+    return result;
   }
 }

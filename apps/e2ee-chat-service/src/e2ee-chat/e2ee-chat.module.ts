@@ -9,6 +9,7 @@ import { E2eeChatHttpController } from './e2ee-chat.http.controller';
 import { E2eeChatGateway } from './gateway/e2ee-chat.gateway';
 import { E2eeChatEnrichmentService } from './enrichments/enrichment.service';
 import { GrpcClientsModule } from '@app/clients';
+import { KAFKA_CLIENT_IDS, KafkaModule } from '@app/kafka';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GrpcClientsModule } from '@app/clients';
     E2eeChatRedisModule,
     JwtModule,
     GrpcClientsModule,
+    KafkaModule.register(KAFKA_CLIENT_IDS.E2EE_CHAT),
   ],
   providers: [
     E2eeChatService,

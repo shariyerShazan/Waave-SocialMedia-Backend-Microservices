@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
@@ -12,6 +14,8 @@ import { join } from 'path';
 import {
   E2EE_CHAT_SERVICE_NAME,
   E2eeChatServiceClient,
+  GetGroupMembersForNotifRequest,
+  GetGroupMembersForNotifResponse,
   type AddGroupMemberRequest,
   type ArchiveConversationRequest,
   type CreateGroupRequest,
@@ -275,6 +279,18 @@ export class E2eeChatGrpcClient implements OnModuleInit {
   async getUnreadCounts(data: GetUnreadCountsRequest) {
     try {
       return await firstValueFrom(this.e2eeChatService.getUnreadCounts(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async getGroupMembersForNotif(
+    data: GetGroupMembersForNotifRequest,
+  ): Promise<GetGroupMembersForNotifResponse> {
+    try {
+      return await firstValueFrom(
+        this.e2eeChatService.getGroupMembersForNotif(data),
+      );
     } catch (err) {
       this.handleError(err);
     }

@@ -285,4 +285,33 @@ export class E2eeChatRedisService implements OnModuleDestroy {
     }
     return current <= limit;
   }
+
+  private groupNotifMembersKey(conversationId: string) {
+    return `e2ee:group:notif:members:${conversationId}`;
+  }
+
+  async getGroupNotifMembers(conversationId: string): Promise<any> {
+    const data = await this.general.get(
+      this.groupNotifMembersKey(conversationId),
+    );
+
+    return data ? JSON.parse(data) : null;
+  }
+
+  async setGroupNotifMembers(
+    conversationId: string,
+    data: unknown,
+    ttl = 60,
+  ): Promise<void> {
+    await this.general.set(
+      this.groupNotifMembersKey(conversationId),
+      JSON.stringify(data),
+      'EX',
+      ttl,
+    );
+  }
+
+  async invalidateGroupNotifMembers(conversationId: string): Promise<void> {
+    await this.general.del(this.groupNotifMembersKey(conversationId));
+  }
 }
