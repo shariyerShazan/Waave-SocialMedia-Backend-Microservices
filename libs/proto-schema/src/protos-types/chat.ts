@@ -10,6 +10,18 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "chat";
 
+export interface ConversationMember {
+  userId: string;
+  role: string;
+  muted: boolean;
+  mutedUntil?: string | undefined;
+  archived: boolean;
+  pinned: boolean;
+  unreadCount: number;
+  leftAt?: string | undefined;
+  joinedAt: string;
+}
+
 export interface Conversation {
   id: string;
   participants: string[];
@@ -25,6 +37,7 @@ export interface Conversation {
   isDeleted: boolean;
   createdAt: number;
   updatedAt: number;
+  members: ConversationMember[];
 }
 
 export interface Conversation_UnreadCountsEntry {
@@ -33,6 +46,8 @@ export interface Conversation_UnreadCountsEntry {
 }
 
 export interface ConversationResponse {
+  success: boolean;
+  message: string;
   conversation: Conversation | undefined;
 }
 
@@ -65,6 +80,11 @@ export interface Message {
   updatedAt: number;
   sender: User | undefined;
   media: Media[];
+  forwardedFromMessageId?: string | undefined;
+  clientMessageId?: string | undefined;
+  isEdited: boolean;
+  editedAt?: number | undefined;
+  isPinned: boolean;
 }
 
 export interface Message_ReactionsEntry {
@@ -77,7 +97,9 @@ export interface StringList {
 }
 
 export interface MessageResponse {
-  message: Message | undefined;
+  success: boolean;
+  message: string;
+  messageData: Message | undefined;
 }
 
 export interface GetOrCreateConversationRequest {
@@ -96,6 +118,44 @@ export interface AddGroupMemberRequest {
   conversationId: string;
   adminId: string;
   userId: string;
+  role?: string | undefined;
+}
+
+export interface RemoveGroupMemberRequest {
+  conversationId: string;
+  adminId: string;
+  userId: string;
+}
+
+export interface LeaveGroupRequest {
+  conversationId: string;
+  userId: string;
+}
+
+export interface UpdateMemberRoleRequest {
+  conversationId: string;
+  adminId: string;
+  userId: string;
+  role: string;
+}
+
+export interface MuteConversationRequest {
+  conversationId: string;
+  userId: string;
+  muted: boolean;
+  mutedUntil?: string | undefined;
+}
+
+export interface ArchiveConversationRequest {
+  conversationId: string;
+  userId: string;
+  archived: boolean;
+}
+
+export interface PinConversationRequest {
+  conversationId: string;
+  userId: string;
+  pinned: boolean;
 }
 
 export interface SendMessageRequest {
@@ -107,6 +167,8 @@ export interface SendMessageRequest {
   mediaIds: string[];
   type: string;
   replyTo: string;
+  forwardedFromMessageId?: string | undefined;
+  clientMessageId?: string | undefined;
 }
 
 export interface GetMessagesRequest {
@@ -114,16 +176,45 @@ export interface GetMessagesRequest {
   userId: string;
   page: number;
   limit: number;
+  beforeMessageId?: string | undefined;
+  afterMessageId?: string | undefined;
+}
+
+export interface GetMessagesResponse {
+  messages: Message[];
+  total: number;
+  page: number;
+  hasMore: boolean;
+}
+
+export interface EditMessageRequest {
+  messageId: string;
+  senderId: string;
+  text: string;
 }
 
 export interface DeleteMessageRequest {
   messageId: string;
   userId: string;
+  forEveryone: boolean;
+}
+
+export interface ForwardMessageRequest {
+  sourceMessageId: string;
+  targetConversationId: string;
+  senderId: string;
+}
+
+export interface MarkReceiptRequest {
+  messageId: string;
+  userId: string;
+  status: string;
 }
 
 export interface MarkAsReadRequest {
   conversationId: string;
   userId: string;
+  upToMessageId?: string | undefined;
 }
 
 export interface ReactToMessageRequest {
@@ -132,16 +223,18 @@ export interface ReactToMessageRequest {
   emoji: string;
 }
 
+export interface PinMessageRequest {
+  conversationId: string;
+  messageId: string;
+  userId: string;
+  pinned: boolean;
+}
+
 export interface GetConversationsRequest {
   userId: string;
   page: number;
   limit: number;
-}
-
-export interface GetMessagesResponse {
-  messages: Message[];
-  total: number;
-  page: number;
+  archived?: boolean | undefined;
 }
 
 export interface ConversationItem {
@@ -155,6 +248,9 @@ export interface ConversationItem {
   lastSenderId: string;
   unreadCount: number;
   isOnline: boolean;
+  muted: boolean;
+  archived: boolean;
+  pinned: boolean;
 }
 
 export interface GetConversationsResponse {
@@ -163,9 +259,46 @@ export interface GetConversationsResponse {
   page: number;
 }
 
+export interface GetConversationRequest {
+  conversationId: string;
+  userId: string;
+}
+
 export interface OperationResponse {
   success: boolean;
   message: string;
+}
+
+export interface GetUnreadCountsRequest {
+  userId: string;
+}
+
+export interface UnreadCountItem {
+  conversationId: string;
+  count: number;
+}
+
+export interface GetUnreadCountsResponse {
+  success: boolean;
+  items: UnreadCountItem[];
+  totalUnread: number;
+}
+
+export interface GetGroupMembersForNotifRequest {
+  conversationId: string;
+}
+
+export interface GroupNotificationMember {
+  userId: string;
+  muted: boolean;
+}
+
+export interface GetGroupMembersForNotifResponse {
+  success: boolean;
+  conversationId: string;
+  groupName: string;
+  avatar: string;
+  members: GroupNotificationMember[];
 }
 
 export const CHAT_PACKAGE_NAME = "chat";
@@ -181,25 +314,55 @@ export interface ChatServiceClient {
 
   addGroupMember(request: AddGroupMemberRequest): Observable<OperationResponse>;
 
+  removeGroupMember(request: RemoveGroupMemberRequest): Observable<OperationResponse>;
+
+  leaveGroup(request: LeaveGroupRequest): Observable<OperationResponse>;
+
+  updateMemberRole(request: UpdateMemberRoleRequest): Observable<OperationResponse>;
+
+  /** Settings */
+
+  muteConversation(request: MuteConversationRequest): Observable<OperationResponse>;
+
+  archiveConversation(request: ArchiveConversationRequest): Observable<OperationResponse>;
+
+  pinConversation(request: PinConversationRequest): Observable<OperationResponse>;
+
   /** Messages */
 
   sendMessage(request: SendMessageRequest): Observable<MessageResponse>;
 
   getMessages(request: GetMessagesRequest): Observable<GetMessagesResponse>;
 
+  editMessage(request: EditMessageRequest): Observable<MessageResponse>;
+
   deleteMessage(request: DeleteMessageRequest): Observable<OperationResponse>;
 
-  /** Read status */
+  forwardMessage(request: ForwardMessageRequest): Observable<MessageResponse>;
+
+  /** Read status & Receipts */
+
+  markReceipt(request: MarkReceiptRequest): Observable<OperationResponse>;
 
   markAsRead(request: MarkAsReadRequest): Observable<OperationResponse>;
 
-  /** Reactions */
+  /** Reactions & Pins */
 
   reactToMessage(request: ReactToMessageRequest): Observable<MessageResponse>;
 
-  /** Conversation list */
+  pinMessage(request: PinMessageRequest): Observable<OperationResponse>;
+
+  /** Conversation list & Single fetch */
 
   getConversations(request: GetConversationsRequest): Observable<GetConversationsResponse>;
+
+  getConversation(request: GetConversationRequest): Observable<ConversationResponse>;
+
+  /** Unread & Notifications */
+
+  getUnreadCounts(request: GetUnreadCountsRequest): Observable<GetUnreadCountsResponse>;
+
+  getGroupMembersForNotif(request: GetGroupMembersForNotifRequest): Observable<GetGroupMembersForNotifResponse>;
 }
 
 export interface ChatServiceController {
@@ -219,6 +382,32 @@ export interface ChatServiceController {
     request: AddGroupMemberRequest,
   ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
 
+  removeGroupMember(
+    request: RemoveGroupMemberRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  leaveGroup(
+    request: LeaveGroupRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  updateMemberRole(
+    request: UpdateMemberRoleRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  /** Settings */
+
+  muteConversation(
+    request: MuteConversationRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  archiveConversation(
+    request: ArchiveConversationRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  pinConversation(
+    request: PinConversationRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
   /** Messages */
 
   sendMessage(request: SendMessageRequest): Promise<MessageResponse> | Observable<MessageResponse> | MessageResponse;
@@ -227,27 +416,58 @@ export interface ChatServiceController {
     request: GetMessagesRequest,
   ): Promise<GetMessagesResponse> | Observable<GetMessagesResponse> | GetMessagesResponse;
 
+  editMessage(request: EditMessageRequest): Promise<MessageResponse> | Observable<MessageResponse> | MessageResponse;
+
   deleteMessage(
     request: DeleteMessageRequest,
   ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
 
-  /** Read status */
+  forwardMessage(
+    request: ForwardMessageRequest,
+  ): Promise<MessageResponse> | Observable<MessageResponse> | MessageResponse;
+
+  /** Read status & Receipts */
+
+  markReceipt(
+    request: MarkReceiptRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
 
   markAsRead(
     request: MarkAsReadRequest,
   ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
 
-  /** Reactions */
+  /** Reactions & Pins */
 
   reactToMessage(
     request: ReactToMessageRequest,
   ): Promise<MessageResponse> | Observable<MessageResponse> | MessageResponse;
 
-  /** Conversation list */
+  pinMessage(
+    request: PinMessageRequest,
+  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+
+  /** Conversation list & Single fetch */
 
   getConversations(
     request: GetConversationsRequest,
   ): Promise<GetConversationsResponse> | Observable<GetConversationsResponse> | GetConversationsResponse;
+
+  getConversation(
+    request: GetConversationRequest,
+  ): Promise<ConversationResponse> | Observable<ConversationResponse> | ConversationResponse;
+
+  /** Unread & Notifications */
+
+  getUnreadCounts(
+    request: GetUnreadCountsRequest,
+  ): Promise<GetUnreadCountsResponse> | Observable<GetUnreadCountsResponse> | GetUnreadCountsResponse;
+
+  getGroupMembersForNotif(
+    request: GetGroupMembersForNotifRequest,
+  ):
+    | Promise<GetGroupMembersForNotifResponse>
+    | Observable<GetGroupMembersForNotifResponse>
+    | GetGroupMembersForNotifResponse;
 }
 
 export function ChatServiceControllerMethods() {
@@ -256,12 +476,25 @@ export function ChatServiceControllerMethods() {
       "getOrCreateConversation",
       "createGroup",
       "addGroupMember",
+      "removeGroupMember",
+      "leaveGroup",
+      "updateMemberRole",
+      "muteConversation",
+      "archiveConversation",
+      "pinConversation",
       "sendMessage",
       "getMessages",
+      "editMessage",
       "deleteMessage",
+      "forwardMessage",
+      "markReceipt",
       "markAsRead",
       "reactToMessage",
+      "pinMessage",
       "getConversations",
+      "getConversation",
+      "getUnreadCounts",
+      "getGroupMembersForNotif",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

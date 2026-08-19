@@ -26,8 +26,8 @@ import {
   CreateE2eeGroupDto,
   EditE2eeMessageDto,
   E2eePaginationDto,
-  ForwardMessageDto,
-  MarkConversationReadDto,
+  ForwardE2eeMessageDto,
+  MarkE2eeConversationReadDto,
   MarkE2eeReceiptDto,
   MuteConversationDto,
   PinConversationDto,
@@ -299,7 +299,7 @@ export class E2eeChatHttpController {
 
   @Post('messages/forward')
   @ApiOperation({ summary: 'Forward encrypted message' })
-  forwardMessage(@Req() req: AuthRequest, @Body() body: ForwardMessageDto) {
+  forwardMessage(@Req() req: AuthRequest, @Body() body: ForwardE2eeMessageDto) {
     return this.e2eeChatService.forwardMessage({
       sourceMessageId: body.sourceMessageId,
       targetConversationId: body.targetConversationId,
@@ -324,11 +324,11 @@ export class E2eeChatHttpController {
 
   @Post('conversations/:conversationId/read')
   @ApiOperation({ summary: 'Mark conversation as read' })
-  @ApiBody({ type: MarkConversationReadDto })
+  @ApiBody({ type: MarkE2eeConversationReadDto })
   markConversationRead(
     @Req() req: AuthRequest,
     @Param('conversationId') conversationId: string,
-    @Body() body: MarkConversationReadDto,
+    @Body() body: MarkE2eeConversationReadDto,
   ) {
     return this.e2eeChatService.markConversationRead(
       conversationId,

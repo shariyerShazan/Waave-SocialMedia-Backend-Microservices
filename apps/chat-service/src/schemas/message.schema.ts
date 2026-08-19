@@ -39,8 +39,29 @@ export class Message {
   @Prop({ default: false })
   isDeleted: boolean;
 
+  @Prop({ type: [String], default: [] })
+  deletedFor: string[];
+
   @Prop({ default: null })
   replyTo: string | null;
+
+  @Prop({ default: null })
+  forwardedFromMessageId: string | null;
+
+  @Prop({ default: null })
+  clientMessageId: string | null;
+
+  @Prop({ default: false })
+  isEdited: boolean;
+
+  @Prop({ default: null })
+  editedAt: Date | null;
+
+  @Prop({ type: Object, default: {} })
+  receipts: Record<string, { status: string; updatedAt: Date }>;
+
+  @Prop({ type: [String], default: [] })
+  pinnedBy: string[];
 
   createdAt: Date;
   updatedAt: Date;
@@ -52,3 +73,4 @@ export const MessageSchema = SchemaFactory.createForClass(Message);
 MessageSchema.index({ conversationId: 1, createdAt: -1 });
 MessageSchema.index({ senderId: 1 });
 MessageSchema.index({ readBy: 1 });
+MessageSchema.index({ conversationId: 1, clientMessageId: 1 });

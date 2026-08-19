@@ -10,23 +10,50 @@ service ChatService {
   // Group
   rpc CreateGroup(CreateGroupRequest) returns (ConversationResponse);
   rpc AddGroupMember(AddGroupMemberRequest) returns (OperationResponse);
+  rpc RemoveGroupMember(RemoveGroupMemberRequest) returns (OperationResponse);
+  rpc LeaveGroup(LeaveGroupRequest) returns (OperationResponse);
+  rpc UpdateMemberRole(UpdateMemberRoleRequest) returns (OperationResponse);
+
+  // Settings
+  rpc MuteConversation(MuteConversationRequest) returns (OperationResponse);
+  rpc ArchiveConversation(ArchiveConversationRequest) returns (OperationResponse);
+  rpc PinConversation(PinConversationRequest) returns (OperationResponse);
 
   // Messages
   rpc SendMessage(SendMessageRequest) returns (MessageResponse);
   rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc EditMessage(EditMessageRequest) returns (MessageResponse);
   rpc DeleteMessage(DeleteMessageRequest) returns (OperationResponse);
+  rpc ForwardMessage(ForwardMessageRequest) returns (MessageResponse);
 
-  // Read status
+  // Read status & Receipts
+  rpc MarkReceipt(MarkReceiptRequest) returns (OperationResponse);
   rpc MarkAsRead(MarkAsReadRequest) returns (OperationResponse);
 
-  // Reactions
+  // Reactions & Pins
   rpc ReactToMessage(ReactToMessageRequest) returns (MessageResponse);
+  rpc PinMessage(PinMessageRequest) returns (OperationResponse);
 
-  // Conversation list
-  rpc GetConversations(GetConversationsRequest)
-      returns (GetConversationsResponse);
+  // Conversation list & Single fetch
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse);
+  rpc GetConversation(GetConversationRequest) returns (ConversationResponse);
+
+  // Unread & Notifications
+  rpc GetUnreadCounts(GetUnreadCountsRequest) returns (GetUnreadCountsResponse);
+  rpc GetGroupMembersForNotif(GetGroupMembersForNotifRequest) returns (GetGroupMembersForNotifResponse);
 }
 
+message ConversationMember {
+  string userId = 1;
+  string role = 2;
+  bool muted = 3;
+  optional string mutedUntil = 4;
+  bool archived = 5;
+  bool pinned = 6;
+  int32 unreadCount = 7;
+  optional string leftAt = 8;
+  string joinedAt = 9;
+}
 
 message Conversation {
   string id = 1;
@@ -42,12 +69,14 @@ message Conversation {
   bool isDeleted = 11;
   int64 createdAt = 12;
   int64 updatedAt = 13;
+  repeated ConversationMember members = 14;
 }
 
 message ConversationResponse {
-  Conversation conversation = 1;
+  bool success = 1;
+  string message = 2;
+  Conversation conversation = 3;
 }
-
 
 message Media {
   string id       = 1;
@@ -77,6 +106,11 @@ message Message {
   int64 updatedAt = 10;
   User sender = 11;
   repeated Media media = 12;
+  optional string forwardedFromMessageId = 13;
+  optional string clientMessageId = 14;
+  bool isEdited = 15;
+  optional int64 editedAt = 16;
+  bool isPinned = 17;
 }
 
 message StringList {
@@ -84,7 +118,9 @@ message StringList {
 }
 
 message MessageResponse {
-  Message message = 1;
+  bool success = 1;
+  string message = 2;
+  Message messageData = 3;
 }
 
 message GetOrCreateConversationRequest {
@@ -103,6 +139,44 @@ message AddGroupMemberRequest {
   string conversationId = 1;
   string adminId = 2;
   string userId = 3;
+  optional string role = 4;
+}
+
+message RemoveGroupMemberRequest {
+  string conversationId = 1;
+  string adminId = 2;
+  string userId = 3;
+}
+
+message LeaveGroupRequest {
+  string conversationId = 1;
+  string userId = 2;
+}
+
+message UpdateMemberRoleRequest {
+  string conversationId = 1;
+  string adminId = 2;
+  string userId = 3;
+  string role = 4;
+}
+
+message MuteConversationRequest {
+  string conversationId = 1;
+  string userId = 2;
+  bool muted = 3;
+  optional string mutedUntil = 4;
+}
+
+message ArchiveConversationRequest {
+  string conversationId = 1;
+  string userId = 2;
+  bool archived = 3;
+}
+
+message PinConversationRequest {
+  string conversationId = 1;
+  string userId = 2;
+  bool pinned = 3;
 }
 
 message SendMessageRequest {
@@ -114,6 +188,8 @@ message SendMessageRequest {
   repeated string mediaIds = 6;
   string type = 7;
   string replyTo = 8;
+  optional string forwardedFromMessageId = 9;
+  optional string clientMessageId = 10;
 }
 
 message GetMessagesRequest {
@@ -121,16 +197,45 @@ message GetMessagesRequest {
   string userId = 2;
   int32 page = 3;
   int32 limit = 4;
+  optional string beforeMessageId = 5;
+  optional string afterMessageId = 6;
+}
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
+  int32 total = 2;
+  int32 page = 3;
+  bool hasMore = 4;
+}
+
+message EditMessageRequest {
+  string messageId = 1;
+  string senderId = 2;
+  string text = 3;
 }
 
 message DeleteMessageRequest {
   string messageId = 1;
   string userId = 2;
+  bool forEveryone = 3;
+}
+
+message ForwardMessageRequest {
+  string sourceMessageId = 1;
+  string targetConversationId = 2;
+  string senderId = 3;
+}
+
+message MarkReceiptRequest {
+  string messageId = 1;
+  string userId = 2;
+  string status = 3;
 }
 
 message MarkAsReadRequest {
   string conversationId = 1;
   string userId = 2;
+  optional string upToMessageId = 3;
 }
 
 message ReactToMessageRequest {
@@ -139,17 +244,18 @@ message ReactToMessageRequest {
   string emoji = 3;
 }
 
+message PinMessageRequest {
+  string conversationId = 1;
+  string messageId = 2;
+  string userId = 3;
+  bool pinned = 4;
+}
+
 message GetConversationsRequest {
   string userId = 1;
   int32 page = 2;
   int32 limit = 3;
-}
-
-
-message GetMessagesResponse {
-  repeated Message messages = 1;
-  int32 total = 2;
-  int32 page = 3;
+  optional bool archived = 4;
 }
 
 message ConversationItem {
@@ -163,6 +269,9 @@ message ConversationItem {
   string lastSenderId = 8;
   int32 unreadCount = 9;
   bool isOnline = 10;
+  bool muted = 11;
+  bool archived = 12;
+  bool pinned = 13;
 }
 
 message GetConversationsResponse {
@@ -171,8 +280,44 @@ message GetConversationsResponse {
   int32 page = 3;
 }
 
+message GetConversationRequest {
+  string conversationId = 1;
+  string userId = 2;
+}
 
 message OperationResponse {
   bool success = 1;
   string message = 2;
+}
+
+message GetUnreadCountsRequest {
+  string userId = 1;
+}
+
+message UnreadCountItem {
+  string conversationId = 1;
+  int32 count = 2;
+}
+
+message GetUnreadCountsResponse {
+  bool success = 1;
+  repeated UnreadCountItem items = 2;
+  int32 totalUnread = 3;
+}
+
+message GetGroupMembersForNotifRequest {
+  string conversation_id = 1;
+}
+
+message GroupNotificationMember {
+  string user_id = 1;
+  bool muted = 2;
+}
+
+message GetGroupMembersForNotifResponse {
+  bool success = 1;
+  string conversation_id = 2;
+  string group_name = 3;
+  string avatar = 4;
+  repeated GroupNotificationMember members = 5;
 }

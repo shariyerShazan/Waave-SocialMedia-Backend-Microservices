@@ -2,7 +2,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
-  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -249,7 +248,7 @@ export class MarkE2eeReceiptDto {
   status: E2eeReceiptStatus;
 }
 
-export class MarkConversationReadDto {
+export class MarkE2eeConversationReadDto {
   @ApiProperty({ description: 'Device marking read' })
   @IsString()
   @IsNotEmpty()
@@ -259,37 +258,6 @@ export class MarkConversationReadDto {
   @IsOptional()
   @IsUUID()
   upToMessageId?: string;
-}
-
-export class MuteConversationDto {
-  @ApiProperty()
-  @IsBoolean()
-  muted: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Mute until ISO timestamp; omit for indefinite',
-  })
-  @IsOptional()
-  @IsString()
-  mutedUntil?: string;
-}
-
-export class ArchiveConversationDto {
-  @ApiProperty()
-  @IsBoolean()
-  archived: boolean;
-}
-
-export class PinConversationDto {
-  @ApiProperty()
-  @IsBoolean()
-  pinned: boolean;
-}
-
-export class PinMessageDto {
-  @ApiProperty()
-  @IsBoolean()
-  pinned: boolean;
 }
 
 export class UploadSenderKeyDto {
@@ -337,7 +305,7 @@ export class E2eePaginationDto {
   afterMessageId?: string;
 }
 
-export class ForwardMessageDto {
+export class ForwardE2eeMessageDto {
   @ApiProperty()
   @IsUUID()
   sourceMessageId: string;

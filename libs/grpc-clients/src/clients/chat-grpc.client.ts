@@ -1,9 +1,33 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import {
   CHAT_SERVICE_NAME,
   ChatServiceClient,
+  type AddGroupMemberRequest,
+  type ArchiveConversationRequest,
+  type CreateGroupRequest,
+  type DeleteMessageRequest,
+  type EditMessageRequest,
+  type ForwardMessageRequest,
+  type GetConversationRequest,
+  type GetConversationsRequest,
+  type GetGroupMembersForNotifRequest,
+  type GetGroupMembersForNotifResponse,
+  type GetMessagesRequest,
+  type GetOrCreateConversationRequest,
+  type GetUnreadCountsRequest,
+  type LeaveGroupRequest,
+  type MarkAsReadRequest,
+  type MarkReceiptRequest,
+  type MuteConversationRequest,
+  type PinConversationRequest,
+  type PinMessageRequest,
+  type ReactToMessageRequest,
+  type RemoveGroupMemberRequest,
+  type SendMessageRequest,
+  type UpdateMemberRoleRequest,
 } from '@app/proto-schema/protos-types/chat';
 import {
   HttpException,
@@ -44,25 +68,23 @@ export class ChatGrpcClient implements OnModuleInit {
     );
   }
 
-  async getOrCreateConversation(userId1: string, userId2: string) {
+  async getOrCreateConversation(
+    data: GetOrCreateConversationRequest | { userId1: string; userId2: string },
+  ) {
     try {
+      const payload =
+        'userId1' in data
+          ? data
+          : { userId1: (data as any).userId, userId2: (data as any).targetUserId };
       return await firstValueFrom(
-        this.chatService.getOrCreateConversation({
-          userId1,
-          userId2,
-        }),
+        this.chatService.getOrCreateConversation(payload),
       );
     } catch (err) {
       this.handleError(err);
     }
   }
 
-  async createGroup(data: {
-    name: string;
-    creatorId: string;
-    participantIds: string[];
-    avatar?: string;
-  }) {
+  async createGroup(data: CreateGroupRequest) {
     try {
       return await firstValueFrom(
         this.chatService.createGroup({
@@ -77,17 +99,16 @@ export class ChatGrpcClient implements OnModuleInit {
     }
   }
 
-  async addGroupMember(
-    conversationId: string,
-    adminId: string,
-    userId: string,
+  async getConversations(
+    data: GetConversationsRequest | { userId: string; page?: number; limit?: number; archived?: boolean },
   ) {
     try {
       return await firstValueFrom(
-        this.chatService.addGroupMember({
-          conversationId,
-          adminId,
-          userId,
+        this.chatService.getConversations({
+          userId: data.userId,
+          page: data.page ?? 1,
+          limit: data.limit ?? 20,
+          archived: data.archived,
         }),
       );
     } catch (err) {
@@ -95,16 +116,93 @@ export class ChatGrpcClient implements OnModuleInit {
     }
   }
 
-  async sendMessage(data: {
-    conversationId: string;
-    senderId: string;
-    senderName?: string;
-    senderAvatar?: string;
-    text: string;
-    mediaIds?: string[];
-    type?: string;
-    replyTo?: string;
-  }) {
+  async getConversation(data: GetConversationRequest) {
+    try {
+      return await firstValueFrom(this.chatService.getConversation(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async addGroupMember(
+    data: AddGroupMemberRequest | { conversationId: string; adminId: string; userId: string; role?: string },
+  ) {
+    try {
+      return await firstValueFrom(
+        this.chatService.addGroupMember({
+          conversationId: data.conversationId,
+          adminId: data.adminId,
+          userId: data.userId,
+          role: data.role ?? 'MEMBER',
+        }),
+      );
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async removeGroupMember(data: RemoveGroupMemberRequest) {
+    try {
+      return await firstValueFrom(this.chatService.removeGroupMember(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async leaveGroup(data: LeaveGroupRequest) {
+    try {
+      return await firstValueFrom(this.chatService.leaveGroup(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async updateMemberRole(data: UpdateMemberRoleRequest) {
+    try {
+      return await firstValueFrom(this.chatService.updateMemberRole(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async muteConversation(data: MuteConversationRequest) {
+    try {
+      return await firstValueFrom(this.chatService.muteConversation(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async archiveConversation(data: ArchiveConversationRequest) {
+    try {
+      return await firstValueFrom(this.chatService.archiveConversation(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async pinConversation(data: PinConversationRequest) {
+    try {
+      return await firstValueFrom(this.chatService.pinConversation(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async sendMessage(
+    data: SendMessageRequest | {
+      conversationId: string;
+      senderId: string;
+      senderName?: string;
+      senderAvatar?: string;
+      text: string;
+      mediaIds?: string[];
+      type?: string;
+      replyTo?: string;
+      forwardedFromMessageId?: string;
+      clientMessageId?: string;
+    },
+  ) {
     try {
       return await firstValueFrom(
         this.chatService.sendMessage({
@@ -116,6 +214,8 @@ export class ChatGrpcClient implements OnModuleInit {
           mediaIds: data.mediaIds ?? [],
           type: data.type ?? 'text',
           replyTo: data.replyTo ?? '',
+          forwardedFromMessageId: data.forwardedFromMessageId,
+          clientMessageId: data.clientMessageId,
         }),
       );
     } catch (err) {
@@ -124,18 +224,24 @@ export class ChatGrpcClient implements OnModuleInit {
   }
 
   async getMessages(
-    conversationId: string,
-    userId: string,
-    page = 1,
-    limit = 50,
+    data: GetMessagesRequest | {
+      conversationId: string;
+      userId: string;
+      page?: number;
+      limit?: number;
+      beforeMessageId?: string;
+      afterMessageId?: string;
+    },
   ) {
     try {
       return await firstValueFrom(
         this.chatService.getMessages({
-          conversationId,
-          userId,
-          page,
-          limit,
+          conversationId: data.conversationId,
+          userId: data.userId,
+          page: data.page ?? 1,
+          limit: data.limit ?? 50,
+          beforeMessageId: data.beforeMessageId,
+          afterMessageId: data.afterMessageId,
         }),
       );
     } catch (err) {
@@ -143,12 +249,23 @@ export class ChatGrpcClient implements OnModuleInit {
     }
   }
 
-  async deleteMessage(messageId: string, userId: string) {
+  async editMessage(data: EditMessageRequest) {
+    try {
+      return await firstValueFrom(this.chatService.editMessage(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async deleteMessage(
+    data: DeleteMessageRequest | { messageId: string; userId: string; forEveryone?: boolean },
+  ) {
     try {
       return await firstValueFrom(
         this.chatService.deleteMessage({
-          messageId,
-          userId,
+          messageId: data.messageId,
+          userId: data.userId,
+          forEveryone: data.forEveryone ?? false,
         }),
       );
     } catch (err) {
@@ -156,12 +273,31 @@ export class ChatGrpcClient implements OnModuleInit {
     }
   }
 
-  async markAsRead(conversationId: string, userId: string) {
+  async forwardMessage(data: ForwardMessageRequest) {
+    try {
+      return await firstValueFrom(this.chatService.forwardMessage(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async markReceipt(data: MarkReceiptRequest) {
+    try {
+      return await firstValueFrom(this.chatService.markReceipt(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async markAsRead(
+    data: MarkAsReadRequest | { conversationId: string; userId: string; upToMessageId?: string },
+  ) {
     try {
       return await firstValueFrom(
         this.chatService.markAsRead({
-          conversationId,
-          userId,
+          conversationId: data.conversationId,
+          userId: data.userId,
+          upToMessageId: data.upToMessageId,
         }),
       );
     } catch (err) {
@@ -169,13 +305,15 @@ export class ChatGrpcClient implements OnModuleInit {
     }
   }
 
-  async reactToMessage(messageId: string, userId: string, emoji: string) {
+  async reactToMessage(
+    data: ReactToMessageRequest | { messageId: string; userId: string; emoji: string },
+  ) {
     try {
       return await firstValueFrom(
         this.chatService.reactToMessage({
-          messageId,
-          userId,
-          emoji,
+          messageId: data.messageId,
+          userId: data.userId,
+          emoji: data.emoji,
         }),
       );
     } catch (err) {
@@ -183,14 +321,28 @@ export class ChatGrpcClient implements OnModuleInit {
     }
   }
 
-  async getConversations(userId: string, page = 1, limit = 20) {
+  async pinMessage(data: PinMessageRequest) {
+    try {
+      return await firstValueFrom(this.chatService.pinMessage(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async getUnreadCounts(data: GetUnreadCountsRequest) {
+    try {
+      return await firstValueFrom(this.chatService.getUnreadCounts(data));
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  async getGroupMembersForNotif(
+    data: GetGroupMembersForNotifRequest,
+  ): Promise<GetGroupMembersForNotifResponse> {
     try {
       return await firstValueFrom(
-        this.chatService.getConversations({
-          userId,
-          page,
-          limit,
-        }),
+        this.chatService.getGroupMembersForNotif(data),
       );
     } catch (err) {
       this.handleError(err);

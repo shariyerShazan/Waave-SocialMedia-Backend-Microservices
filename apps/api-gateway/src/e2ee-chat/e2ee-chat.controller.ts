@@ -31,8 +31,8 @@ import {
   CreateE2eeGroupDto,
   EditE2eeMessageDto,
   E2eePaginationDto,
-  ForwardMessageDto,
-  MarkConversationReadDto,
+  ForwardE2eeMessageDto,
+  MarkE2eeConversationReadDto,
   MarkE2eeReceiptDto,
   MuteConversationDto,
   PinConversationDto,
@@ -381,13 +381,13 @@ export class E2eeChatController {
   @Post('messages/:id/forward')
   @ApiOperation({ summary: 'Forward encrypted message' })
   @ApiParam({ name: 'id', example: '68844a7d8a4f7b0cb3ab5678' })
-  @ApiBody({ type: ForwardMessageDto })
+  @ApiBody({ type: ForwardE2eeMessageDto })
   @ApiCreatedResponse({ description: 'Message forwarded successfully.' })
   @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
   forwardMessage(
     @Req() req: Express.Request,
     @Param('id') id: string,
-    @Body() dto: ForwardMessageDto,
+    @Body() dto: ForwardE2eeMessageDto,
     @Headers('x-device-id') deviceHeader?: string,
   ) {
     return this.e2eeChatClient.forwardMessage({
@@ -427,13 +427,13 @@ export class E2eeChatController {
   @Post('conversations/:id/read')
   @ApiOperation({ summary: 'Mark E2EE conversation as read' })
   @ApiParam({ name: 'id', example: '68844a7d8a4f7b0cb3ab1234' })
-  @ApiBody({ type: MarkConversationReadDto })
+  @ApiBody({ type: MarkE2eeConversationReadDto })
   @ApiOkResponse({ description: 'Conversation marked as read.' })
   @RateLimit(120, 60, { key: RateLimitKeyType.IP_USER_ID })
   markConversationRead(
     @Req() req: Express.Request,
     @Param('id') id: string,
-    @Body() dto: MarkConversationReadDto,
+    @Body() dto: MarkE2eeConversationReadDto,
     @Headers('x-device-id') deviceHeader?: string,
   ) {
     return this.e2eeChatClient.markConversationRead({
