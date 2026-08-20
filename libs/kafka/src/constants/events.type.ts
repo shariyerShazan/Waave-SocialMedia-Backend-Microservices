@@ -101,3 +101,11 @@ export interface EncryptedMessageSentEvent {
   senderDeviceId: string;
   messageType: string;
 }
+
+export interface MessageSentEvent {
+  conversationId: string;
+  messageId: string;
+  senderId: string;
+  messageType: string;
+  text?: string;
+}

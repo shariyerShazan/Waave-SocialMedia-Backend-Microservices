@@ -10,6 +10,7 @@ import {
 } from '../schemas/conversation.schema';
 import { Message, MessageSchema } from '../schemas/message.schema';
 import { ChatGrpcController } from './chat.grpc.controller';
+import { KAFKA_CLIENT_IDS, KafkaModule } from '@app/kafka';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ChatGrpcController } from './chat.grpc.controller';
         schema: MessageSchema,
       },
     ]),
+    KafkaModule.register(KAFKA_CLIENT_IDS.CHAT),
   ],
   controllers: [ChatHttpController, ChatGateway, ChatGrpcController],
   providers: [ChatService, ChatRedisService],

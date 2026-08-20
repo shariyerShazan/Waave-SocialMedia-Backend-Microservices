@@ -10,6 +10,15 @@ import {
 } from '../schemas/conversation.schema';
 import { ChatRedisService } from '../redis/redis.service';
 import { ChatEnrichmentService } from './enrichments/enrichment.service';
+import { KAFKA_TOPICS, KafkaService } from '@app/kafka';
+import {
+  GroupCreatedEvent,
+  GroupMemberAddedEvent,
+  GroupMemberLeftEvent,
+  GroupMemberRemovedEvent,
+  MessageSentEvent,
+} from '@app/kafka/constants/events.type';
+import { E2eeMemberRole } from '@app/common';
 
 @Injectable()
 export class ChatService {
@@ -24,6 +33,7 @@ export class ChatService {
 
     private redis: ChatRedisService,
     private readonly enrichment: ChatEnrichmentService,
+    private readonly kafka: KafkaService,
   ) {}
 
   private getMemberHelper(
@@ -134,6 +144,15 @@ export class ChatService {
       unreadCounts,
       members,
     });
+
+    const groupCreateData: GroupCreatedEvent = {
+      conversationId: group.id,
+      groupName: group.name || 'N/A',
+      creatorId: data.creatorId,
+      participantIds: participants,
+      avatar: group.avatar || 'N/A',
+    };
+    await this.kafka.emit(KAFKA_TOPICS.GROUP_CREATED, groupCreateData);
 
     this.logger.log(`Group created: ${group.id} by ${data.creatorId}`);
 
@@ -289,6 +308,15 @@ export class ChatService {
     await this.conversationModel.findByIdAndUpdate(conversationId, updateOps, {
       arrayFilters: existingMember ? [{ 'elem.userId': userId }] : undefined,
     });
+
+    const addMemberData: GroupMemberAddedEvent = {
+      conversationId,
+      groupName: group.name || 'N/A',
+      userId,
+      addedBy: adminId,
+      role: (role as any) || E2eeMemberRole.MEMBER,
+    };
+    await this.kafka.emit(KAFKA_TOPICS.GROUP_MEMBER_ADDED, addMemberData);
   }
 
   // ── Remove Group Member ───────────────────────
@@ -311,6 +339,14 @@ export class ChatService {
     }, {
       arrayFilters: [{ 'elem.userId': userId }],
     });
+
+    const removeMemberData: GroupMemberRemovedEvent = {
+      conversationId,
+      groupName: group.name || 'N/A',
+      userId,
+      removedBy: adminId,
+    };
+    await this.kafka.emit(KAFKA_TOPICS.GROUP_MEMBER_REMOVED, removeMemberData);
   }
 
   // ── Leave Group ───────────────────────────────
@@ -329,6 +365,13 @@ export class ChatService {
     }, {
       arrayFilters: [{ 'elem.userId': userId }],
     });
+
+    const leaveGroupData: GroupMemberLeftEvent = {
+      conversationId,
+      groupName: group.name || 'N/A',
+      userId,
+    };
+    await this.kafka.emit(KAFKA_TOPICS.GROUP_MEMBER_LEFT, leaveGroupData);
   }
 
   // ── Update Member Role ────────────────────────
@@ -519,6 +562,15 @@ export class ChatService {
     }
 
     this.logger.debug(`Message sent: ${message.id} in ${data.conversationId}`);
+
+    const messageSentData: MessageSentEvent = {
+      conversationId: data.conversationId,
+      messageId: message.id,
+      senderId: data.senderId,
+      messageType: data.type || 'text',
+      text: data.text,
+    };
+    await this.kafka.emit(KAFKA_TOPICS.MESSAGE_SENT, messageSentData);
 
     const [enriched] = await this.enrichment.enrichMessages([
       message.toObject(),

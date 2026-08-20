@@ -51,6 +51,7 @@ export const KAFKA_TOPICS = {
   GROUP_MEMBER_REMOVED: 'chat.group.member.removed',
   GROUP_MEMBER_LEFT: 'chat.group.member.left',
   ENCRYPTED_MESSAGE_SENT: 'chat.encrypt.message.sent',
+  MESSAGE_SENT: 'chat.message.sent',
 };
 
 export type KafkaTopics = (typeof KAFKA_TOPICS)[keyof typeof KAFKA_TOPICS];
