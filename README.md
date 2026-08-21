@@ -123,10 +123,15 @@ Waave/
 │   ├── images/                 # Post image asset folder
 │   ├── videos/                 # Video upload storage directory
 │   └── temp/                   # Temporary cache of uploaded file streams
-├── docker-compose.yaml         # Multi-container cluster (PostgreSQL, MongoDB, Kafka, Redis)
+├── docker/                     # Dockerized infrastructure and startup compose files
+│   ├── compose/                # Compose stacks for infrastructure and services
+│   ├── mongodb/                # MongoDB init/bootstrap assets
+│   └── postgres/               # PostgreSQL init/bootstrap assets
 ├── package.json                # Custom workspace run-scripts and engine drivers
 └── tsconfig.json               # Global compiler configuration
 ```
+
+> Note: this repository uses the compose files under `docker/compose/*.yml` rather than a single root `docker-compose.yaml` file.
 
 ---
 
@@ -134,18 +139,18 @@ Waave/
 
 The platform functions using the following defaults, customizable via workspace environment configurations:
 
-| Service Name          | Primary Protocol |   Port Config   | Backing Database            | Caching Strategy     | Key Directories                                                                                                   |
-| :-------------------- | :--------------: | :-------------: | :-------------------------- | :------------------- | :---------------------------------------------------------------------------------------------------------------- |
-| **API Gateway**       |    HTTP/REST     |     `4000`      | None                        | Redis (`RedisGW`)    | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/api-gateway)             |
-| **Auth Service**      |   gRPC / HTTP    | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/auth-service)           |
-| **User Service**      |   gRPC / HTTP    | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/user-service)           |
-| **Post Service**      |   gRPC / HTTP    | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/post-service)           |
-| **Feed Service**      |   gRPC / HTTP    | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/feed-service)           |
-| **Chat Service**      |   gRPC / HTTP    | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/chat-service)           |
-| **E2EE Chat Service** |   gRPC / HTTP    | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/e2ee-chat-service) |
-| **Media Service**     |   gRPC / HTTP    | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/media-service)         |
+| Service Name          | Primary Protocol |   Port Config   | Backing Database            | Caching Strategy     | Key Directories                                                                                                    |
+| :-------------------- | :--------------: | :-------------: | :-------------------------- | :------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| **API Gateway**       |    HTTP/REST     |     `4000`      | None                        | Redis (`RedisGW`)    | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/api-gateway)                   |
+| **Auth Service**      |   gRPC / HTTP    | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/auth-service)                 |
+| **User Service**      |   gRPC / HTTP    | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/user-service)                 |
+| **Post Service**      |   gRPC / HTTP    | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/post-service)                 |
+| **Feed Service**      |   gRPC / HTTP    | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/feed-service)                 |
+| **Chat Service**      |   gRPC / HTTP    | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/chat-service)                 |
+| **E2EE Chat Service** |   gRPC / HTTP    | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/e2ee-chat-service)       |
+| **Media Service**     |   gRPC / HTTP    | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/media-service)               |
 | **Notification**      | gRPC / HTTP / WS | `3010` / `4010` | MongoDB (`MongoDBNotif`)    | Redis                | [`apps/notification-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/notification-service) |
-| **MCP Service**       |   gRPC / HTTP    | `3011` / `4011` | None                        | None                 | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/mcp-service)             |
+| **MCP Service**       |   gRPC / HTTP    | `3011` / `4011` | None                        | None                 | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/mcp-service)                   |
 
 ---
 

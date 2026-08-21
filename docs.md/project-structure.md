@@ -9,7 +9,7 @@ Waave/
 ├── apps/                  # Independent NestJS applications
 ├── libs/                  # Shared libraries and generated proto types
 ├── storage/               # Local storage for uploaded media assets
-├── docker-compose.yaml    # Infrastructure for databases, Redis, and Kafka
+├── docker/                 # Infrastructure for databases, Redis, and Kafka
 ├── package.json           # Workspace scripts and dependencies
 └── README.md              # Project overview
 ```
@@ -166,7 +166,7 @@ This layer is used by the media service to persist generated variants and origin
 
 ## Infrastructure layer
 
-The root `docker-compose.yaml` provisions the backing infrastructure:
+The Docker Compose files under `docker/compose/*.yml` provision the backing infrastructure, with bootstrap assets in `docker/postgres/` and `docker/mongodb/`:
 
 - PostgreSQL for auth, user, post, and e2ee-chat data
 - MongoDB for media metadata, chat logs, and notifications
