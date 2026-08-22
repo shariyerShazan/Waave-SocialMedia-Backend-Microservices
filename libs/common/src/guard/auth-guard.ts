@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 export interface JwtPayload {
   userId: string;
@@ -22,8 +23,21 @@ interface AuthenticatedRequest extends Request {
 export class AuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
+  private getRequest(context: ExecutionContext): AuthenticatedRequest {
+    let req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    if (!req || !req.headers) {
+      const gqlCtx = GqlExecutionContext.create(context).getContext();
+      req = gqlCtx?.req;
+    }
+    return req;
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const request = this.getRequest(context);
+
+    if (!request || !request.headers) {
+      throw new UnauthorizedException('Access token required');
+    }
 
     const authHeader = request.headers.authorization;
 
