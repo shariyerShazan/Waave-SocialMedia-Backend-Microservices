@@ -15,6 +15,8 @@ import {
   RateLimitKeyType,
 } from '../decorator/rate-limit.decorator';
 
+import { GqlExecutionContext } from '@nestjs/graphql';
+
 export interface JwtPayload {
   userId: string;
   email: string;
@@ -42,8 +44,18 @@ export class RateLimitGuard implements CanActivate {
       return true;
     }
 
-    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const res = context.switchToHttp().getResponse<Response>();
+    let req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    let res = context.switchToHttp().getResponse<Response>();
+
+    if (!req || !req.headers) {
+      const gqlCtx = GqlExecutionContext.create(context).getContext();
+      req = gqlCtx?.req;
+      res = gqlCtx?.res;
+    }
+
+    if (!req) {
+      return true;
+    }
 
     const ip = this.getClientIp(req);
 
@@ -55,9 +67,11 @@ export class RateLimitGuard implements CanActivate {
       config.window,
     );
 
-    res.setHeader('X-RateLimit-Limit', config.limit);
-    res.setHeader('X-RateLimit-Remaining', result.remaining);
-    res.setHeader('X-RateLimit-Reset', result.reset);
+    if (res && typeof res.setHeader === 'function') {
+      res.setHeader('X-RateLimit-Limit', config.limit);
+      res.setHeader('X-RateLimit-Remaining', result.remaining);
+      res.setHeader('X-RateLimit-Reset', result.reset);
+    }
 
     if (!result.allowed) {
       throw new HttpException(
