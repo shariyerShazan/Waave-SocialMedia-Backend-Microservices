@@ -19,6 +19,7 @@ import { join } from 'path';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      path: '/api/v1/graphql',
       autoSchemaFile: join(process.cwd(), 'schema.gql'),
       sortSchema: true,
       playground: true,
@@ -43,4 +44,4 @@ import { join } from 'path';
     McpGatewayModule,
   ],
 })
-export class GatewayAppModule {}
+export class GatewayAppModule { }

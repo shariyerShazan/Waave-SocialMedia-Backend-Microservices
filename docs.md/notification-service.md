@@ -27,7 +27,7 @@ The notification service is a NestJS application using Kafka and gRPC.
 
 ### 1. In-App Notification Streams & Preferences
 
-Exposes `NotificationGrpcService` to handle:
+Exposes `NotificationGrpcService` (accessed via Gateway REST endpoints `/notifications/*` and `NotificationResolver` GraphQL queries/mutations) to handle:
 - **`GetNotifications`**: Returns history containing a nested `sender` object (`User` structure containing `id`, `fullName`, `avatar`, `verified`, etc.)
 - **`MarkAsRead`** / **`MarkAllAsRead`** / **`DeleteNotification`**
 - **`GetPreferences`** / **`UpdatePreferences`**

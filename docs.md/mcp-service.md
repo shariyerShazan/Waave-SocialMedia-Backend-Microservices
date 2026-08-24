@@ -83,10 +83,11 @@ Exposes the `AgentService.ask(userId, prompt)` interface:
 
 ## Service Endpoints & Interfaces
 
-### HTTP REST API
+### HTTP REST API & GraphQL Interface
 - `GET /mcp`: Initiates Server-Sent Events (SSE) connection.
 - `POST /mcp/messages`: Submits MCP client payloads to an active SSE session.
 - `POST /mcp/agent/ask`: Submits a Prompt to trigger the AI Agent tool loop.
+- **GraphQL Mutation**: `askMcpAgent(prompt: String!)` on API Gateway (`McpResolver`).
 
 ### gRPC Contract
 Defined in `libs/proto-schema/src/proto/mcp.proto`:

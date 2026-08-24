@@ -16,7 +16,7 @@ The service is implemented as a NestJS application with Prisma for PostgreSQL da
 
 ### Communication
 
-- Incoming: gRPC requests from the API gateway for synchronous operations
+- Incoming: gRPC requests from the API Gateway (`PostService` proto contract), routing client operations from REST endpoints (`/posts/*`) and `PostResolver` GraphQL queries/mutations (`post`, `userPosts`, `comments`, `createPost`, `updatePost`, `deletePost`, `likePost`, `unlikePost`, `addComment`, `deleteComment`).
 - Outgoing: Kafka events (`post.created`, `post.published`)
 - Internal Service Clients:
   - gRPC client (`UserGrpcClient`) to `user-service` to retrieve author profiles

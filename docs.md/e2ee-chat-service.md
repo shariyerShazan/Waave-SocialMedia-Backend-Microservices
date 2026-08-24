@@ -20,7 +20,7 @@ The E2EE Chat Service is a NestJS application built around gRPC interfaces for s
 
 - **PostgreSQL via Prisma**: Persists metadata for conversations, devices, prekey distribution maps, message envelopes, and attachments.
 - **Redis Integration**: Manages online subscriber sets, increments unread alerts, and invalidates temporary message caches.
-- **gRPC Controller**: Receives operations for creating direct/group conversations, retrieving messaging logs, and managing group configurations.
+- **gRPC Controller**: Receives operations for direct/group conversations and message logs from API Gateway REST endpoints (`/e2ee-chat/*`) and `E2eeChatResolver` GraphQL queries/mutations (`e2eeConversations`, `e2eeMessages`, `createE2eeDirectConversation`, `createE2eeGroupConversation`, `sendE2eeMessage`).
 - **Socket.io Gateway**: Drives real-time delivery of encrypted message payloads and receipts to connected clients.
 
 ---
