@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '@app/common';
@@ -43,7 +46,10 @@ export class UserResolver {
   @Mutation(() => GenericUserResponse)
   @UseGuards(AuthGuard, RateLimitGuard)
   @RateLimit(10, 60, { key: RateLimitKeyType.IP_USER_ID })
-  registerDevice(@Context() ctx: any, @Args('input') input: RegisterDeviceInput) {
+  registerDevice(
+    @Context() ctx: any,
+    @Args('input') input: RegisterDeviceInput,
+  ) {
     return this.userClient.registerDevice({
       userId: ctx.req.user.userId,
       deviceId: input.deviceId,

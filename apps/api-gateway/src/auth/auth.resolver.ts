@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '@app/common';
@@ -70,10 +72,7 @@ export class AuthResolver {
   @Mutation(() => AuthResponse)
   @UseGuards(AuthGuard, RateLimitGuard)
   @RateLimit(20, 60, { key: RateLimitKeyType.IP_USER_ID })
-  revokeSession(
-    @Context() ctx: any,
-    @Args('sessionId') sessionId: string,
-  ) {
+  revokeSession(@Context() ctx: any, @Args('sessionId') sessionId: string) {
     return this.authClient.revokeSession(ctx.req.user.userId, sessionId);
   }
 
