@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
@@ -75,7 +74,10 @@ export class ChatGrpcClient implements OnModuleInit {
       const payload =
         'userId1' in data
           ? data
-          : { userId1: (data as any).userId, userId2: (data as any).targetUserId };
+          : {
+              userId1: (data as any).userId,
+              userId2: (data as any).targetUserId,
+            };
       return await firstValueFrom(
         this.chatService.getOrCreateConversation(payload),
       );
@@ -100,7 +102,9 @@ export class ChatGrpcClient implements OnModuleInit {
   }
 
   async getConversations(
-    data: GetConversationsRequest | { userId: string; page?: number; limit?: number; archived?: boolean },
+    data:
+      | GetConversationsRequest
+      | { userId: string; page?: number; limit?: number; archived?: boolean },
   ) {
     try {
       return await firstValueFrom(
@@ -125,7 +129,14 @@ export class ChatGrpcClient implements OnModuleInit {
   }
 
   async addGroupMember(
-    data: AddGroupMemberRequest | { conversationId: string; adminId: string; userId: string; role?: string },
+    data:
+      | AddGroupMemberRequest
+      | {
+          conversationId: string;
+          adminId: string;
+          userId: string;
+          role?: string;
+        },
   ) {
     try {
       return await firstValueFrom(
@@ -190,18 +201,20 @@ export class ChatGrpcClient implements OnModuleInit {
   }
 
   async sendMessage(
-    data: SendMessageRequest | {
-      conversationId: string;
-      senderId: string;
-      senderName?: string;
-      senderAvatar?: string;
-      text: string;
-      mediaIds?: string[];
-      type?: string;
-      replyTo?: string;
-      forwardedFromMessageId?: string;
-      clientMessageId?: string;
-    },
+    data:
+      | SendMessageRequest
+      | {
+          conversationId: string;
+          senderId: string;
+          senderName?: string;
+          senderAvatar?: string;
+          text: string;
+          mediaIds?: string[];
+          type?: string;
+          replyTo?: string;
+          forwardedFromMessageId?: string;
+          clientMessageId?: string;
+        },
   ) {
     try {
       return await firstValueFrom(
@@ -224,14 +237,16 @@ export class ChatGrpcClient implements OnModuleInit {
   }
 
   async getMessages(
-    data: GetMessagesRequest | {
-      conversationId: string;
-      userId: string;
-      page?: number;
-      limit?: number;
-      beforeMessageId?: string;
-      afterMessageId?: string;
-    },
+    data:
+      | GetMessagesRequest
+      | {
+          conversationId: string;
+          userId: string;
+          page?: number;
+          limit?: number;
+          beforeMessageId?: string;
+          afterMessageId?: string;
+        },
   ) {
     try {
       return await firstValueFrom(
@@ -258,7 +273,9 @@ export class ChatGrpcClient implements OnModuleInit {
   }
 
   async deleteMessage(
-    data: DeleteMessageRequest | { messageId: string; userId: string; forEveryone?: boolean },
+    data:
+      | DeleteMessageRequest
+      | { messageId: string; userId: string; forEveryone?: boolean },
   ) {
     try {
       return await firstValueFrom(
@@ -290,7 +307,9 @@ export class ChatGrpcClient implements OnModuleInit {
   }
 
   async markAsRead(
-    data: MarkAsReadRequest | { conversationId: string; userId: string; upToMessageId?: string },
+    data:
+      | MarkAsReadRequest
+      | { conversationId: string; userId: string; upToMessageId?: string },
   ) {
     try {
       return await firstValueFrom(
@@ -306,7 +325,9 @@ export class ChatGrpcClient implements OnModuleInit {
   }
 
   async reactToMessage(
-    data: ReactToMessageRequest | { messageId: string; userId: string; emoji: string },
+    data:
+      | ReactToMessageRequest
+      | { messageId: string; userId: string; emoji: string },
   ) {
     try {
       return await firstValueFrom(

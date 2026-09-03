@@ -1,4 +1,10 @@
-import { Field, InputType, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import {
+  Field,
+  InputType,
+  Int,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
 
 export enum PostPrivacyGql {
   PUBLIC = 'PUBLIC',

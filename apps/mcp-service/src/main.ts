@@ -18,10 +18,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'mcp',
-      protoPath: join(
-        process.cwd(),
-        'libs/proto-schema/src/proto/mcp.proto',
-      ),
+      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/mcp.proto'),
       url: `0.0.0.0:${grpcPort}`,
       loader: {
         keepCase: true,

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { AtuhPrismaService } from '../../prisma/prisma.service';
+import { AuthPrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class DeviceService {
-  constructor(private readonly prisma: AtuhPrismaService) {}
+  constructor(private readonly prisma: AuthPrismaService) {}
 
   async trustDevice(
     userId: string,

@@ -23,7 +23,7 @@ import { join } from 'path';
       autoSchemaFile: join(process.cwd(), 'schema.gql'),
       sortSchema: true,
       playground: true,
-      context: ({ req, res }) => ({ req, res }),
+      context: ({ req, res }: { req: unknown; res: unknown }) => ({ req, res }),
     }),
     JwtModule.registerAsync({
       global: true,
@@ -44,4 +44,4 @@ import { join } from 'path';
     McpGatewayModule,
   ],
 })
-export class GatewayAppModule { }
+export class GatewayAppModule {}

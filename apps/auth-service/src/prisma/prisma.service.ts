@@ -3,7 +3,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/auth-client';
 
 @Injectable()
-export class AtuhPrismaService implements OnModuleInit, OnModuleDestroy {
+export class AuthPrismaService implements OnModuleInit, OnModuleDestroy {
   readonly writeDb: PrismaClient;
   readonly readDb: PrismaClient;
   constructor() {

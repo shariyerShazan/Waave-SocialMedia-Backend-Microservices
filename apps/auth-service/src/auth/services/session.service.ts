@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { AtuhPrismaService } from '../../prisma/prisma.service';
+import { AuthPrismaService } from '../../prisma/prisma.service';
 import { AuthRedisService } from '../../redis/redis.service';
 import { Session } from '@prisma/auth-client';
 
 @Injectable()
 export class SessionService {
   constructor(
-    private readonly prisma: AtuhPrismaService,
+    private readonly prisma: AuthPrismaService,
     private readonly redis: AuthRedisService,
   ) {}
 

@@ -4,8 +4,7 @@ import { AuthRedisService } from '../redis/redis.service';
 import { KAFKA_TOPICS, KafkaService } from '@app/kafka';
 import { RpcException } from '@nestjs/microservices';
 import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import { v4 as uuidv4 } from 'uuid';
+import crypto, { randomUUID as uuidv4 } from 'crypto';
 import {
   ForgotPassDto,
   LoginDto,
@@ -13,7 +12,7 @@ import {
   ResetPasswordDto,
   VerifyRegistrationDto,
 } from '@app/common';
-import { AtuhPrismaService } from '../prisma/prisma.service';
+import { AuthPrismaService } from '../prisma/prisma.service';
 import { ChangePassRequest } from '@app/proto-schema/protos-types/auth';
 import type {
   SendRegistrationOtpEvent,
@@ -63,7 +62,7 @@ export class AuthService {
   private logger = new Logger(AuthService.name);
 
   constructor(
-    private readonly prisma: AtuhPrismaService,
+    private readonly prisma: AuthPrismaService,
     private readonly tokens: TokenService,
     private readonly redis: AuthRedisService,
     private readonly kafka: KafkaService,
@@ -87,7 +86,12 @@ export class AuthService {
       });
     }
 
-    const hashSolt = Number(process.env.HASH_SOLT || '10');
+    const hashSolt = Number(
+      process.env.PASSWORD_HASH_SOLT ||
+        process.env.HASH_SOLT ||
+        process.env.HASH_SALT ||
+        '10',
+    );
     const hashPass = await bcrypt.hash(dto.password, hashSolt);
 
     const authUser = !userExist
@@ -241,7 +245,12 @@ export class AuthService {
       });
     }
 
-    const hashSolt = Number(process.env.HASH_SOLT || '10');
+    const hashSolt = Number(
+      process.env.PASSWORD_HASH_SOLT ||
+        process.env.HASH_SOLT ||
+        process.env.HASH_SALT ||
+        '10',
+    );
     const hashPass = await bcrypt.hash(dto.newPassword, hashSolt);
 
     const isPrevMatch = await bcrypt.compare(
@@ -325,7 +334,12 @@ export class AuthService {
       });
     }
 
-    const hashSolt = Number(process.env.HASH_SOLT || '10');
+    const hashSolt = Number(
+      process.env.PASSWORD_HASH_SOLT ||
+        process.env.HASH_SOLT ||
+        process.env.HASH_SALT ||
+        '10',
+    );
     const hashPass = await bcrypt.hash(dto.newPassword, hashSolt);
 
     const histories = await this.prisma.readDb.passwordHistory.findMany({
