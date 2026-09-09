@@ -29,6 +29,7 @@
     "post-test": "jest apps/post-service",
     "media-test": "jest apps/media-service",
     "notification-test": "jest apps/notification-service",
+    "chat-test": "jest apps/chat-service",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

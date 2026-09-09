@@ -42,19 +42,19 @@ export class Message {
   @Prop({ type: [String], default: [] })
   deletedFor: string[];
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   replyTo: string | null;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   forwardedFromMessageId: string | null;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   clientMessageId: string | null;
 
   @Prop({ default: false })
   isEdited: boolean;
 
-  @Prop({ default: null })
+  @Prop({ type: Date, default: null })
   editedAt: Date | null;
 
   @Prop({ type: Object, default: {} })
