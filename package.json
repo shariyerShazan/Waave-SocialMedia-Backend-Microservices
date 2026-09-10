@@ -27,6 +27,7 @@
     "auth-test": "jest apps/auth-service",
     "user-test": "jest apps/user-service",
     "post-test": "jest apps/post-service",
+    "feed-test": "jest apps/feed-service",
     "media-test": "jest apps/media-service",
     "notification-test": "jest apps/notification-service",
     "chat-test": "jest apps/chat-service",
