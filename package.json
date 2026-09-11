@@ -32,6 +32,7 @@
     "notification-test": "jest apps/notification-service",
     "chat-test": "jest apps/chat-service",
     "e2ee-chat-test": "jest apps/e2ee-chat-service",
+    "mcp-test": "jest apps/mcp-service",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
