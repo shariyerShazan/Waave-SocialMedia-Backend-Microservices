@@ -19,10 +19,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'user',
-      protoPath: join(
-        process.cwd(),
-        'libs/proto-schema/src/proto/user.proto',
-      ),
+      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/user.proto'),
       url: `0.0.0.0:${grpcPort}`,
       loader: {
         keepCase: true,

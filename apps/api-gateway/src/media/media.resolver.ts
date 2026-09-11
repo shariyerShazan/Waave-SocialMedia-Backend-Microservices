@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '@app/common';
@@ -40,9 +42,7 @@ export class MediaResolver {
   @Query(() => MediaListResponse)
   @UseGuards(AuthGuard, RateLimitGuard)
   @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
-  mediaBatch(
-    @Args('mediaIds', { type: () => [String] }) mediaIds: string[],
-  ) {
+  mediaBatch(@Args('mediaIds', { type: () => [String] }) mediaIds: string[]) {
     return this.mediaClient.getMediaByIds(mediaIds);
   }
 

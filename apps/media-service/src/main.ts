@@ -23,10 +23,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'media',
-      protoPath: join(
-        process.cwd(),
-        'libs/proto-schema/src/proto/media.proto',
-      ),
+      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/media.proto'),
       url: `0.0.0.0:${grpcPort}`,
       loader: {
         keepCase: true,

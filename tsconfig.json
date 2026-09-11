@@ -24,6 +24,8 @@
     "paths": {
       "@app/clients": ["libs/grpc-clients/src"],
       "@app/clients/*": ["libs/grpc-clients/src/*"],
+      "@app/grpc-clients": ["libs/grpc-clients/src"],
+      "@app/grpc-clients/*": ["libs/grpc-clients/src/*"],
       "@app/common": ["libs/common/src"],
       "@app/common/*": ["libs/common/src/*"],
       "@app/kafka": ["libs/kafka/src"],

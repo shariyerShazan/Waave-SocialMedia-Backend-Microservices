@@ -5,10 +5,10 @@
 // source: feed.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "feed";
+export const protobufPackage = 'feed';
 
 /** proto/feed.proto */
 
@@ -76,7 +76,7 @@ export interface FeedResponse {
   hasMore: boolean;
 }
 
-export const FEED_PACKAGE_NAME = "feed";
+export const FEED_PACKAGE_NAME = 'feed';
 
 export interface FeedServiceClient {
   getFeed(request: GetFeedRequest): Observable<FeedResponse>;
@@ -89,30 +89,58 @@ export interface FeedServiceClient {
 }
 
 export interface FeedServiceController {
-  getFeed(request: GetFeedRequest): Promise<FeedResponse> | Observable<FeedResponse> | FeedResponse;
+  getFeed(
+    request: GetFeedRequest,
+  ): Promise<FeedResponse> | Observable<FeedResponse> | FeedResponse;
 
-  getExploreFeed(request: ExploreRequest): Promise<FeedResponse> | Observable<FeedResponse> | FeedResponse;
+  getExploreFeed(
+    request: ExploreRequest,
+  ): Promise<FeedResponse> | Observable<FeedResponse> | FeedResponse;
 
-  getTrendingPosts(request: TrendingRequest): Promise<FeedResponse> | Observable<FeedResponse> | FeedResponse;
+  getTrendingPosts(
+    request: TrendingRequest,
+  ): Promise<FeedResponse> | Observable<FeedResponse> | FeedResponse;
 
   invalidateFeed(
     request: InvalidateRequest,
-  ): Promise<InvalidateResponse> | Observable<InvalidateResponse> | InvalidateResponse;
+  ):
+    | Promise<InvalidateResponse>
+    | Observable<InvalidateResponse>
+    | InvalidateResponse;
 }
 
 export function FeedServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getFeed", "getExploreFeed", "getTrendingPosts", "invalidateFeed"];
+    const grpcMethods: string[] = [
+      'getFeed',
+      'getExploreFeed',
+      'getTrendingPosts',
+      'invalidateFeed',
+    ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("FeedService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('FeedService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("FeedService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('FeedService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const FEED_SERVICE_NAME = "FeedService";
+export const FEED_SERVICE_NAME = 'FeedService';

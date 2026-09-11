@@ -14,10 +14,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'chat',
-      protoPath: join(
-        process.cwd(),
-        'libs/proto-schema/src/proto/chat.proto',
-      ),
+      protoPath: join(process.cwd(), 'libs/proto-schema/src/proto/chat.proto'),
       url: `0.0.0.0:${grpcPort}`,
       loader: {
         keepCase: true,

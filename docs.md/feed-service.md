@@ -18,7 +18,7 @@ The Feed Service manages personalized timelines, explore/trending feeds, and Red
 
 ### Communication
 
-- Incoming: gRPC requests from the API gateway or internal consumers
+- Incoming: gRPC requests from the API Gateway (`FeedService` proto contract), routing client operations from REST endpoints (`/feed/*`) and `FeedResolver` GraphQL queries (`userFeed`, `exploreFeed`, `trendingPosts`).
 - Outgoing:
   - gRPC to `post-service` for post details
 - Kafka topics consumed:

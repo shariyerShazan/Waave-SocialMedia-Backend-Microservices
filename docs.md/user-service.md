@@ -15,10 +15,11 @@ The service is responsible for:
 
 ## Service architecture
 
-The user service is implemented as a NestJS gRPC service with Kafka and Redis integration.
+The user service is implemented as a NestJS gRPC microservice with Kafka and Redis integration. Its functionality is exposed publicly at the API Gateway via REST endpoints (`/users/*`) and `UserResolver` GraphQL queries and mutations (`userProfile`, `searchUsers`, `userSuggestions`, `followers`, `following`, `updateProfile`, `followUser`, `unfollowUser`).
 
 ### Internal connections
 
+- API Gateway over gRPC (`UserService` proto contract)
 - PostgreSQL via Prisma for profile and follow persistence
 - Redis for profile caching and presence state
 - Kafka for events such as profile updates and follow events

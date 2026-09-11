@@ -20,7 +20,7 @@ The chat service is a NestJS application using gRPC for service-to-service calls
 ### Internal connections
 - **MongoDB (Mongoose)**: Persists conversations, messages, reactions, read status indices, and group metadata
 - **Redis**: Caches socket sessions, maintains real-time active clients, and handles message queue updates
-- **gRPC Controller**: Receives queries for conversation listings, message history, and reactions from the API Gateway
+- **gRPC Controller**: Handles `ChatService` proto calls routed from API Gateway REST endpoints (`/chat/*`) and `ChatResolver` GraphQL queries/mutations (`userConversations`, `chatMessages`, `createDirectConversation`, `createGroupConversation`, `sendMessage`, `recallMessage`, `addReaction`, `removeReaction`)
 
 ---
 

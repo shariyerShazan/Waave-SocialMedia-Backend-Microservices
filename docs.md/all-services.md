@@ -55,19 +55,20 @@ The request flow generally looks like this:
 
 ## 1. API Gateway
 
-The API gateway is the front door of the platform, functioning as a pass-through orchestration layer.
+The API gateway is the front door of the platform, functioning as a pass-through orchestration layer over REST and GraphQL APIs.
 
 ### Responsibilities
 
-- Exposes REST endpoints for clients
-- Applies validation and Swagger documentation
-- Routes authenticated requests to downstream services via gRPC
-- Implements rate limiting with Redis
+- Exposes dual REST endpoints and GraphQL queries/mutations for clients
+- Generates code-first GraphQL schema (`schema.gql`) with Apollo GraphQL Playground at `/graphql`
+- Applies validation, Swagger documentation (`/docs`), and GraphQL Input/Object DTO schemas
+- Routes authenticated REST & GraphQL requests to all downstream services via gRPC
+- Implements rate limiting (`RateLimitGuard`) with Redis
 
 ### Communication
 
-- REST for public clients
-- gRPC to downstream services (`auth`, `user`, `media`, `post`, `feed`, `chat`, `notification`)
+- REST & GraphQL for public clients
+- gRPC to all downstream microservices (`auth`, `user`, `media`, `post`, `feed`, `chat`, `e2ee-chat`, `notification`, `mcp`)
 
 ---
 
@@ -187,9 +188,9 @@ Integrates LLM models with platform endpoints via the Model Context Protocol (MC
 
 ## Runtime ports
 
-| Service | HTTP | gRPC | Database |
+| Service | HTTP / Protocol | gRPC | Database |
 | :--- | :---: | :---: | :--- |
-| **API Gateway** | 4000 | - | None |
+| **API Gateway** | 4000 (REST & GraphQL) | - | None |
 | **Auth Service** | 4001 | 3001 | PostgreSQL |
 | **User Service** | 4002 | 3002 | PostgreSQL |
 | **Post Service** | 4003 | 3003 | PostgreSQL |

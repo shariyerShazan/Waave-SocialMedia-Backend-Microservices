@@ -24,7 +24,7 @@ The service is built with NestJS, Mongoose, Redis, and local file storage.
 - Redis for media cache
 - Local filesystem storage for actual files
 - User service over gRPC for media enrichment
-- Gateway over gRPC for media operations
+- Gateway over gRPC (`MediaService` proto contract), serving API Gateway REST controllers (`/media/*`) and `MediaResolver` GraphQL queries/mutations (`media`, `userMedia`, `deleteMedia`)
 
 ## Main responsibilities
 

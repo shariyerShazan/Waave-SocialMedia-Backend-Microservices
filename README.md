@@ -36,7 +36,7 @@ The Waave architecture balances immediate response pathing with eventual consist
 
 ```mermaid
 graph TD
-    Client[Client Browser/App] -->|HTTPS / REST| Gateway[API Gateway - Port 4000]
+    Client[Client Browser/App] -->|HTTPS / REST & GraphQL| Gateway[API Gateway - Port 4000]
 
     subgraph gRPC Synchronous Channels
         Gateway -->|Port 3001| Auth[Auth Service]
@@ -102,7 +102,7 @@ This repository is organized as a monorepo containing application workspaces (`a
 ```text
 Waave/
 ├── apps/
-│   ├── api-gateway/            # REST Frontdoor and Orchestration layer
+│   ├── api-gateway/            # Dual REST & GraphQL Frontdoor and Orchestration layer
 │   ├── auth-service/           # Identity Provider and Token Manager
 │   ├── user-service/           # Social profile management and relations lookup
 │   ├── post-service/           # Post creation and cron-scheduled publisher
@@ -139,18 +139,18 @@ Waave/
 
 The platform functions using the following defaults, customizable via workspace environment configurations:
 
-| Service Name          | Primary Protocol |   Port Config   | Backing Database            | Caching Strategy     | Key Directories                                                                                                    |
-| :-------------------- | :--------------: | :-------------: | :-------------------------- | :------------------- | :----------------------------------------------------------------------------------------------------------------- |
-| **API Gateway**       |    HTTP/REST     |     `4000`      | None                        | Redis (`RedisGW`)    | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/api-gateway)                   |
-| **Auth Service**      |   gRPC / HTTP    | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/auth-service)                 |
-| **User Service**      |   gRPC / HTTP    | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/user-service)                 |
-| **Post Service**      |   gRPC / HTTP    | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/post-service)                 |
-| **Feed Service**      |   gRPC / HTTP    | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/feed-service)                 |
-| **Chat Service**      |   gRPC / HTTP    | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/chat-service)                 |
-| **E2EE Chat Service** |   gRPC / HTTP    | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/e2ee-chat-service)       |
-| **Media Service**     |   gRPC / HTTP    | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/media-service)               |
-| **Notification**      | gRPC / HTTP / WS | `3010` / `4010` | MongoDB (`MongoDBNotif`)    | Redis                | [`apps/notification-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/notification-service) |
-| **MCP Service**       |   gRPC / HTTP    | `3011` / `4011` | None                        | None                 | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/mcp-service)                   |
+| Service Name          |    Primary Protocol    |   Port Config   | Backing Database            | Caching Strategy     | Key Directories                                                                                                    |
+| :-------------------- | :--------------------: | :-------------: | :-------------------------- | :------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| **API Gateway**       | **HTTP/REST & GraphQL**|     `4000`      | None                        | Redis (`RedisGW`)    | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/api-gateway)                   |
+| **Auth Service**      |       gRPC / HTTP      | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/auth-service)                 |
+| **User Service**      |       gRPC / HTTP      | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/user-service)                 |
+| **Post Service**      |       gRPC / HTTP      | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/post-service)                 |
+| **Feed Service**      |       gRPC / HTTP      | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/feed-service)                 |
+| **Chat Service**      |       gRPC / HTTP      | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/chat-service)                 |
+| **E2EE Chat Service** |       gRPC / HTTP      | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/e2ee-chat-service)       |
+| **Media Service**     |       gRPC / HTTP      | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/media-service)               |
+| **Notification**      |    gRPC / HTTP / WS    | `3010` / `4010` | MongoDB (`MongoDBNotif`)    | Redis                | [`apps/notification-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/notification-service) |
+| **MCP Service**       |       gRPC / HTTP      | `3011` / `4011` | None                        | None                 | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/mcp-service)                   |
 
 ---
 
@@ -158,14 +158,17 @@ The platform functions using the following defaults, customizable via workspace 
 
 ### API Gateway (`apps/api-gateway`)
 
-The ingress point of all client-side REST services. It routes public requests and translates them into appropriate internal communications.
+The ingress point of all client-side REST and GraphQL requests. It routes public requests and translates them into appropriate internal gRPC communications across all domain microservices.
 
 #### Responsibilities & Operations
 
-- **Request Routing**: Exposes REST interfaces and translates them to gRPC downstream.
-- **Form Validation**: Filters payload patterns and ensures data structures align with expectations.
-- **Documentation**: Collects all route controllers and exhibits interactive Swagger documentation.
-- **Throttling**: Leverages Redis rate limits to protect endpoints (like registration and login).
+- **Request Routing**: Exposes REST interfaces and full GraphQL queries/mutations, translating payloads to downstream gRPC services (`auth`, `user`, `post`, `feed`, `chat`, `e2ee-chat`, `media`, `notification`, `mcp`).
+- **GraphQL Integration**: Code-first Apollo GraphQL server with schema auto-generation (`schema.gql`) and active GraphQL Playground available at `/graphql`.
+- **Form & Type Validation**: Enforces Class Validator DTOs for REST endpoints and NestJS GraphQL Input/Object Types for GraphQL operations.
+- **Documentation**: Exposes interactive Swagger documentation at `/docs` and Apollo GraphQL Playground at `/graphql`.
+#### Throttling & Security
+
+- Leverages Redis rate limits (`RateLimitGuard`) and JWT authentication (`AuthGuard`) across both REST controllers and GraphQL resolvers.
 
 #### Key Environment Configurations
 

@@ -396,7 +396,7 @@ export class E2eeKeysService {
   private parsePlatform(platform: any): DevicePlatform {
     const upper = (platform || 'OTHER').toUpperCase();
     if (Object.values(DevicePlatform).includes(upper)) {
-      return upper;
+      return upper as DevicePlatform;
     }
     return DevicePlatform.OTHER;
   }

@@ -51,7 +51,7 @@ The service supports:
 
 ### Incoming
 
-The auth service listens for gRPC requests from the API gateway through the `AuthService` proto contract.
+The auth service listens for gRPC requests from the API Gateway through the `AuthService` proto contract. Public client calls are routed through the Gateway's REST controllers (`/auth/*`) and `AuthResolver` GraphQL queries and mutations (`login`, `register`, `me`, `refreshToken`, `logout`, etc.).
 
 ### Outgoing
 

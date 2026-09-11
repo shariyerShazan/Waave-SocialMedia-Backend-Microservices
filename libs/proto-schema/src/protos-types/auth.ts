@@ -5,10 +5,10 @@
 // source: auth.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "auth";
+export const protobufPackage = 'auth';
 
 export interface RegisterRequest {
   name: string;
@@ -156,12 +156,14 @@ export interface VerifyMfaResponse {
   mfaToken: string;
 }
 
-export const AUTH_PACKAGE_NAME = "auth";
+export const AUTH_PACKAGE_NAME = 'auth';
 
 export interface AuthServiceClient {
   register(request: RegisterRequest): Observable<BasicResponse>;
 
-  verifyRegistration(request: VerifyRegistrationRequest): Observable<BasicResponse>;
+  verifyRegistration(
+    request: VerifyRegistrationRequest,
+  ): Observable<BasicResponse>;
 
   forgotPasswordRequest(request: ForgotPassRequest): Observable<BasicResponse>;
 
@@ -185,43 +187,75 @@ export interface AuthServiceClient {
 
   revokeSession(request: RevokeSessionRequest): Observable<BasicResponse>;
 
-  revokeAllSessions(request: RevokeAllSessionsRequest): Observable<BasicResponse>;
+  revokeAllSessions(
+    request: RevokeAllSessionsRequest,
+  ): Observable<BasicResponse>;
 
-  getActiveSessions(request: GetActiveSessionsRequest): Observable<ActiveSessionsResponse>;
+  getActiveSessions(
+    request: GetActiveSessionsRequest,
+  ): Observable<ActiveSessionsResponse>;
 
   verifyMfa(request: VerifyMfaRequest): Observable<VerifyMfaResponse>;
 }
 
 export interface AuthServiceController {
-  register(request: RegisterRequest): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
+  register(
+    request: RegisterRequest,
+  ): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
 
   verifyRegistration(
     request: VerifyRegistrationRequest,
   ): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
 
-  forgotPasswordRequest(request: ForgotPassRequest): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
+  forgotPasswordRequest(
+    request: ForgotPassRequest,
+  ): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
 
-  resetPassword(request: ResetPasswordRequest): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
+  resetPassword(
+    request: ResetPasswordRequest,
+  ): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
 
-  login(request: LoginRequest): Promise<AuthResponse> | Observable<AuthResponse> | AuthResponse;
+  login(
+    request: LoginRequest,
+  ): Promise<AuthResponse> | Observable<AuthResponse> | AuthResponse;
 
-  logout(request: LogoutRequest): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
+  logout(
+    request: LogoutRequest,
+  ): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
 
   verifyToken(
     request: VerifyTokenRequest,
-  ): Promise<VerifyTokenResponse> | Observable<VerifyTokenResponse> | VerifyTokenResponse;
+  ):
+    | Promise<VerifyTokenResponse>
+    | Observable<VerifyTokenResponse>
+    | VerifyTokenResponse;
 
-  refreshToken(request: RefreshTokenRequest): Promise<AuthResponse> | Observable<AuthResponse> | AuthResponse;
+  refreshToken(
+    request: RefreshTokenRequest,
+  ): Promise<AuthResponse> | Observable<AuthResponse> | AuthResponse;
 
-  changePassword(request: ChangePassRequest): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
+  changePassword(
+    request: ChangePassRequest,
+  ): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
 
-  getUserById(request: GetUserByIdRequest): Promise<UserResponse> | Observable<UserResponse> | UserResponse;
+  getUserById(
+    request: GetUserByIdRequest,
+  ): Promise<UserResponse> | Observable<UserResponse> | UserResponse;
 
-  getUserByEmail(request: GetUserByEmailRequest): Promise<UserResponse> | Observable<UserResponse> | UserResponse;
+  getUserByEmail(
+    request: GetUserByEmailRequest,
+  ): Promise<UserResponse> | Observable<UserResponse> | UserResponse;
 
-  getAllUsers(request: GetAllUsersRequest): Promise<AllUsersResponse> | Observable<AllUsersResponse> | AllUsersResponse;
+  getAllUsers(
+    request: GetAllUsersRequest,
+  ):
+    | Promise<AllUsersResponse>
+    | Observable<AllUsersResponse>
+    | AllUsersResponse;
 
-  revokeSession(request: RevokeSessionRequest): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
+  revokeSession(
+    request: RevokeSessionRequest,
+  ): Promise<BasicResponse> | Observable<BasicResponse> | BasicResponse;
 
   revokeAllSessions(
     request: RevokeAllSessionsRequest,
@@ -229,41 +263,63 @@ export interface AuthServiceController {
 
   getActiveSessions(
     request: GetActiveSessionsRequest,
-  ): Promise<ActiveSessionsResponse> | Observable<ActiveSessionsResponse> | ActiveSessionsResponse;
+  ):
+    | Promise<ActiveSessionsResponse>
+    | Observable<ActiveSessionsResponse>
+    | ActiveSessionsResponse;
 
-  verifyMfa(request: VerifyMfaRequest): Promise<VerifyMfaResponse> | Observable<VerifyMfaResponse> | VerifyMfaResponse;
+  verifyMfa(
+    request: VerifyMfaRequest,
+  ):
+    | Promise<VerifyMfaResponse>
+    | Observable<VerifyMfaResponse>
+    | VerifyMfaResponse;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "register",
-      "verifyRegistration",
-      "forgotPasswordRequest",
-      "resetPassword",
-      "login",
-      "logout",
-      "verifyToken",
-      "refreshToken",
-      "changePassword",
-      "getUserById",
-      "getUserByEmail",
-      "getAllUsers",
-      "revokeSession",
-      "revokeAllSessions",
-      "getActiveSessions",
-      "verifyMfa",
+      'register',
+      'verifyRegistration',
+      'forgotPasswordRequest',
+      'resetPassword',
+      'login',
+      'logout',
+      'verifyToken',
+      'refreshToken',
+      'changePassword',
+      'getUserById',
+      'getUserByEmail',
+      'getAllUsers',
+      'revokeSession',
+      'revokeAllSessions',
+      'getActiveSessions',
+      'verifyMfa',
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('AuthService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('AuthService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const AUTH_SERVICE_NAME = "AuthService";
+export const AUTH_SERVICE_NAME = 'AuthService';

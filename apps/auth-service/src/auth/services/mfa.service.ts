@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import { AtuhPrismaService } from '../../prisma/prisma.service';
+import { AuthPrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class MfaService {
-  constructor(private readonly prisma: AtuhPrismaService) {}
+  constructor(private readonly prisma: AuthPrismaService) {}
 
   private base32Decode(base32String: string): Buffer {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -116,7 +116,12 @@ export class MfaService {
     });
 
     const plainRecoveryCodes: string[] = [];
-    const hashSolt = Number(process.env.HASH_SOLT || '10');
+    const hashSolt = Number(
+      process.env.PASSWORD_HASH_SOLT ||
+        process.env.HASH_SOLT ||
+        process.env.HASH_SALT ||
+        '10',
+    );
 
     await this.prisma.writeDb.recoveryCode.deleteMany({
       where: { userId },

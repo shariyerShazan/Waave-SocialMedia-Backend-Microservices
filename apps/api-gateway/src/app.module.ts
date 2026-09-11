@@ -19,10 +19,11 @@ import { join } from 'path';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      path: '/api/v1/graphql',
       autoSchemaFile: join(process.cwd(), 'schema.gql'),
       sortSchema: true,
       playground: true,
-      context: ({ req, res }) => ({ req, res }),
+      context: ({ req, res }: { req: unknown; res: unknown }) => ({ req, res }),
     }),
     JwtModule.registerAsync({
       global: true,

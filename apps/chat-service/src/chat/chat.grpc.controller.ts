@@ -400,7 +400,9 @@ export class ChatGrpcController implements ChatServiceController {
         userId: m.userId,
         role: m.role || 'MEMBER',
         muted: m.muted ?? false,
-        mutedUntil: m.mutedUntil ? new Date(m.mutedUntil).toISOString() : undefined,
+        mutedUntil: m.mutedUntil
+          ? new Date(m.mutedUntil).toISOString()
+          : undefined,
         archived: m.archived ?? false,
         pinned: m.pinned ?? false,
         unreadCount: m.unreadCount ?? 0,
@@ -446,7 +448,9 @@ export class ChatGrpcController implements ChatServiceController {
       forwardedFromMessageId: message.forwardedFromMessageId ?? undefined,
       clientMessageId: message.clientMessageId ?? undefined,
       isEdited: message.isEdited ?? false,
-      editedAt: message.editedAt ? new Date(message.editedAt).getTime() : undefined,
+      editedAt: message.editedAt
+        ? new Date(message.editedAt).getTime()
+        : undefined,
       isPinned: message.isPinned ?? false,
     };
   }

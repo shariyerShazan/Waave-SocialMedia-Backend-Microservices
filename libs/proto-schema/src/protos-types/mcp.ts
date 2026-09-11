@@ -5,10 +5,10 @@
 // source: mcp.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "mcp";
+export const protobufPackage = 'mcp';
 
 export interface AskRequest {
   userId: string;
@@ -28,29 +28,45 @@ export interface AskResponse {
   trace: ToolTraceItem[];
 }
 
-export const MCP_PACKAGE_NAME = "mcp";
+export const MCP_PACKAGE_NAME = 'mcp';
 
 export interface AgentServiceClient {
   ask(request: AskRequest): Observable<AskResponse>;
 }
 
 export interface AgentServiceController {
-  ask(request: AskRequest): Promise<AskResponse> | Observable<AskResponse> | AskResponse;
+  ask(
+    request: AskRequest,
+  ): Promise<AskResponse> | Observable<AskResponse> | AskResponse;
 }
 
 export function AgentServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["ask"];
+    const grpcMethods: string[] = ['ask'];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("AgentService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('AgentService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("AgentService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('AgentService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const AGENT_SERVICE_NAME = "AgentService";
+export const AGENT_SERVICE_NAME = 'AgentService';

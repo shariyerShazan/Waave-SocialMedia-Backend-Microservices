@@ -5,10 +5,10 @@
 // source: chat.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "chat";
+export const protobufPackage = 'chat';
 
 export interface ConversationMember {
   userId: string;
@@ -301,12 +301,14 @@ export interface GetGroupMembersForNotifResponse {
   members: GroupNotificationMember[];
 }
 
-export const CHAT_PACKAGE_NAME = "chat";
+export const CHAT_PACKAGE_NAME = 'chat';
 
 export interface ChatServiceClient {
   /** Direct conversation */
 
-  getOrCreateConversation(request: GetOrCreateConversationRequest): Observable<ConversationResponse>;
+  getOrCreateConversation(
+    request: GetOrCreateConversationRequest,
+  ): Observable<ConversationResponse>;
 
   /** Group */
 
@@ -314,19 +316,29 @@ export interface ChatServiceClient {
 
   addGroupMember(request: AddGroupMemberRequest): Observable<OperationResponse>;
 
-  removeGroupMember(request: RemoveGroupMemberRequest): Observable<OperationResponse>;
+  removeGroupMember(
+    request: RemoveGroupMemberRequest,
+  ): Observable<OperationResponse>;
 
   leaveGroup(request: LeaveGroupRequest): Observable<OperationResponse>;
 
-  updateMemberRole(request: UpdateMemberRoleRequest): Observable<OperationResponse>;
+  updateMemberRole(
+    request: UpdateMemberRoleRequest,
+  ): Observable<OperationResponse>;
 
   /** Settings */
 
-  muteConversation(request: MuteConversationRequest): Observable<OperationResponse>;
+  muteConversation(
+    request: MuteConversationRequest,
+  ): Observable<OperationResponse>;
 
-  archiveConversation(request: ArchiveConversationRequest): Observable<OperationResponse>;
+  archiveConversation(
+    request: ArchiveConversationRequest,
+  ): Observable<OperationResponse>;
 
-  pinConversation(request: PinConversationRequest): Observable<OperationResponse>;
+  pinConversation(
+    request: PinConversationRequest,
+  ): Observable<OperationResponse>;
 
   /** Messages */
 
@@ -354,15 +366,23 @@ export interface ChatServiceClient {
 
   /** Conversation list & Single fetch */
 
-  getConversations(request: GetConversationsRequest): Observable<GetConversationsResponse>;
+  getConversations(
+    request: GetConversationsRequest,
+  ): Observable<GetConversationsResponse>;
 
-  getConversation(request: GetConversationRequest): Observable<ConversationResponse>;
+  getConversation(
+    request: GetConversationRequest,
+  ): Observable<ConversationResponse>;
 
   /** Unread & Notifications */
 
-  getUnreadCounts(request: GetUnreadCountsRequest): Observable<GetUnreadCountsResponse>;
+  getUnreadCounts(
+    request: GetUnreadCountsRequest,
+  ): Observable<GetUnreadCountsResponse>;
 
-  getGroupMembersForNotif(request: GetGroupMembersForNotifRequest): Observable<GetGroupMembersForNotifResponse>;
+  getGroupMembersForNotif(
+    request: GetGroupMembersForNotifRequest,
+  ): Observable<GetGroupMembersForNotifResponse>;
 }
 
 export interface ChatServiceController {
@@ -370,57 +390,94 @@ export interface ChatServiceController {
 
   getOrCreateConversation(
     request: GetOrCreateConversationRequest,
-  ): Promise<ConversationResponse> | Observable<ConversationResponse> | ConversationResponse;
+  ):
+    | Promise<ConversationResponse>
+    | Observable<ConversationResponse>
+    | ConversationResponse;
 
   /** Group */
 
   createGroup(
     request: CreateGroupRequest,
-  ): Promise<ConversationResponse> | Observable<ConversationResponse> | ConversationResponse;
+  ):
+    | Promise<ConversationResponse>
+    | Observable<ConversationResponse>
+    | ConversationResponse;
 
   addGroupMember(
     request: AddGroupMemberRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   removeGroupMember(
     request: RemoveGroupMemberRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   leaveGroup(
     request: LeaveGroupRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   updateMemberRole(
     request: UpdateMemberRoleRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   /** Settings */
 
   muteConversation(
     request: MuteConversationRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   archiveConversation(
     request: ArchiveConversationRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   pinConversation(
     request: PinConversationRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   /** Messages */
 
-  sendMessage(request: SendMessageRequest): Promise<MessageResponse> | Observable<MessageResponse> | MessageResponse;
+  sendMessage(
+    request: SendMessageRequest,
+  ): Promise<MessageResponse> | Observable<MessageResponse> | MessageResponse;
 
   getMessages(
     request: GetMessagesRequest,
-  ): Promise<GetMessagesResponse> | Observable<GetMessagesResponse> | GetMessagesResponse;
+  ):
+    | Promise<GetMessagesResponse>
+    | Observable<GetMessagesResponse>
+    | GetMessagesResponse;
 
-  editMessage(request: EditMessageRequest): Promise<MessageResponse> | Observable<MessageResponse> | MessageResponse;
+  editMessage(
+    request: EditMessageRequest,
+  ): Promise<MessageResponse> | Observable<MessageResponse> | MessageResponse;
 
   deleteMessage(
     request: DeleteMessageRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   forwardMessage(
     request: ForwardMessageRequest,
@@ -430,11 +487,17 @@ export interface ChatServiceController {
 
   markReceipt(
     request: MarkReceiptRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   markAsRead(
     request: MarkAsReadRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   /** Reactions & Pins */
 
@@ -444,23 +507,35 @@ export interface ChatServiceController {
 
   pinMessage(
     request: PinMessageRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   /** Conversation list & Single fetch */
 
   getConversations(
     request: GetConversationsRequest,
-  ): Promise<GetConversationsResponse> | Observable<GetConversationsResponse> | GetConversationsResponse;
+  ):
+    | Promise<GetConversationsResponse>
+    | Observable<GetConversationsResponse>
+    | GetConversationsResponse;
 
   getConversation(
     request: GetConversationRequest,
-  ): Promise<ConversationResponse> | Observable<ConversationResponse> | ConversationResponse;
+  ):
+    | Promise<ConversationResponse>
+    | Observable<ConversationResponse>
+    | ConversationResponse;
 
   /** Unread & Notifications */
 
   getUnreadCounts(
     request: GetUnreadCountsRequest,
-  ): Promise<GetUnreadCountsResponse> | Observable<GetUnreadCountsResponse> | GetUnreadCountsResponse;
+  ):
+    | Promise<GetUnreadCountsResponse>
+    | Observable<GetUnreadCountsResponse>
+    | GetUnreadCountsResponse;
 
   getGroupMembersForNotif(
     request: GetGroupMembersForNotifRequest,
@@ -473,39 +548,53 @@ export interface ChatServiceController {
 export function ChatServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "getOrCreateConversation",
-      "createGroup",
-      "addGroupMember",
-      "removeGroupMember",
-      "leaveGroup",
-      "updateMemberRole",
-      "muteConversation",
-      "archiveConversation",
-      "pinConversation",
-      "sendMessage",
-      "getMessages",
-      "editMessage",
-      "deleteMessage",
-      "forwardMessage",
-      "markReceipt",
-      "markAsRead",
-      "reactToMessage",
-      "pinMessage",
-      "getConversations",
-      "getConversation",
-      "getUnreadCounts",
-      "getGroupMembersForNotif",
+      'getOrCreateConversation',
+      'createGroup',
+      'addGroupMember',
+      'removeGroupMember',
+      'leaveGroup',
+      'updateMemberRole',
+      'muteConversation',
+      'archiveConversation',
+      'pinConversation',
+      'sendMessage',
+      'getMessages',
+      'editMessage',
+      'deleteMessage',
+      'forwardMessage',
+      'markReceipt',
+      'markAsRead',
+      'reactToMessage',
+      'pinMessage',
+      'getConversations',
+      'getConversation',
+      'getUnreadCounts',
+      'getGroupMembersForNotif',
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("ChatService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('ChatService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("ChatService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('ChatService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const CHAT_SERVICE_NAME = "ChatService";
+export const CHAT_SERVICE_NAME = 'ChatService';

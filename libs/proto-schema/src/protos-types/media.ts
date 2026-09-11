@@ -5,10 +5,10 @@
 // source: media.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "media";
+export const protobufPackage = 'media';
 
 export enum MediaType {
   MEDIA_TYPE_UNKNOWN = 0,
@@ -141,7 +141,7 @@ export interface DeleteMediaResponse {
   message: string;
 }
 
-export const MEDIA_PACKAGE_NAME = "media";
+export const MEDIA_PACKAGE_NAME = 'media';
 
 export interface MediaServiceClient {
   uploadImage(request: UploadImageRequest): Observable<MediaResponse>;
@@ -150,70 +150,109 @@ export interface MediaServiceClient {
 
   getMedia(request: GetMediaRequest): Observable<MediaResponse>;
 
-  listUserMedia(request: ListUserMediaRequest): Observable<ListUserMediaResponse>;
+  listUserMedia(
+    request: ListUserMediaRequest,
+  ): Observable<ListUserMediaResponse>;
 
   deleteMedia(request: DeleteMediaRequest): Observable<DeleteMediaResponse>;
 
-  updateMediaStatus(request: UpdateMediaStatusRequest): Observable<MediaResponse>;
+  updateMediaStatus(
+    request: UpdateMediaStatusRequest,
+  ): Observable<MediaResponse>;
 
   getMediaByPath(request: GetMediaByPathRequest): Observable<MediaResponse>;
 
   exists(request: ExistsRequest): Observable<ExistsResponse>;
 
-  getMediaByIds(request: GetMediaByIdsRequest): Observable<GetMediaListResponse>;
+  getMediaByIds(
+    request: GetMediaByIdsRequest,
+  ): Observable<GetMediaListResponse>;
 }
 
 export interface MediaServiceController {
-  uploadImage(request: UploadImageRequest): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
+  uploadImage(
+    request: UploadImageRequest,
+  ): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
 
-  createMedia(request: CreateMediaRequest): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
+  createMedia(
+    request: CreateMediaRequest,
+  ): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
 
-  getMedia(request: GetMediaRequest): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
+  getMedia(
+    request: GetMediaRequest,
+  ): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
 
   listUserMedia(
     request: ListUserMediaRequest,
-  ): Promise<ListUserMediaResponse> | Observable<ListUserMediaResponse> | ListUserMediaResponse;
+  ):
+    | Promise<ListUserMediaResponse>
+    | Observable<ListUserMediaResponse>
+    | ListUserMediaResponse;
 
   deleteMedia(
     request: DeleteMediaRequest,
-  ): Promise<DeleteMediaResponse> | Observable<DeleteMediaResponse> | DeleteMediaResponse;
+  ):
+    | Promise<DeleteMediaResponse>
+    | Observable<DeleteMediaResponse>
+    | DeleteMediaResponse;
 
   updateMediaStatus(
     request: UpdateMediaStatusRequest,
   ): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
 
-  getMediaByPath(request: GetMediaByPathRequest): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
+  getMediaByPath(
+    request: GetMediaByPathRequest,
+  ): Promise<MediaResponse> | Observable<MediaResponse> | MediaResponse;
 
-  exists(request: ExistsRequest): Promise<ExistsResponse> | Observable<ExistsResponse> | ExistsResponse;
+  exists(
+    request: ExistsRequest,
+  ): Promise<ExistsResponse> | Observable<ExistsResponse> | ExistsResponse;
 
   getMediaByIds(
     request: GetMediaByIdsRequest,
-  ): Promise<GetMediaListResponse> | Observable<GetMediaListResponse> | GetMediaListResponse;
+  ):
+    | Promise<GetMediaListResponse>
+    | Observable<GetMediaListResponse>
+    | GetMediaListResponse;
 }
 
 export function MediaServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "uploadImage",
-      "createMedia",
-      "getMedia",
-      "listUserMedia",
-      "deleteMedia",
-      "updateMediaStatus",
-      "getMediaByPath",
-      "exists",
-      "getMediaByIds",
+      'uploadImage',
+      'createMedia',
+      'getMedia',
+      'listUserMedia',
+      'deleteMedia',
+      'updateMediaStatus',
+      'getMediaByPath',
+      'exists',
+      'getMediaByIds',
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("MediaService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('MediaService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("MediaService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('MediaService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const MEDIA_SERVICE_NAME = "MediaService";
+export const MEDIA_SERVICE_NAME = 'MediaService';

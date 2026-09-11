@@ -1,99 +1,133 @@
 # API Gateway
 
-The API gateway is the public entry point of the platform. It exposes the external REST API and coordinates communication with the downstream services so clients do not need to know about the internal service topology.
+The API Gateway is the primary public entry point of the platform. It exposes dual **REST** and **GraphQL** APIs and coordinates communication with all downstream microservices via gRPC, insulating external clients from internal service topologies.
 
 ## What this service does
 
 The gateway is responsible for:
 
-- exposing HTTP endpoints for clients
-- validating incoming request payloads
-- routing requests to the correct backend service
-- handling authentication-related flows through the auth service
-- forwarding profile and follow requests to the user service
-- forwarding media operations to the media service
-- applying rate limiting and request protection
+- Exposing HTTP REST endpoints and GraphQL queries/mutations for clients
+- Validating incoming request payloads (Class Validator DTOs & GraphQL Input Types)
+- Orchestrating requests across all downstream microservices via gRPC clients (`auth`, `user`, `post`, `feed`, `chat`, `e2ee-chat`, `media`, `notification`, `mcp`)
+- Serving interactive Swagger documentation at `/docs` and Apollo GraphQL Playground at `/graphql`
+- Enforcing security, authentication (`AuthGuard`), and Redis-backed rate limiting (`RateLimitGuard`) across both REST and GraphQL interfaces
 
 ## Service architecture
 
-The gateway is built as a NestJS application and uses gRPC clients to communicate with the internal services.
+The gateway is built as a NestJS application using Apollo Driver (`@nestjs/apollo`) for GraphQL and gRPC clients (`libs/grpc-clients` / `@app/clients`) to communicate with all backend services.
 
 ### Internal connections
 
-- Auth service over gRPC
-- User service over gRPC
-- Media service over gRPC
-- Redis for request rate limiting
+- **Auth Service**: over gRPC (`AUTH_SERVICE_GRPC_URL`)
+- **User Service**: over gRPC (`USER_SERVICE_GRPC_URL`)
+- **Post Service**: over gRPC (`POST_SERVICE_GRPC_URL`)
+- **Feed Service**: over gRPC (`FEED_SERVICE_GRPC_URL`)
+- **Chat Service**: over gRPC (`CHAT_SERVICE_GRPC_URL`)
+- **E2EE Chat Service**: over gRPC (`E2EE_CHAT_SERVICE_GRPC_URL`)
+- **Media Service**: over gRPC (`MEDIA_SERVICE_GRPC_URL`)
+- **Notification Service**: over gRPC (`NOTIFICATION_SERVICE_GRPC_URL`)
+- **MCP Service**: over gRPC (`MCP_SERVICE_GRPC_URL`)
+- **Redis**: for request rate limiting (`API_GATEWAY_REDIS_HOST`)
 
-### External interface
+### External interfaces
 
-- REST endpoints for clients
-- Swagger documentation at `/docs`
+- **REST API**: Endpoint routes across all domain controllers
+- **GraphQL API**: Code-first schema generated at `schema.gql`
+- **Swagger Docs**: Accessible at `http://localhost:4000/docs`
+- **GraphQL Playground**: Accessible at `http://localhost:4000/graphql`
 
-## Main responsibilities
+---
 
-### 1. Request routing
+## GraphQL API Architecture
 
-The gateway accepts incoming requests from clients and forwards them to the proper service.
+The API Gateway uses `@nestjs/graphql` with the Apollo Driver in code-first mode:
 
-Examples:
+```typescript
+GraphQLModule.forRoot<ApolloDriverConfig>({
+  driver: ApolloDriver,
+  autoSchemaFile: join(process.cwd(), 'schema.gql'),
+  sortSchema: true,
+  playground: true,
+  context: ({ req, res }) => ({ req, res }),
+})
+```
 
-- auth endpoints are sent to the auth service
-- profile and follow endpoints are sent to the user service
-- media operations are sent to the media service
+### GraphQL Resolvers Overview
 
-### 2. Authentication orchestration
+Each domain module implements a dedicated GraphQL resolver mapping GraphQL operations to gRPC client calls:
 
-The gateway exposes login, registration, refresh, logout, password reset, and user lookup endpoints. It delegates the real work to the auth service while keeping the client-facing API simple.
+1. **`AuthResolver`** (`apps/api-gateway/src/auth/auth.resolver.ts`)
+   - **Mutations**: `register`, `verifyRegistration`, `login`, `refreshToken`, `forgotPassword`, `resetPassword`, `changePassword`, `logout`, `verifyMfa`, `revokeSession`, `revokeAllSessions`
+   - **Queries**: `me`, `userById`, `userByEmail`, `allUsers`, `activeSessions`
+2. **`UserResolver`** (`apps/api-gateway/src/user/user.resolver.ts`)
+   - **Queries**: `userProfile`, `searchUsers`, `userSuggestions`, `followers`, `following`
+   - **Mutations**: `updateProfile`, `followUser`, `unfollowUser`
+3. **`PostResolver`** (`apps/api-gateway/src/post/post.resolver.ts`)
+   - **Queries**: `post`, `userPosts`, `comments`
+   - **Mutations**: `createPost`, `updatePost`, `deletePost`, `likePost`, `unlikePost`, `addComment`, `deleteComment`
+4. **`FeedResolver`** (`apps/api-gateway/src/feed/feed.resolver.ts`)
+   - **Queries**: `userFeed`, `exploreFeed`, `trendingPosts`
+5. **`ChatResolver`** (`apps/api-gateway/src/chat/chat.resolver.ts`)
+   - **Queries**: `userConversations`, `chatMessages`
+   - **Mutations**: `createDirectConversation`, `createGroupConversation`, `sendMessage`, `recallMessage`, `addReaction`, `removeReaction`
+6. **`E2eeChatResolver`** (`apps/api-gateway/src/e2ee-chat/e2ee-chat.resolver.ts`)
+   - **Queries**: `e2eeConversations`, `e2eeMessages`
+   - **Mutations**: `createE2eeDirectConversation`, `createE2eeGroupConversation`, `sendE2eeMessage`
+7. **`MediaResolver`** (`apps/api-gateway/src/media/media.resolver.ts`)
+   - **Queries**: `media`, `userMedia`
+   - **Mutations**: `deleteMedia`
+8. **`NotificationResolver`** (`apps/api-gateway/src/notification/notification.resolver.ts`)
+   - **Queries**: `notifications`, `notificationPreferences`
+   - **Mutations**: `markNotificationAsRead`, `markAllNotificationsAsRead`, `deleteNotification`, `updateNotificationPreferences`
+9. **`McpResolver`** (`apps/api-gateway/src/mcp/mcp.resolver.ts`)
+   - **Queries / Mutations**: `askMcpAgent`
 
-### 3. Rate limiting
+---
 
-The gateway uses Redis-backed rate limiting to protect the platform from abuse and repeated traffic spikes.
+## Rate Limiting & Security Context
 
-## Database design
+The API Gateway supports execution context extraction for both HTTP controllers and GraphQL resolvers:
 
-The API gateway does not own a primary database.
+- **`AuthGuard`**: Extracts JWT authorization headers from `req` (HTTP) or `GqlExecutionContext.create(ctx).getContext().req` (GraphQL).
+- **`RateLimitGuard`**: Computes rate-limiting keys using client IP, email, or authenticated user ID, storing rate limits in Redis (`RedisGW`).
 
-Instead, it relies on downstream services for persistence:
-
-- auth data is stored in the auth service database
-- profile data is stored in the user service database
-- media metadata is stored in the media service database
+---
 
 ## Communication model
 
 ### Incoming
 
-- REST API from clients
+- **HTTP/REST** requests from clients
+- **GraphQL** queries and mutations from clients
 
 ### Outgoing
 
-- gRPC to auth, user, and media services
-- Redis for rate limiting
+- **gRPC** calls to all 9 backend microservices
+- **Redis** operations for rate limit tracking
+
+---
 
 ## Runtime ports
 
-- HTTP: `4000`
+- HTTP / GraphQL: `4000`
 
-## Environment variables
-
-Key variables used by the gateway include:
-
-- `API_GATEWAY_HTTP_PORT`
-- `AUTH_SERVICE_GRPC_URL`
-- `USER_SERVICE_GRPC_URL`
-- `MEDIA_SERVICE_GRPC_URL`
-- `API_GATEWAY_REDIS_HOST`
-- `API_GATEWAY_REDIS_PORT`
-- `JWT_ACCESS_SECRET`
+---
 
 ## Key folders
 
-- `apps/api-gateway/src/auth` – authentication endpoints and auth client
-- `apps/api-gateway/src/user` – user-related gateway controller and client
-- `apps/api-gateway/src/media` – media gateway endpoints and media client
-- `apps/api-gateway/src/rateLimit` – guard and decorator-based rate limiting
+- `apps/api-gateway/src/auth` – REST controller, GraphQL resolver (`auth.resolver.ts`), and DTOs (`auth.graphql.types.ts`)
+- `apps/api-gateway/src/user` – REST controller, GraphQL resolver (`user.resolver.ts`), and DTOs (`user.graphql.types.ts`)
+- `apps/api-gateway/src/post` – REST controller, GraphQL resolver (`post.resolver.ts`), and DTOs (`post.graphql.types.ts`)
+- `apps/api-gateway/src/feed` – REST controller, GraphQL resolver (`feed.resolver.ts`), and DTOs (`feed.graphql.types.ts`)
+- `apps/api-gateway/src/chat` – REST controller, GraphQL resolver (`chat.resolver.ts`), and DTOs (`chat.graphql.types.ts`)
+- `apps/api-gateway/src/e2ee-chat` – REST controller, GraphQL resolver (`e2ee-chat.resolver.ts`), and DTOs (`e2ee-chat.graphql.types.ts`)
+- `apps/api-gateway/src/media` – REST controller, GraphQL resolver (`media.resolver.ts`), and DTOs (`media.graphql.types.ts`)
+- `apps/api-gateway/src/notification` – REST controller, GraphQL resolver (`notification.resolver.ts`), and DTOs (`notification.graphql.types.ts`)
+- `apps/api-gateway/src/mcp` – REST controller, GraphQL resolver (`mcp.resolver.ts`), and DTOs (`mcp.graphql.types.ts`)
+- `apps/api-gateway/src/rateLimit` – Redis-backed rate limiter, guard, and decorators
+
+---
 
 ## Design summary
 
-The API gateway is intentionally thin and orchestration-focused. It does not carry domain logic itself; instead, it exposes a stable public interface and delegates business responsibilities to the specialized services behind it.
+The API Gateway is intentionally thin and orchestration-focused. It provides dual REST and GraphQL public interfaces over a code-first GraphQL schema, delegating domain business logic to downstream microservices over synchronous gRPC channels.

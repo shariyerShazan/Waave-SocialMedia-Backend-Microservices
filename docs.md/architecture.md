@@ -1,4 +1,3 @@
-```markdown
 # Architecture
 
 This document describes the high-level architecture, communication patterns, infrastructure dependencies, and operational considerations for the platform.
@@ -11,14 +10,14 @@ This document describes the high-level architecture, communication patterns, inf
 
 ## High-level components
 
-- API Gateway: public REST surface, validation, auth, and routing.
-- Domain services: `auth-service`, `user-service`, `media-service`, `post-service`, `chat-service`, `e2ee-chat-service`, `notification-service`, `mcp-service`.
+- API Gateway: public dual REST and GraphQL surface, validation, auth, and gRPC routing.
+- Domain services: `auth-service`, `user-service`, `media-service`, `post-service`, `feed-service`, `chat-service`, `e2ee-chat-service`, `notification-service`, `mcp-service`.
 - Shared libs: `libs/common`, `libs/grpc-clients` (mapped to `@app/clients`), `libs/kafka`, `libs/proto-schema` (proto contracts).
 - Infrastructure: PostgreSQL, MongoDB, Redis, Kafka.
 
 ## Communication patterns
 
-- Client → Gateway: REST/HTTP (JSON)
+- Client → Gateway: REST / GraphQL (HTTP)
 - Gateway → Services: gRPC (proto contracts in `libs/proto-schema`)
 - Domain Events: Kafka topics for asynchronous communication and decoupling
 - Short-lived state: Redis used for OTPs, rate limits, presence, and caches
@@ -52,9 +51,9 @@ Each service is the only component that writes to its primary store. Read-only a
 
 ## Runtime ports (convention)
 
-| Service              | HTTP | gRPC |
-| -------------------- | ---: | ---: |
-| API Gateway          | 4000 |    - |
+| Service              | HTTP / Protocol | gRPC |
+| -------------------- | --------------: | ---: |
+| API Gateway          | 4000 (REST & GraphQL) |    - |
 | Auth Service         | 4001 | 3001 |
 | User Service         | 4002 | 3002 |
 | Post Service         | 4003 | 3003 |
@@ -84,4 +83,3 @@ Adjust ports via environment variables per-service in production deployments.
 - Prefer small, focused services. Split only when justified by ownership or operational scaling needs.
 - Use event-driven patterns to decouple bounded contexts.
 - Keep proto contracts stable and version-aware.
-```

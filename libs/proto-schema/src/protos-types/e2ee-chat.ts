@@ -5,10 +5,10 @@
 // source: e2ee-chat.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "e2ee_chat";
+export const protobufPackage = 'e2ee_chat';
 
 export interface GetGroupMembersForNotifRequest {
   conversationId: string;
@@ -350,54 +350,80 @@ export interface GetUnreadCountsResponse {
   totalUnread: number;
 }
 
-export const E2EE_CHAT_PACKAGE_NAME = "e2ee_chat";
+export const E2EE_CHAT_PACKAGE_NAME = 'e2ee_chat';
 
 export interface E2eeChatServiceClient {
   /** Conversations */
 
-  getOrCreateDirectConversation(request: GetOrCreateDirectRequest): Observable<ConversationResponse>;
+  getOrCreateDirectConversation(
+    request: GetOrCreateDirectRequest,
+  ): Observable<ConversationResponse>;
 
   createGroup(request: CreateGroupRequest): Observable<ConversationResponse>;
 
-  getConversations(request: GetConversationsRequest): Observable<GetConversationsResponse>;
+  getConversations(
+    request: GetConversationsRequest,
+  ): Observable<GetConversationsResponse>;
 
-  getConversation(request: GetConversationRequest): Observable<ConversationResponse>;
+  getConversation(
+    request: GetConversationRequest,
+  ): Observable<ConversationResponse>;
 
   /** Members */
 
   addGroupMember(request: AddGroupMemberRequest): Observable<OperationResponse>;
 
-  removeGroupMember(request: RemoveGroupMemberRequest): Observable<OperationResponse>;
+  removeGroupMember(
+    request: RemoveGroupMemberRequest,
+  ): Observable<OperationResponse>;
 
   leaveGroup(request: LeaveGroupRequest): Observable<OperationResponse>;
 
-  updateMemberRole(request: UpdateMemberRoleRequest): Observable<OperationResponse>;
+  updateMemberRole(
+    request: UpdateMemberRoleRequest,
+  ): Observable<OperationResponse>;
 
-  muteConversation(request: MuteConversationRequest): Observable<OperationResponse>;
+  muteConversation(
+    request: MuteConversationRequest,
+  ): Observable<OperationResponse>;
 
-  archiveConversation(request: ArchiveConversationRequest): Observable<OperationResponse>;
+  archiveConversation(
+    request: ArchiveConversationRequest,
+  ): Observable<OperationResponse>;
 
-  pinConversation(request: PinConversationRequest): Observable<OperationResponse>;
+  pinConversation(
+    request: PinConversationRequest,
+  ): Observable<OperationResponse>;
 
   /** Messages (ciphertext only) */
 
-  sendEncryptedMessage(request: SendEncryptedMessageRequest): Observable<EncryptedMessageResponse>;
+  sendEncryptedMessage(
+    request: SendEncryptedMessageRequest,
+  ): Observable<EncryptedMessageResponse>;
 
   getMessages(request: GetMessagesRequest): Observable<GetMessagesResponse>;
 
-  getPendingEnvelopes(request: GetPendingEnvelopesRequest): Observable<GetPendingEnvelopesResponse>;
+  getPendingEnvelopes(
+    request: GetPendingEnvelopesRequest,
+  ): Observable<GetPendingEnvelopesResponse>;
 
-  editEncryptedMessage(request: EditEncryptedMessageRequest): Observable<EncryptedMessageResponse>;
+  editEncryptedMessage(
+    request: EditEncryptedMessageRequest,
+  ): Observable<EncryptedMessageResponse>;
 
   deleteMessage(request: DeleteMessageRequest): Observable<OperationResponse>;
 
-  forwardMessage(request: ForwardMessageRequest): Observable<EncryptedMessageResponse>;
+  forwardMessage(
+    request: ForwardMessageRequest,
+  ): Observable<EncryptedMessageResponse>;
 
   /** Receipts */
 
   markReceipt(request: MarkReceiptRequest): Observable<OperationResponse>;
 
-  markConversationRead(request: MarkConversationReadRequest): Observable<OperationResponse>;
+  markConversationRead(
+    request: MarkConversationReadRequest,
+  ): Observable<OperationResponse>;
 
   /** Reactions / Pins */
 
@@ -407,15 +433,23 @@ export interface E2eeChatServiceClient {
 
   /** Group sender keys */
 
-  uploadSenderKeyDistributions(request: UploadSenderKeyRequest): Observable<OperationResponse>;
+  uploadSenderKeyDistributions(
+    request: UploadSenderKeyRequest,
+  ): Observable<OperationResponse>;
 
-  getSenderKeyDistributions(request: GetSenderKeyRequest): Observable<GetSenderKeyResponse>;
+  getSenderKeyDistributions(
+    request: GetSenderKeyRequest,
+  ): Observable<GetSenderKeyResponse>;
 
   /** Presence helpers (conversation-scoped) */
 
-  getUnreadCounts(request: GetUnreadCountsRequest): Observable<GetUnreadCountsResponse>;
+  getUnreadCounts(
+    request: GetUnreadCountsRequest,
+  ): Observable<GetUnreadCountsResponse>;
 
-  getGroupMembersForNotif(request: GetGroupMembersForNotifRequest): Observable<GetGroupMembersForNotifResponse>;
+  getGroupMembersForNotif(
+    request: GetGroupMembersForNotifRequest,
+  ): Observable<GetGroupMembersForNotifResponse>;
 }
 
 export interface E2eeChatServiceController {
@@ -423,111 +457,183 @@ export interface E2eeChatServiceController {
 
   getOrCreateDirectConversation(
     request: GetOrCreateDirectRequest,
-  ): Promise<ConversationResponse> | Observable<ConversationResponse> | ConversationResponse;
+  ):
+    | Promise<ConversationResponse>
+    | Observable<ConversationResponse>
+    | ConversationResponse;
 
   createGroup(
     request: CreateGroupRequest,
-  ): Promise<ConversationResponse> | Observable<ConversationResponse> | ConversationResponse;
+  ):
+    | Promise<ConversationResponse>
+    | Observable<ConversationResponse>
+    | ConversationResponse;
 
   getConversations(
     request: GetConversationsRequest,
-  ): Promise<GetConversationsResponse> | Observable<GetConversationsResponse> | GetConversationsResponse;
+  ):
+    | Promise<GetConversationsResponse>
+    | Observable<GetConversationsResponse>
+    | GetConversationsResponse;
 
   getConversation(
     request: GetConversationRequest,
-  ): Promise<ConversationResponse> | Observable<ConversationResponse> | ConversationResponse;
+  ):
+    | Promise<ConversationResponse>
+    | Observable<ConversationResponse>
+    | ConversationResponse;
 
   /** Members */
 
   addGroupMember(
     request: AddGroupMemberRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   removeGroupMember(
     request: RemoveGroupMemberRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   leaveGroup(
     request: LeaveGroupRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   updateMemberRole(
     request: UpdateMemberRoleRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   muteConversation(
     request: MuteConversationRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   archiveConversation(
     request: ArchiveConversationRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   pinConversation(
     request: PinConversationRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   /** Messages (ciphertext only) */
 
   sendEncryptedMessage(
     request: SendEncryptedMessageRequest,
-  ): Promise<EncryptedMessageResponse> | Observable<EncryptedMessageResponse> | EncryptedMessageResponse;
+  ):
+    | Promise<EncryptedMessageResponse>
+    | Observable<EncryptedMessageResponse>
+    | EncryptedMessageResponse;
 
   getMessages(
     request: GetMessagesRequest,
-  ): Promise<GetMessagesResponse> | Observable<GetMessagesResponse> | GetMessagesResponse;
+  ):
+    | Promise<GetMessagesResponse>
+    | Observable<GetMessagesResponse>
+    | GetMessagesResponse;
 
   getPendingEnvelopes(
     request: GetPendingEnvelopesRequest,
-  ): Promise<GetPendingEnvelopesResponse> | Observable<GetPendingEnvelopesResponse> | GetPendingEnvelopesResponse;
+  ):
+    | Promise<GetPendingEnvelopesResponse>
+    | Observable<GetPendingEnvelopesResponse>
+    | GetPendingEnvelopesResponse;
 
   editEncryptedMessage(
     request: EditEncryptedMessageRequest,
-  ): Promise<EncryptedMessageResponse> | Observable<EncryptedMessageResponse> | EncryptedMessageResponse;
+  ):
+    | Promise<EncryptedMessageResponse>
+    | Observable<EncryptedMessageResponse>
+    | EncryptedMessageResponse;
 
   deleteMessage(
     request: DeleteMessageRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   forwardMessage(
     request: ForwardMessageRequest,
-  ): Promise<EncryptedMessageResponse> | Observable<EncryptedMessageResponse> | EncryptedMessageResponse;
+  ):
+    | Promise<EncryptedMessageResponse>
+    | Observable<EncryptedMessageResponse>
+    | EncryptedMessageResponse;
 
   /** Receipts */
 
   markReceipt(
     request: MarkReceiptRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   markConversationRead(
     request: MarkConversationReadRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   /** Reactions / Pins */
 
   reactToMessage(
     request: ReactToMessageRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   pinMessage(
     request: PinMessageRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   /** Group sender keys */
 
   uploadSenderKeyDistributions(
     request: UploadSenderKeyRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   getSenderKeyDistributions(
     request: GetSenderKeyRequest,
-  ): Promise<GetSenderKeyResponse> | Observable<GetSenderKeyResponse> | GetSenderKeyResponse;
+  ):
+    | Promise<GetSenderKeyResponse>
+    | Observable<GetSenderKeyResponse>
+    | GetSenderKeyResponse;
 
   /** Presence helpers (conversation-scoped) */
 
   getUnreadCounts(
     request: GetUnreadCountsRequest,
-  ): Promise<GetUnreadCountsResponse> | Observable<GetUnreadCountsResponse> | GetUnreadCountsResponse;
+  ):
+    | Promise<GetUnreadCountsResponse>
+    | Observable<GetUnreadCountsResponse>
+    | GetUnreadCountsResponse;
 
   getGroupMembersForNotif(
     request: GetGroupMembersForNotifRequest,
@@ -540,42 +646,56 @@ export interface E2eeChatServiceController {
 export function E2eeChatServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "getOrCreateDirectConversation",
-      "createGroup",
-      "getConversations",
-      "getConversation",
-      "addGroupMember",
-      "removeGroupMember",
-      "leaveGroup",
-      "updateMemberRole",
-      "muteConversation",
-      "archiveConversation",
-      "pinConversation",
-      "sendEncryptedMessage",
-      "getMessages",
-      "getPendingEnvelopes",
-      "editEncryptedMessage",
-      "deleteMessage",
-      "forwardMessage",
-      "markReceipt",
-      "markConversationRead",
-      "reactToMessage",
-      "pinMessage",
-      "uploadSenderKeyDistributions",
-      "getSenderKeyDistributions",
-      "getUnreadCounts",
-      "getGroupMembersForNotif",
+      'getOrCreateDirectConversation',
+      'createGroup',
+      'getConversations',
+      'getConversation',
+      'addGroupMember',
+      'removeGroupMember',
+      'leaveGroup',
+      'updateMemberRole',
+      'muteConversation',
+      'archiveConversation',
+      'pinConversation',
+      'sendEncryptedMessage',
+      'getMessages',
+      'getPendingEnvelopes',
+      'editEncryptedMessage',
+      'deleteMessage',
+      'forwardMessage',
+      'markReceipt',
+      'markConversationRead',
+      'reactToMessage',
+      'pinMessage',
+      'uploadSenderKeyDistributions',
+      'getSenderKeyDistributions',
+      'getUnreadCounts',
+      'getGroupMembersForNotif',
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("E2eeChatService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('E2eeChatService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("E2eeChatService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('E2eeChatService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const E2EE_CHAT_SERVICE_NAME = "E2eeChatService";
+export const E2EE_CHAT_SERVICE_NAME = 'E2eeChatService';

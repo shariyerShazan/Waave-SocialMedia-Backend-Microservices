@@ -18,24 +18,31 @@ Waave/
 
 ### `apps/api-gateway`
 
-This is the entry point for clients.
+This is the public entry point for clients.
 
-It exposes REST endpoints and acts as the orchestrator for downstream services.
+It exposes REST endpoints and GraphQL queries/mutations, acting as the orchestrator for downstream microservices.
 
 Responsibilities:
 
-- HTTP API surface
-- Swagger documentation
-- Authentication and user routes
-- gRPC client integration for auth, user, and media services
-- Rate limiting and gateway-level protections
+- Dual REST and GraphQL API surfaces
+- Code-first GraphQL schema generation (`schema.gql`) and Apollo Playground at `/graphql`
+- Swagger documentation at `/docs`
+- Authentication, user, post, feed, chat, e2ee-chat, media, notification, and mcp routes/resolvers
+- gRPC client integration for all 9 microservices
+- Rate limiting and gateway-level protections (`RateLimitGuard`, `AuthGuard`)
 
 Key folders:
 
-- `src/auth` – authentication endpoints and gRPC client integration
-- `src/user` – user-facing gateway endpoints
-- `src/media` – media gateway endpoints
-- `src/rateLimit` – rate limiting middleware and guard logic
+- `src/auth` – auth REST controller, `auth.resolver.ts`, `auth.graphql.types.ts`, and gRPC client
+- `src/user` – user REST controller, `user.resolver.ts`, `user.graphql.types.ts`, and gRPC client
+- `src/post` – post REST controller, `post.resolver.ts`, `post.graphql.types.ts`, and gRPC client
+- `src/feed` – feed REST controller, `feed.resolver.ts`, `feed.graphql.types.ts`, and gRPC client
+- `src/chat` – chat REST controller, `chat.resolver.ts`, `chat.graphql.types.ts`, and gRPC client
+- `src/e2ee-chat` – e2ee-chat REST controller, `e2ee-chat.resolver.ts`, `e2ee-chat.graphql.types.ts`, and gRPC client
+- `src/media` – media REST controller, `media.resolver.ts`, `media.graphql.types.ts`, and gRPC client
+- `src/notification` – notification REST controller, `notification.resolver.ts`, `notification.graphql.types.ts`, and gRPC client
+- `src/mcp` – mcp REST controller, `mcp.resolver.ts`, `mcp.graphql.types.ts`, and gRPC client
+- `src/rateLimit` – rate limiting module, guards, and decorators
 
 ### `apps/auth-service`
 

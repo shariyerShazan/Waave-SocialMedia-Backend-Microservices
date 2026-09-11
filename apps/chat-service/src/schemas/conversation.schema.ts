@@ -36,7 +36,7 @@ export class Conversation {
   @Prop({ default: '' })
   lastMessage: string;
 
-  @Prop({ default: null })
+  @Prop({ type: Date, default: null })
   lastMessageAt: Date | null;
 
   @Prop({ default: '' })

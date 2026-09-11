@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthGuard } from '@app/common';
@@ -36,10 +38,7 @@ export class NotificationResolver {
   @Mutation(() => GenericNotificationActionResult)
   @UseGuards(AuthGuard, RateLimitGuard)
   @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
-  markNotificationAsRead(
-    @Context() ctx: any,
-    @Args('id') id: string,
-  ) {
+  markNotificationAsRead(@Context() ctx: any, @Args('id') id: string) {
     return this.notificationClient.markAsRead(ctx.req.user?.userId, id);
   }
 
@@ -53,10 +52,7 @@ export class NotificationResolver {
   @Mutation(() => GenericNotificationActionResult)
   @UseGuards(AuthGuard, RateLimitGuard)
   @RateLimit(60, 60, { key: RateLimitKeyType.IP_USER_ID })
-  deleteNotification(
-    @Context() ctx: any,
-    @Args('id') id: string,
-  ) {
+  deleteNotification(@Context() ctx: any, @Args('id') id: string) {
     return this.notificationClient.deleteNotification(ctx.req.user?.userId, id);
   }
 

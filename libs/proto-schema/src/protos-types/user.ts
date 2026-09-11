@@ -5,10 +5,10 @@
 // source: user.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "user";
+export const protobufPackage = 'user';
 
 /** ── Profile Messages ────────────────────────────── */
 export interface GetProfileRequest {
@@ -263,7 +263,7 @@ export interface CountOneTimePreKeysResponse {
   count: number;
 }
 
-export const USER_PACKAGE_NAME = "user";
+export const USER_PACKAGE_NAME = 'user';
 
 export interface UserServiceClient {
   /** Profile */
@@ -304,7 +304,9 @@ export interface UserServiceClient {
 
   getUsersByIds(request: GetUsersByIdsRequest): Observable<UsersListResponse>;
 
-  getFollowerIds(request: GetFollowerIdsRequest): Observable<FollowerIdsResponse>;
+  getFollowerIds(
+    request: GetFollowerIdsRequest,
+  ): Observable<FollowerIdsResponse>;
 
   /** ── E2EE Device & Key Management ──────────────── */
 
@@ -316,149 +318,241 @@ export interface UserServiceClient {
 
   uploadKeys(request: UploadKeysRequest): Observable<OperationResponse>;
 
-  rotateSignedPreKey(request: RotateSignedPreKeyRequest): Observable<OperationResponse>;
+  rotateSignedPreKey(
+    request: RotateSignedPreKeyRequest,
+  ): Observable<OperationResponse>;
 
-  refillOneTimePreKeys(request: RefillOneTimePreKeysRequest): Observable<OperationResponse>;
+  refillOneTimePreKeys(
+    request: RefillOneTimePreKeysRequest,
+  ): Observable<OperationResponse>;
 
   getKeyBundle(request: GetKeyBundleRequest): Observable<KeyBundleResponse>;
 
-  getKeyBundlesForUsers(request: GetKeyBundlesForUsersRequest): Observable<KeyBundlesResponse>;
+  getKeyBundlesForUsers(
+    request: GetKeyBundlesForUsersRequest,
+  ): Observable<KeyBundlesResponse>;
 
-  countOneTimePreKeys(request: CountOneTimePreKeysRequest): Observable<CountOneTimePreKeysResponse>;
+  countOneTimePreKeys(
+    request: CountOneTimePreKeysRequest,
+  ): Observable<CountOneTimePreKeysResponse>;
 }
 
 export interface UserServiceController {
   /** Profile */
 
-  getProfile(request: GetProfileRequest): Promise<ProfileResponse> | Observable<ProfileResponse> | ProfileResponse;
+  getProfile(
+    request: GetProfileRequest,
+  ): Promise<ProfileResponse> | Observable<ProfileResponse> | ProfileResponse;
 
   updateProfile(
     request: UpdateProfileRequest,
   ): Promise<ProfileResponse> | Observable<ProfileResponse> | ProfileResponse;
 
-  deleteAccount(request: DeleteAccountRequest): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
+  deleteAccount(
+    request: DeleteAccountRequest,
+  ): Promise<DeleteResponse> | Observable<DeleteResponse> | DeleteResponse;
 
   /** Follow System */
 
-  followUser(request: FollowRequest): Promise<FollowResponse> | Observable<FollowResponse> | FollowResponse;
+  followUser(
+    request: FollowRequest,
+  ): Promise<FollowResponse> | Observable<FollowResponse> | FollowResponse;
 
-  unfollowUser(request: FollowRequest): Promise<FollowResponse> | Observable<FollowResponse> | FollowResponse;
+  unfollowUser(
+    request: FollowRequest,
+  ): Promise<FollowResponse> | Observable<FollowResponse> | FollowResponse;
 
   getFollowers(
     request: PaginationRequest,
-  ): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   getFollowing(
     request: PaginationRequest,
-  ): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   isFollowing(
     request: FollowRequest,
-  ): Promise<IsFollowingResponse> | Observable<IsFollowingResponse> | IsFollowingResponse;
+  ):
+    | Promise<IsFollowingResponse>
+    | Observable<IsFollowingResponse>
+    | IsFollowingResponse;
 
   /** Search & Suggest */
 
-  searchUsers(request: SearchRequest): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  searchUsers(
+    request: SearchRequest,
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   getSuggestions(
     request: SuggestionRequest,
-  ): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   /** Presence */
 
-  setOnline(request: PresenceRequest): Promise<PresenceResponse> | Observable<PresenceResponse> | PresenceResponse;
+  setOnline(
+    request: PresenceRequest,
+  ):
+    | Promise<PresenceResponse>
+    | Observable<PresenceResponse>
+    | PresenceResponse;
 
-  setOffline(request: PresenceRequest): Promise<PresenceResponse> | Observable<PresenceResponse> | PresenceResponse;
+  setOffline(
+    request: PresenceRequest,
+  ):
+    | Promise<PresenceResponse>
+    | Observable<PresenceResponse>
+    | PresenceResponse;
 
   getOnlineStatus(
     request: PresenceRequest,
-  ): Promise<PresenceResponse> | Observable<PresenceResponse> | PresenceResponse;
+  ):
+    | Promise<PresenceResponse>
+    | Observable<PresenceResponse>
+    | PresenceResponse;
 
   /** Internal — other services call */
 
   getUsersByIds(
     request: GetUsersByIdsRequest,
-  ): Promise<UsersListResponse> | Observable<UsersListResponse> | UsersListResponse;
+  ):
+    | Promise<UsersListResponse>
+    | Observable<UsersListResponse>
+    | UsersListResponse;
 
   getFollowerIds(
     request: GetFollowerIdsRequest,
-  ): Promise<FollowerIdsResponse> | Observable<FollowerIdsResponse> | FollowerIdsResponse;
+  ):
+    | Promise<FollowerIdsResponse>
+    | Observable<FollowerIdsResponse>
+    | FollowerIdsResponse;
 
   /** ── E2EE Device & Key Management ──────────────── */
 
-  registerDevice(request: RegisterDeviceRequest): Promise<DeviceResponse> | Observable<DeviceResponse> | DeviceResponse;
+  registerDevice(
+    request: RegisterDeviceRequest,
+  ): Promise<DeviceResponse> | Observable<DeviceResponse> | DeviceResponse;
 
   listDevices(
     request: ListDevicesRequest,
-  ): Promise<ListDevicesResponse> | Observable<ListDevicesResponse> | ListDevicesResponse;
+  ):
+    | Promise<ListDevicesResponse>
+    | Observable<ListDevicesResponse>
+    | ListDevicesResponse;
 
   revokeDevice(
     request: RevokeDeviceRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   uploadKeys(
     request: UploadKeysRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   rotateSignedPreKey(
     request: RotateSignedPreKeyRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   refillOneTimePreKeys(
     request: RefillOneTimePreKeysRequest,
-  ): Promise<OperationResponse> | Observable<OperationResponse> | OperationResponse;
+  ):
+    | Promise<OperationResponse>
+    | Observable<OperationResponse>
+    | OperationResponse;
 
   getKeyBundle(
     request: GetKeyBundleRequest,
-  ): Promise<KeyBundleResponse> | Observable<KeyBundleResponse> | KeyBundleResponse;
+  ):
+    | Promise<KeyBundleResponse>
+    | Observable<KeyBundleResponse>
+    | KeyBundleResponse;
 
   getKeyBundlesForUsers(
     request: GetKeyBundlesForUsersRequest,
-  ): Promise<KeyBundlesResponse> | Observable<KeyBundlesResponse> | KeyBundlesResponse;
+  ):
+    | Promise<KeyBundlesResponse>
+    | Observable<KeyBundlesResponse>
+    | KeyBundlesResponse;
 
   countOneTimePreKeys(
     request: CountOneTimePreKeysRequest,
-  ): Promise<CountOneTimePreKeysResponse> | Observable<CountOneTimePreKeysResponse> | CountOneTimePreKeysResponse;
+  ):
+    | Promise<CountOneTimePreKeysResponse>
+    | Observable<CountOneTimePreKeysResponse>
+    | CountOneTimePreKeysResponse;
 }
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      "getProfile",
-      "updateProfile",
-      "deleteAccount",
-      "followUser",
-      "unfollowUser",
-      "getFollowers",
-      "getFollowing",
-      "isFollowing",
-      "searchUsers",
-      "getSuggestions",
-      "setOnline",
-      "setOffline",
-      "getOnlineStatus",
-      "getUsersByIds",
-      "getFollowerIds",
-      "registerDevice",
-      "listDevices",
-      "revokeDevice",
-      "uploadKeys",
-      "rotateSignedPreKey",
-      "refillOneTimePreKeys",
-      "getKeyBundle",
-      "getKeyBundlesForUsers",
-      "countOneTimePreKeys",
+      'getProfile',
+      'updateProfile',
+      'deleteAccount',
+      'followUser',
+      'unfollowUser',
+      'getFollowers',
+      'getFollowing',
+      'isFollowing',
+      'searchUsers',
+      'getSuggestions',
+      'setOnline',
+      'setOffline',
+      'getOnlineStatus',
+      'getUsersByIds',
+      'getFollowerIds',
+      'registerDevice',
+      'listDevices',
+      'revokeDevice',
+      'uploadKeys',
+      'rotateSignedPreKey',
+      'refillOneTimePreKeys',
+      'getKeyBundle',
+      'getKeyBundlesForUsers',
+      'countOneTimePreKeys',
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod('UserService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod('UserService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
 
-export const USER_SERVICE_NAME = "UserService";
+export const USER_SERVICE_NAME = 'UserService';
