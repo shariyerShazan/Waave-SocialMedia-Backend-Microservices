@@ -49,7 +49,7 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
   sortSchema: true,
   playground: true,
   context: ({ req, res }) => ({ req, res }),
-})
+});
 ```
 
 ### GraphQL Resolvers Overview
@@ -110,6 +110,18 @@ The API Gateway supports execution context extraction for both HTTP controllers 
 ## Runtime ports
 
 - HTTP / GraphQL: `4000`
+
+---
+
+## Unit Testing
+
+Run unit tests for API Gateway:
+
+```bash
+npm run gateway-test
+```
+
+Includes test coverage for all REST controllers, GraphQL resolvers (`AuthResolver`, `UserResolver`, `PostResolver`, `FeedResolver`, `ChatResolver`, `E2eeChatResolver`, `MediaResolver`, `NotificationResolver`, `McpResolver`), `RateLimitGuard`, and gRPC client integrations.
 
 ---
 

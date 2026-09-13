@@ -129,6 +129,20 @@ Key variables used by the service include:
 - `MAX_LOGIN_ATTEMPTS`
 - `KAFKA_BROKERS`
 
+---
+
+## Unit Testing
+
+Run unit tests for Auth Service:
+
+```bash
+npm run auth-test
+```
+
+Includes unit testing coverage for `AuthService`, authentication controllers, token generation (`TokenModule`), Redis session state, and Prisma persistence.
+
+---
+
 ## Key folders
 
 - `apps/auth-service/src/auth` – controller, service, and auth flow logic

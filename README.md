@@ -139,18 +139,18 @@ Waave/
 
 The platform functions using the following defaults, customizable via workspace environment configurations:
 
-| Service Name          |    Primary Protocol    |   Port Config   | Backing Database            | Caching Strategy     | Key Directories                                                                                                    |
-| :-------------------- | :--------------------: | :-------------: | :-------------------------- | :------------------- | :----------------------------------------------------------------------------------------------------------------- |
-| **API Gateway**       | **HTTP/REST & GraphQL**|     `4000`      | None                        | Redis (`RedisGW`)    | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/api-gateway)                   |
-| **Auth Service**      |       gRPC / HTTP      | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/auth-service)                 |
-| **User Service**      |       gRPC / HTTP      | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/user-service)                 |
-| **Post Service**      |       gRPC / HTTP      | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/post-service)                 |
-| **Feed Service**      |       gRPC / HTTP      | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/feed-service)                 |
-| **Chat Service**      |       gRPC / HTTP      | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/chat-service)                 |
-| **E2EE Chat Service** |       gRPC / HTTP      | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/e2ee-chat-service)       |
-| **Media Service**     |       gRPC / HTTP      | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/media-service)               |
-| **Notification**      |    gRPC / HTTP / WS    | `3010` / `4010` | MongoDB (`MongoDBNotif`)    | Redis                | [`apps/notification-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/notification-service) |
-| **MCP Service**       |       gRPC / HTTP      | `3011` / `4011` | None                        | None                 | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/mcp-service)                   |
+| Service Name          |    Primary Protocol     |   Port Config   | Backing Database            | Caching Strategy     | Unit Test Script            | Key Directories                                                                                                    |
+| :-------------------- | :---------------------: | :-------------: | :-------------------------- | :------------------- | :-------------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| **API Gateway**       | **HTTP/REST & GraphQL** |     `4000`      | None                        | Redis (`RedisGW`)    | `npm run gateway-test`      | [`apps/api-gateway`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/api-gateway)                   |
+| **Auth Service**      |       gRPC / HTTP       | `3001` / `4001` | PostgreSQL (`PostgresAuth`) | Redis (`RedisAuth`)  | `npm run auth-test`         | [`apps/auth-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/auth-service)                 |
+| **User Service**      |       gRPC / HTTP       | `3002` / `4002` | PostgreSQL (`PostgresUser`) | Redis (`RedisUser`)  | `npm run user-test`         | [`apps/user-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/user-service)                 |
+| **Post Service**      |       gRPC / HTTP       | `3003` / `4003` | PostgreSQL (`PostgresPost`) | Redis (`RedisPost`)  | `npm run post-test`         | [`apps/post-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/post-service)                 |
+| **Feed Service**      |       gRPC / HTTP       | `3004` / `4004` | None                        | Redis (`RedisFeed`)  | `npm run feed-test`         | [`apps/feed-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/feed-service)                 |
+| **Chat Service**      |       gRPC / HTTP       | `3005` / `4005` | MongoDB (`MongoDBChat`)     | Redis                | `npm run chat-test`         | [`apps/chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/chat-service)                 |
+| **E2EE Chat Service** |       gRPC / HTTP       | `3006` / `4006` | PostgreSQL (`PostgresE2EE`) | Redis (`RedisE2EE`)  | `npm run e2ee-chat-test`    | [`apps/e2ee-chat-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/e2ee-chat-service)       |
+| **Media Service**     |       gRPC / HTTP       | `3009` / `4009` | MongoDB                     | Redis (`RedisMedia`) | `npm run media-test`        | [`apps/media-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/media-service)               |
+| **Notification**      |    gRPC / HTTP / WS     | `3010` / `4010` | MongoDB (`MongoDBNotif`)    | Redis                | `npm run notification-test` | [`apps/notification-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/notification-service) |
+| **MCP Service**       |       gRPC / HTTP       | `3011` / `4011` | None                        | None                 | `npm run mcp-test`          | [`apps/mcp-service`](file:///Users/macbookair/Desktop/code/dream-project/waave/apps/mcp-service)                   |
 
 ---
 
@@ -166,6 +166,7 @@ The ingress point of all client-side REST and GraphQL requests. It routes public
 - **GraphQL Integration**: Code-first Apollo GraphQL server with schema auto-generation (`schema.gql`) and active GraphQL Playground available at `/graphql`.
 - **Form & Type Validation**: Enforces Class Validator DTOs for REST endpoints and NestJS GraphQL Input/Object Types for GraphQL operations.
 - **Documentation**: Exposes interactive Swagger documentation at `/docs` and Apollo GraphQL Playground at `/graphql`.
+
 #### Throttling & Security
 
 - Leverages Redis rate limits (`RateLimitGuard`) and JWT authentication (`AuthGuard`) across both REST controllers and GraphQL resolvers.
@@ -436,6 +437,28 @@ npx nest start e2ee-chat-service --watch
 npx nest start media-service --watch
 npx nest start notification-service --watch
 npx nest start mcp-service --watch
+```
+
+#### 4. Executing Unit Tests
+
+Run unit test suites for individual microservices or all services across the monorepo:
+
+```bash
+# Individual Service Test Suites
+npm run gateway-test       # API Gateway REST/GraphQL resolvers & rate limiting
+npm run auth-test          # Auth Service logic, JWT tokens & Redis
+npm run user-test          # User Service profile, presence & follows
+npm run post-test          # Post Service CRUD, comments & enrichments
+npm run feed-test          # Feed Service timelines & Redis cache
+npm run chat-test          # Chat Service socket gateway & MongoDB
+npm run e2ee-chat-test     # E2EE Chat Service Double Ratchet envelopes
+npm run media-test         # Media Service processing & variant generation
+npm run notification-test  # Notification Service alerts & SMTP delivery
+npm run mcp-test           # MCP Service tool registrations & AI agent
+
+# Full Monorepo Test Suite & Coverage
+npm test                   # Run all unit tests across the workspace
+npm run test:cov           # Execute test suite with coverage report
 ```
 
 ---

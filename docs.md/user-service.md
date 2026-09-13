@@ -32,12 +32,14 @@ The user service is implemented as a NestJS gRPC microservice with Kafka and Red
 The service stores profile data flat in PostgreSQL. However, before returning profiles to the consumer, the `UserEnrichmentService` resolves `avatarMediaId` and `coverMediaId` to fetch fully resolved metadata from the Media Service.
 
 Returned objects use:
+
 - `avatar`: `UserMedia` (nested object containing `id`, `url`, `mimeType`, `type`)
 - `coverImg`: `UserMedia` (nested object containing `id`, `url`, `mimeType`, `type`)
 
 ### 2. Follow System
 
 The follow system supports:
+
 - Follow
 - Unfollow
 - Follower listing
@@ -93,6 +95,20 @@ The user service uses PostgreSQL with two main models.
 
 - gRPC: `3002`
 - HTTP: `4002`
+
+---
+
+## Unit Testing
+
+Run unit tests for User Service:
+
+```bash
+npm run user-test
+```
+
+Includes test coverage for `UserService`, `UserController`, `UserEnrichmentService`, presence caching in Redis, and Kafka consumer handlers.
+
+---
 
 ## Key folders
 

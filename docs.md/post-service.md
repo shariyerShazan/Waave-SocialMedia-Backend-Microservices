@@ -33,8 +33,20 @@ The service is implemented as a NestJS application with Prisma for PostgreSQL da
 
 ## Runtime
 
-- gRPC: `3011`
-- HTTP: `4011`
+- gRPC: `3003`
+- HTTP: `4003`
+
+---
+
+## Unit Testing
+
+Run unit tests for Post Service:
+
+```bash
+npm run post-test
+```
+
+Includes unit test coverage for `PostController`, `PostService`, `PostEnrichmentService`, Prisma persistence layer, and Kafka event publishing.
 
 ---
 

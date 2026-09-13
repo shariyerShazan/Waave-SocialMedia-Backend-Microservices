@@ -106,6 +106,20 @@ Key variables include:
 - `MEDIA_REDIS_HOST`
 - `MEDIA_REDIS_PORT`
 
+---
+
+## Unit Testing
+
+Run unit tests for Media Service:
+
+```bash
+npm run media-test
+```
+
+Includes test coverage for `MediaService`, file processing modules, storage adapters, Mongoose schemas, and Redis cache integration.
+
+---
+
 ## Key folders
 
 - `apps/media-service/src/media` – media service logic

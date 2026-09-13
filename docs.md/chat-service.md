@@ -5,6 +5,7 @@ The Chat Service manages the messaging layer of the platforms, supporting direct
 ## What this service does
 
 The service is responsible for:
+
 - Creating and retrieving direct (1-on-1) conversations
 - Creating group chats with custom avatars and admins
 - Inviting and adding new members to existing group chats
@@ -18,6 +19,7 @@ The service is responsible for:
 The chat service is a NestJS application using gRPC for service-to-service calls, MongoDB for message and conversation archiving, and WebSockets (Socket.io) for live messaging.
 
 ### Internal connections
+
 - **MongoDB (Mongoose)**: Persists conversations, messages, reactions, read status indices, and group metadata
 - **Redis**: Caches socket sessions, maintains real-time active clients, and handles message queue updates
 - **gRPC Controller**: Handles `ChatService` proto calls routed from API Gateway REST endpoints (`/chat/*`) and `ChatResolver` GraphQL queries/mutations (`userConversations`, `chatMessages`, `createDirectConversation`, `createGroupConversation`, `sendMessage`, `recallMessage`, `addReaction`, `removeReaction`)
@@ -27,17 +29,22 @@ The chat service is a NestJS application using gRPC for service-to-service calls
 ## Main responsibilities
 
 ### 1. Conversation Lifecycle
+
 Maintains list structures of members, admins, and active participants. Differentiates between:
+
 - `direct`: 1-on-1 private messaging channels
 - `group`: Multi-member channels with admin privileges
 
 ### 2. Live Message Transmission
+
 Uses Socket.io to establish persistent client-to-server connections, forwarding incoming payloads and media attachments to conversation participants in real-time.
 
 ### 3. Read Verification
+
 Maintains a list of readers on each message segment and updates unread counters when items are marked read.
 
 ### 4. Emoji Reactions
+
 Enables users to react with inline emojis, mapping multiple user IDs to reaction keys in database records.
 
 ---
@@ -47,6 +54,7 @@ Enables users to react with inline emojis, mapping multiple user IDs to reaction
 The chat service uses MongoDB with two main collections.
 
 ### `conversations`
+
 - `participants`: Array of user UUID strings
 - `type`: `direct` | `group`
 - `name`: Group conversation name string (empty for direct)
@@ -60,6 +68,7 @@ The chat service uses MongoDB with two main collections.
 - `createdAt` / `updatedAt`
 
 ### `messages`
+
 - `conversationId`: Parent conversation reference
 - `senderId` / `senderName` / `senderAvatar`: Sender identifiers (mapped to nested `sender` object in responses)
 - `text`: Text string of the message content
@@ -77,6 +86,20 @@ The chat service uses MongoDB with two main collections.
 
 - gRPC: `3005`
 - HTTP: `4005`
+
+---
+
+## Unit Testing
+
+Run unit tests for Chat Service:
+
+```bash
+npm run chat-test
+```
+
+Includes unit test coverage for `ChatService`, gRPC controller, Socket.io gateway, Mongoose schemas, and Redis presence.
+
+---
 
 ## Key folders
 

@@ -186,17 +186,17 @@ Integrates LLM models with platform endpoints via the Model Context Protocol (MC
 
 ---
 
-## Runtime ports
+## Runtime ports & Test Commands
 
-| Service | HTTP / Protocol | gRPC | Database |
-| :--- | :---: | :---: | :--- |
-| **API Gateway** | 4000 (REST & GraphQL) | - | None |
-| **Auth Service** | 4001 | 3001 | PostgreSQL |
-| **User Service** | 4002 | 3002 | PostgreSQL |
-| **Post Service** | 4003 | 3003 | PostgreSQL |
-| **Feed Service** | 4004 | 3004 | None (Redis Cache) |
-| **Chat Service** | 4005 | 3005 | MongoDB |
-| **E2EE Chat Service** | 4006 | 3006 | PostgreSQL |
-| **Media Service** | 4009 | 3009 | MongoDB |
-| **Notification** | 4010 | 3010 | MongoDB |
-| **MCP Service** | 4011 | 3011 | None |
+| Service               |    HTTP / Protocol    | gRPC | Database           | Unit Test Script            |
+| :-------------------- | :-------------------: | :--: | :----------------- | :-------------------------- |
+| **API Gateway**       | 4000 (REST & GraphQL) |  -   | None               | `npm run gateway-test`      |
+| **Auth Service**      |         4001          | 3001 | PostgreSQL         | `npm run auth-test`         |
+| **User Service**      |         4002          | 3002 | PostgreSQL         | `npm run user-test`         |
+| **Post Service**      |         4003          | 3003 | PostgreSQL         | `npm run post-test`         |
+| **Feed Service**      |         4004          | 3004 | None (Redis Cache) | `npm run feed-test`         |
+| **Chat Service**      |         4005          | 3005 | MongoDB            | `npm run chat-test`         |
+| **E2EE Chat Service** |         4006          | 3006 | PostgreSQL         | `npm run e2ee-chat-test`    |
+| **Media Service**     |         4009          | 3009 | MongoDB            | `npm run media-test`        |
+| **Notification**      |         4010          | 3010 | MongoDB            | `npm run notification-test` |
+| **MCP Service**       |         4011          | 3011 | None               | `npm run mcp-test`          |

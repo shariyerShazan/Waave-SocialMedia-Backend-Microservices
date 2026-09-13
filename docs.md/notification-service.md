@@ -28,6 +28,7 @@ The notification service is a NestJS application using Kafka and gRPC.
 ### 1. In-App Notification Streams & Preferences
 
 Exposes `NotificationGrpcService` (accessed via Gateway REST endpoints `/notifications/*` and `NotificationResolver` GraphQL queries/mutations) to handle:
+
 - **`GetNotifications`**: Returns history containing a nested `sender` object (`User` structure containing `id`, `fullName`, `avatar`, `verified`, etc.)
 - **`MarkAsRead`** / **`MarkAllAsRead`** / **`DeleteNotification`**
 - **`GetPreferences`** / **`UpdatePreferences`**
@@ -41,6 +42,7 @@ Dispatches sign-up verification, forgot password requests, and interaction brief
 ## Database design (MongoDB Mongoose)
 
 ### `notifications` collection
+
 - `toUserId`: Target user uuid
 - `fromUserId` / `fromUserName` / `fromUserAvatar`: Sender properties (mapped to nested `sender` object in gRPC responses)
 - `type`: alert trigger category (`like`, `comment`, etc.)
@@ -50,6 +52,7 @@ Dispatches sign-up verification, forgot password requests, and interaction brief
 - `createdAt` / `updatedAt`
 
 ### `notification_preferences` collection
+
 - `userId`: Target user uuid
 - `likes` / `comments` / `follows` / `unfollows` / `mentions` / `messages`: Boolean permission flags
 
@@ -57,8 +60,20 @@ Dispatches sign-up verification, forgot password requests, and interaction brief
 
 ## Runtime ports
 
-- gRPC: `3007`
+- gRPC: `3010`
 - HTTP: `4010`
+
+---
+
+## Unit Testing
+
+Run unit tests for Notification Service:
+
+```bash
+npm run notification-test
+```
+
+Includes coverage for `NotificationService`, gRPC controller, Socket.io gateway, Redis state, and email delivery providers.
 
 ---
 

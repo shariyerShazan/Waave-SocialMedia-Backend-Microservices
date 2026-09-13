@@ -51,18 +51,18 @@ Each service is the only component that writes to its primary store. Read-only a
 
 ## Runtime ports (convention)
 
-| Service              | HTTP / Protocol | gRPC |
-| -------------------- | --------------: | ---: |
+| Service              |       HTTP / Protocol | gRPC |
+| -------------------- | --------------------: | ---: |
 | API Gateway          | 4000 (REST & GraphQL) |    - |
-| Auth Service         | 4001 | 3001 |
-| User Service         | 4002 | 3002 |
-| Post Service         | 4003 | 3003 |
-| Feed Service         | 4004 | 3004 |
-| Chat Service         | 4005 | 3005 |
-| E2EE Chat Service    | 4006 | 3006 |
-| Media Service        | 4009 | 3009 |
-| Notification Service | 4010 | 3010 |
-| MCP Service          | 4011 | 3011 |
+| Auth Service         |                  4001 | 3001 |
+| User Service         |                  4002 | 3002 |
+| Post Service         |                  4003 | 3003 |
+| Feed Service         |                  4004 | 3004 |
+| Chat Service         |                  4005 | 3005 |
+| E2EE Chat Service    |                  4006 | 3006 |
+| Media Service        |                  4009 | 3009 |
+| Notification Service |                  4010 | 3010 |
+| MCP Service          |                  4011 | 3011 |
 
 Adjust ports via environment variables per-service in production deployments.
 

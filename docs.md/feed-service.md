@@ -52,6 +52,18 @@ Key Redis keys:
 
 ---
 
+## Unit Testing
+
+Run unit tests for Feed Service:
+
+```bash
+npm run feed-test
+```
+
+Includes test coverage for `FeedController`, `FeedService`, `RedisService`, post enrichment, and Kafka event invalidations.
+
+---
+
 ## Key folders
 
 - `apps/feed-service/src/feed` — feed business logic, gRPC controller, enrichment service, Kafka consumer

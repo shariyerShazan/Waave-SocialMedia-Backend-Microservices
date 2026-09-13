@@ -5,6 +5,7 @@ The MCP Service bridges the Waave Social Media Platform microservices with large
 ## What this service does
 
 The service is responsible for:
+
 - Implementing the official Model Context Protocol (MCP) SDK server.
 - Exposing domain services (User, Post, Feed, Chat) as MCP tools.
 - Managing SSE (Server-Sent Events) transports for real-time tool orchestration sessions.
@@ -48,7 +49,9 @@ The MCP Service is a NestJS application configured on HTTP/gRPC, hosting both th
 ## Main responsibilities
 
 ### 1. McpServer tool registry
+
 Registers and schema-defines platform tools using Zod parameters:
+
 - **User Tools (`registerUserTools`)**:
   - `get_user_profile`: Fetch profile by user ID.
   - `update_user_profile`: Update bio description, location, and website details.
@@ -72,7 +75,9 @@ Registers and schema-defines platform tools using Zod parameters:
   - `send_chat_message`: Send messages to chats.
 
 ### 2. Autonomous Agent Execution
+
 Exposes the `AgentService.ask(userId, prompt)` interface:
+
 - Establishes a local `SSEClientTransport` connection targeting the MCP instance.
 - Queries server capabilities to gather registered tool definitions.
 - Translates tools into OpenAI templates.
@@ -84,13 +89,16 @@ Exposes the `AgentService.ask(userId, prompt)` interface:
 ## Service Endpoints & Interfaces
 
 ### HTTP REST API & GraphQL Interface
+
 - `GET /mcp`: Initiates Server-Sent Events (SSE) connection.
 - `POST /mcp/messages`: Submits MCP client payloads to an active SSE session.
 - `POST /mcp/agent/ask`: Submits a Prompt to trigger the AI Agent tool loop.
 - **GraphQL Mutation**: `askMcpAgent(prompt: String!)` on API Gateway (`McpResolver`).
 
 ### gRPC Contract
+
 Defined in `libs/proto-schema/src/proto/mcp.proto`:
+
 - `McpService` exposes method `Ask` (payload inputs: `userId`, `prompt`; returns: `answer`, `success`, `trace`).
 
 ---
@@ -99,6 +107,18 @@ Defined in `libs/proto-schema/src/proto/mcp.proto`:
 
 - gRPC: `3011`
 - HTTP: `4011`
+
+---
+
+## Unit Testing
+
+Run unit tests for MCP Service:
+
+```bash
+npm run mcp-test
+```
+
+Includes unit test coverage for `McpServerService`, `McpHttpController`, `AgentService`, `AgentGrpcController`, and platform MCP tools (`UserTool`, `PostTool`, `FeedTool`, `ChatTool`).
 
 ---
 
