@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: waave
+  labels:
+    name: waave
+    environment: production
