@@ -63,3 +63,41 @@ apps/**/prisma/generated
 **/generated
 
 /architecture
+
+
+
+
+# =========================
+# Terraform
+# =========================
+
+# Terraform working directories
+**/.terraform/*
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Terraform variable files - may contain secrets/config
+*.tfvars
+*.tfvars.json
+
+# Keep example tfvars
+!*.tfvars.example
+
+# Terraform plan files
+*.tfplan
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Terraform CLI config
+.terraformrc
+terraform.rc
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
