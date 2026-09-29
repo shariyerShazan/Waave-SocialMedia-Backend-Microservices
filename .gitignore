@@ -101,3 +101,6 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
